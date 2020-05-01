@@ -8,7 +8,8 @@
     "build": "npm run clean && tsc",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "publish": "np"
   },
   "author": "Max Lynch <max@ionic.io>",
   "license": "MIT",
@@ -16,10 +17,11 @@
     "@capacitor/core": "latest"
   },
   "devDependencies": {
-    "rimraf": "^3.0.0",
-    "typescript": "^3.2.4",
+    "@capacitor/android": "latest",
     "@capacitor/ios": "latest",
-    "@capacitor/android": "latest"
+    "np": "^6.2.3",
+    "rimraf": "^3.0.0",
+    "typescript": "^3.2.4"
   },
   "files": [
     "dist/",
