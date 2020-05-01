@@ -3,6 +3,7 @@ package com.getcapacitor.plugin.http;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.util.Log;
+import android.webkit.CookieManager;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -23,13 +24,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.CookieHandler;
-import java.net.CookieManager;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -45,11 +46,11 @@ public class Http extends Plugin {
   public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
   public static final int HTTP_REQUEST_UPLOAD_READ_PERMISSIONS = 9023;
 
-  CookieManager cookieManager = new CookieManager();
+  CookieManager cookieManager;
 
   @Override
   public void load() {
-    CookieHandler.setDefault(cookieManager);
+    cookieManager = android.webkit.CookieManager.getInstance();
   }
 
   @PluginMethod()
@@ -287,7 +288,11 @@ public class Http extends Plugin {
       return;
     }
 
-    cookieManager.getCookieStore().add(uri, new HttpCookie(key, value));
+    String cookieValue = key + "=" + value;
+
+    cookieManager.setCookie(url, cookieValue);
+
+    cookieManager.flush();
 
     call.resolve();
   }
@@ -303,7 +308,18 @@ public class Http extends Plugin {
       return;
     }
 
-    List<HttpCookie> cookies = cookieManager.getCookieStore().get(uri);
+    String cookieString = cookieManager.getCookie(url);
+
+    List<HttpCookie> cookies = new ArrayList<>();
+
+    try {
+      if (cookieString != null) {
+        cookies = HttpCookie.parse(cookieString);
+      }
+    } catch (Exception ex) {
+      call.reject("Unable to parse cookies", ex);
+      return;
+    }
 
     JSArray cookiesArray = new JSArray();
 
@@ -331,14 +347,7 @@ public class Http extends Plugin {
       return;
     }
 
-
-    List<HttpCookie> cookies = cookieManager.getCookieStore().get(uri);
-
-    for (HttpCookie cookie : cookies) {
-      if (cookie.getName().equals(key)) {
-        cookieManager.getCookieStore().remove(uri, cookie);
-      }
-    }
+    cookieManager.setCookie(url, key + "=; Expires=Wed, 31 Dec 2000 23:59:59 GMT");
 
     call.resolve();
   }
@@ -346,7 +355,9 @@ public class Http extends Plugin {
   @SuppressWarnings("unused")
   @PluginMethod()
   public void clearCookies(PluginCall call) {
-    cookieManager.getCookieStore().removeAll();
+    cookieManager.removeAllCookies(null);
+
+    // cookieManager.getCookieStore().removeAll();
     call.resolve();
   }
 
