@@ -129,7 +129,7 @@ public class CAPHttpPlugin: CAPPlugin {
         return
       }
       
-      let res = response as! HTTPURLResponse
+      // let res = response as! HTTPURLResponse
       
       //CAPLog.print("Uploaded file", location)
       call.resolve()
@@ -315,10 +315,7 @@ public class CAPHttpPlugin: CAPPlugin {
     let contentType = response.allHeaderFields["Content-Type"] as? String
 
     if data != nil && contentType != nil && contentType!.contains("application/json") {
-      if let json = try? JSONSerialization.jsonObject(with: data!, options: .mutableContainers) as? [String: Any] {
-        print("Got json")
-        print(json)
-          // handle json...
+      if let json = try? JSONSerialization.jsonObject(with: data!, options: .mutableContainers) {
         ret["data"] = json
       }
     } else {
