@@ -6,8 +6,8 @@
 6
 7    <uses-sdk
 8        android:minSdkVersion="21"
-8-->/Users/max/git/capacitor-plugin-http/android/src/main/AndroidManifest.xml
+8-->/Users/max/apps/http-test/node_modules/@capacitor/http/android/src/main/AndroidManifest.xml
 9        android:targetSdkVersion="29" />
-9-->/Users/max/git/capacitor-plugin-http/android/src/main/AndroidManifest.xml
+9-->/Users/max/apps/http-test/node_modules/@capacitor/http/android/src/main/AndroidManifest.xml
 10
 11</manifest>
