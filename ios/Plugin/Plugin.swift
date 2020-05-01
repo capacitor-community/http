@@ -1,5 +1,6 @@
 import Foundation
 import AudioToolbox
+import Capacitor
 
 @objc(CAPHttpPlugin)
 public class CAPHttpPlugin: CAPPlugin {
@@ -49,7 +50,7 @@ public class CAPHttpPlugin: CAPPlugin {
     let task = URLSession.shared.downloadTask(with: url) { (downloadLocation, response, error) in
       if error != nil {
         CAPLog.print("Error on download file", downloadLocation, response, error)
-        call.reject("Error", error, [:])
+        call.reject("Error", "DOWNLOAD", error, [:])
         return
       }
       
@@ -75,7 +76,7 @@ public class CAPHttpPlugin: CAPPlugin {
           "path": dest.absoluteString
         ])
       } catch let e {
-        call.reject("Unable to download file", e)
+        call.reject("Unable to download file", "DOWNLOAD", e)
         return
       }
       
@@ -115,7 +116,7 @@ public class CAPHttpPlugin: CAPPlugin {
     do {
       fullFormData = try generateFullMultipartRequestBody(fileUrl, name, boundary)
     } catch let e {
-      return call.reject("Unable to read file to upload", e)
+      return call.reject("Unable to read file to upload", "UPLOAD", e)
     }
 
 
@@ -124,7 +125,7 @@ public class CAPHttpPlugin: CAPPlugin {
     let task = URLSession.shared.uploadTask(with: request, from: fullFormData) { (data, response, error) in
       if error != nil {
         CAPLog.print("Error on upload file", data, response, error)
-        call.reject("Error", error, [:])
+        call.reject("Error", "UPLOAD", error, [:])
         return
       }
       
@@ -241,7 +242,7 @@ public class CAPHttpPlugin: CAPPlugin {
 
     let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
       if error != nil {
-        call.reject("Error", error, [:])
+        call.reject("Error", "GET", error, [:])
         return
       }
       
@@ -285,14 +286,14 @@ public class CAPHttpPlugin: CAPPlugin {
       do {
         request.httpBody = try getRequestData(request, data!, contentType!)
       } catch let e {
-        call.reject("Unable to set request data", e)
+        call.reject("Unable to set request data", "MUTATE", e)
         return
       }
     }
 
     let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
       if error != nil {
-        call.reject("Error", error, [:])
+        call.reject("Error", "MUTATE", error, [:])
         return
       }
       

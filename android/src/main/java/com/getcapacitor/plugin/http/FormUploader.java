@@ -10,7 +10,7 @@ import java.net.HttpURLConnection;
 import java.net.URLConnection;
 import java.util.UUID;
 
-protected class FormUploader {
+public class FormUploader {
   private final String boundary;
   private static final String LINE_FEED = "\r\n";
   private HttpURLConnection httpConn;

@@ -11,7 +11,6 @@ import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.PluginRequestCodes;
-import com.getcapacitor.plugin.filesystem.FilesystemUtils;
 
 import org.json.JSONException;
 
@@ -35,15 +34,16 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Haptic engine plugin, also handles vibration.
- *
- * Requires the android.permission.VIBRATE permission.
+ * Native HTTP Plugin
  */
 @NativePlugin(requestCodes = {
-  PluginRequestCodes.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS,
-  PluginRequestCodes.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS,
+  Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS,
+  Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS,
 })
 public class Http extends Plugin {
+  public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
+  public static final int HTTP_REQUEST_UPLOAD_READ_PERMISSIONS = 9023;
+
   CookieManager cookieManager = new CookieManager();
 
   @Override
@@ -153,10 +153,10 @@ public class Http extends Plugin {
       URL url = new URL(urlString);
 
       if (!FilesystemUtils.isPublicDirectory(fileDirectory)
-        || isStoragePermissionGranted(PluginRequestCodes.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        || isStoragePermissionGranted(Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
         this.freeSavedCall();
 
-        File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
+        final File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
 
         HttpURLConnection conn = makeUrlConnection(url, "GET", connectTimeout, readTimeout, headers);
 
@@ -199,7 +199,7 @@ public class Http extends Plugin {
   }
 
   @Override
-  protected void handleRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+  protected void handleRequestPermissionsResult(final int requestCode, String[] permissions, int[] grantResults) {
     super.handleRequestPermissionsResult(requestCode, permissions, grantResults);
 
     if (getSavedCall() == null) {
@@ -207,7 +207,7 @@ public class Http extends Plugin {
       return;
     }
 
-    PluginCall savedCall = getSavedCall();
+    final PluginCall savedCall = getSavedCall();
 
     for (int i = 0; i < grantResults.length; i++) {
       int result = grantResults[i];
@@ -227,9 +227,9 @@ public class Http extends Plugin {
     bridge.execute(new Runnable() {
       @Override
       public void run() {
-        if (requestCode == PluginRequestCodes.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS) {
+        if (requestCode == Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS) {
           httpPlugin.downloadFile(savedCall);
-        } else if (requestCode == PluginRequestCodes.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS) {
+        } else if (requestCode == Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS) {
           httpPlugin.uploadFile(savedCall);
         }
       }
@@ -255,7 +255,7 @@ public class Http extends Plugin {
       URL url = new URL(urlString);
 
       if (!FilesystemUtils.isPublicDirectory(fileDirectory)
-        || isStoragePermissionGranted(PluginRequestCodes.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+        || isStoragePermissionGranted(Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
         this.freeSavedCall();
         File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
 
