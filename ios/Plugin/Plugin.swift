@@ -256,9 +256,12 @@ public class CAPHttpPlugin: CAPPlugin {
   
   func setUrlQuery(_ url: inout URL, _ params: [String:String]) {
     var cmps = URLComponents(url: url, resolvingAgainstBaseURL: true)
-    cmps!.queryItems = params.map({ (key, value) -> URLQueryItem in
+    if cmps?.queryItems == nil {
+      cmps?.queryItems = []
+    }
+    cmps!.queryItems?.append(contentsOf: params.map({ (key, value) -> URLQueryItem in
       return URLQueryItem(name: key, value: value)
-    })
+    }))
     url = cmps!.url!
   }
   
