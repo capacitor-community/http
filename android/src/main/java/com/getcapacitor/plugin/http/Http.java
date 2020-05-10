@@ -368,7 +368,8 @@ public class Http extends Plugin {
     ret.put("status", statusCode);
     ret.put("headers", makeResponseHeaders(conn));
 
-    InputStream stream = conn.getInputStream();
+    InputStream errorStream = conn.getErrorStream();
+    InputStream stream = (errorStream != null ? errorStream : conn.getInputStream());
 
     BufferedReader in = new BufferedReader(new InputStreamReader(stream));
     StringBuilder builder = new StringBuilder();
