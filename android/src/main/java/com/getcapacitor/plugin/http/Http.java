@@ -70,7 +70,7 @@ public class Http extends Plugin {
       case "PATCH":
       case "POST":
       case "PUT":
-        mutate(call, url, method, headers, params);
+        mutate(call, url, method, headers);
         return;
     }
   }
@@ -94,7 +94,7 @@ public class Http extends Plugin {
   }
 
 
-  private void mutate(PluginCall call, String urlString, String method, JSObject headers, JSObject params) {
+  private void mutate(PluginCall call, String urlString, String method, JSObject headers) {
     try {
       Integer connectTimeout = call.getInt("connectTimeout");
       Integer readTimeout = call.getInt("readTimeout");
@@ -102,7 +102,7 @@ public class Http extends Plugin {
 
       URL url = new URL(urlString);
 
-      HttpURLConnection conn = makeUrlConnection(url, method, connectTimeout, readTimeout, headers, params);
+      HttpURLConnection conn = makeUrlConnection(url, method, connectTimeout, readTimeout, headers, null);
 
       conn.setDoOutput(true);
 
@@ -121,7 +121,9 @@ public class Http extends Plugin {
   }
 
   private HttpURLConnection makeUrlConnection(URL url, String method, Integer connectTimeout, Integer readTimeout, JSObject headers, JSObject params) throws Exception {
-    url = setParams(url, params);
+    if (params != null) {
+      url = setParams(url, params);
+    }
     
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -264,7 +266,7 @@ public class Http extends Plugin {
         this.freeSavedCall();
         File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
 
-        HttpURLConnection conn = makeUrlConnection(url, "POST", connectTimeout, readTimeout, headers, params);
+        HttpURLConnection conn = makeUrlConnection(url, "POST", connectTimeout, readTimeout, headers, null);
         conn.setDoOutput(true);
 
         FormUploader builder = new FormUploader(conn);
