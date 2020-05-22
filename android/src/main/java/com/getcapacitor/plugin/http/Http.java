@@ -3,7 +3,6 @@ package com.getcapacitor.plugin.http;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.util.Log;
-import android.webkit.CookieManager;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -11,10 +10,8 @@ import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
-import com.getcapacitor.PluginRequestCodes;
 
 import org.json.JSONException;
-import org.json.JSONTokener;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -23,7 +20,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.CookieHandler;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -46,11 +42,12 @@ public class Http extends Plugin {
   public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
   public static final int HTTP_REQUEST_UPLOAD_READ_PERMISSIONS = 9023;
 
-  CookieManager cookieManager;
+  WebkitCookieManagerProxy cookieManager;
 
   @Override
   public void load() {
-    cookieManager = android.webkit.CookieManager.getInstance();
+    this.cookieManager = new WebkitCookieManagerProxy(null, java.net.CookiePolicy.ACCEPT_ALL);
+    java.net.CookieHandler.setDefault(cookieManager);
   }
 
   @PluginMethod()
@@ -292,8 +289,6 @@ public class Http extends Plugin {
 
     cookieManager.setCookie(url, cookieValue);
 
-    cookieManager.flush();
-
     call.resolve();
   }
 
@@ -309,12 +304,15 @@ public class Http extends Plugin {
     }
 
     String cookieString = cookieManager.getCookie(url);
-
-    List<HttpCookie> cookies = new ArrayList<>();
+    ArrayList<HttpCookie> cookies = new ArrayList<>();
 
     try {
       if (cookieString != null) {
-        cookies = HttpCookie.parse(cookieString);
+        String[] singleCookie = cookieString.split(";");
+        for(String c:singleCookie){
+          List<HttpCookie> l = HttpCookie.parse(c);
+          cookies.add(l.get(0));
+        }
       }
     } catch (Exception ex) {
       call.reject("Unable to parse cookies", ex);
@@ -357,7 +355,6 @@ public class Http extends Plugin {
   public void clearCookies(PluginCall call) {
     cookieManager.removeAllCookies(null);
 
-    // cookieManager.getCookieStore().removeAll();
     call.resolve();
   }
 
