@@ -24,6 +24,7 @@ import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
@@ -77,8 +78,7 @@ public class Http extends Plugin {
       Integer readTimeout = call.getInt("readTimeout");
 
       URL url = new URL(urlString);
-
-      HttpURLConnection conn = makeUrlConnection(url, method, connectTimeout, readTimeout, headers);
+      HttpURLConnection conn = makeUrlConnection(url, method, connectTimeout, readTimeout, headers, params);
 
       buildResponse(call, conn);
     } catch (MalformedURLException ex) {
@@ -99,7 +99,7 @@ public class Http extends Plugin {
 
       URL url = new URL(urlString);
 
-      HttpURLConnection conn = makeUrlConnection(url, method, connectTimeout, readTimeout, headers);
+      HttpURLConnection conn = makeUrlConnection(url, method, connectTimeout, readTimeout, headers, null);
 
       conn.setDoOutput(true);
 
@@ -117,7 +117,11 @@ public class Http extends Plugin {
     }
   }
 
-  private HttpURLConnection makeUrlConnection(URL url, String method, Integer connectTimeout, Integer readTimeout, JSObject headers) throws Exception {
+  private HttpURLConnection makeUrlConnection(URL url, String method, Integer connectTimeout, Integer readTimeout, JSObject headers, JSObject params) throws Exception {
+    if (params != null) {
+      url = setParams(url, params);
+    }
+    
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
     conn.setAllowUserInteraction(false);
@@ -145,6 +149,7 @@ public class Http extends Plugin {
       String filePath = call.getString("filePath");
       String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
       JSObject headers = call.getObject("headers");
+      JSObject params = call.getObject("params");
 
       Integer connectTimeout = call.getInt("connectTimeout");
       Integer readTimeout = call.getInt("readTimeout");
@@ -157,7 +162,7 @@ public class Http extends Plugin {
 
         final File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
 
-        HttpURLConnection conn = makeUrlConnection(url, "GET", connectTimeout, readTimeout, headers);
+        HttpURLConnection conn = makeUrlConnection(url, "GET", connectTimeout, readTimeout, headers, params);
 
         InputStream is = conn.getInputStream();
 
@@ -258,7 +263,7 @@ public class Http extends Plugin {
         this.freeSavedCall();
         File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
 
-        HttpURLConnection conn = makeUrlConnection(url, "POST", connectTimeout, readTimeout, headers);
+        HttpURLConnection conn = makeUrlConnection(url, "POST", connectTimeout, readTimeout, headers, null);
         conn.setDoOutput(true);
 
         FormUploader builder = new FormUploader(conn);
@@ -423,6 +428,28 @@ public class Http extends Plugin {
       String key = keys.next();
       String value = headers.getString(key);
       conn.setRequestProperty(key, value);
+    }
+  }
+
+  private URL setParams(URL url, JSObject params) {
+    String newQuery = url.getQuery();
+    Iterator<String> keys = params.keys();
+    while (keys.hasNext()) {
+      String key = keys.next();
+      String value = params.getString(key);
+      if (newQuery == null) {
+        newQuery = key + "=" + value;
+      } else {
+        newQuery += "&" + key + "=" + value;
+      }
+    }
+    try {
+      URI uri = url.toURI();
+      URI newUri = new URI(uri.getScheme(), uri.getAuthority(),
+        uri.getPath(), newQuery, uri.getFragment());
+      return newUri.toURL();
+    } catch (URISyntaxException | MalformedURLException e) {
+      return url;
     }
   }
 
