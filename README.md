@@ -47,6 +47,10 @@ public class MainActivity extends BridgeActivity {
 }
 ```
 
+## Configuration
+
+No configuration required for this plugin
+
 ## Usage
 
 To use the plugin while fully supporting the web version, import and use it like this:
@@ -156,3 +160,7 @@ const uploadFile = async () => {
   });
 }
 ```
+
+## API Reference
+
+Coming soon
