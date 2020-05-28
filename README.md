@@ -2,7 +2,6 @@
 
 Capacitory community plugin for native HTTP requests, file download/uploads, and cookie management.
 
-[![npm][npm]][npm-url]
 
 ## Maintainers
 
