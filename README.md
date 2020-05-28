@@ -5,7 +5,7 @@ Official plugin for native HTTP requests, file download/uploads, and cookie mana
 ## Maintainers
 
 | Maintainer | GitHub | Social | Sponsoring Company |
-------------------------------------------------------
+| -----------| -------| -------| -------------------|
 | Max Lynch | [mlynch](https://github.com/mlynch) | [@maxlynch](https://twitter.com/maxlynch) | Ionic |
 
 ## Installation
