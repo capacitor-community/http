@@ -2,9 +2,11 @@
 
 Capacitory community plugin for native HTTP requests, file download/uploads, and cookie management.
 
+<!-- Badges -->
 <a href="https://npmjs.com/package/@capacitor-community/http">
   <img src="https://img.shields.io/npm/v/@capacitor-community/http.svg">
 </a>
+<img src="https://img.shields.io/npm/l/@capacitor-community/http.svg">
 
 ## Maintainers
 
