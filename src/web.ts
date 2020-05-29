@@ -15,7 +15,7 @@ import {
   HttpUploadFileOptions,
   HttpUploadFileResult
 } from './definitions';
-import { WebPlugin } from '@capacitor/core';
+import { WebPlugin, registerWebPlugin } from '@capacitor/core';
 
 export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
   constructor() {
@@ -160,3 +160,5 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
 const Http = new HttpPluginWeb();
 
 export { Http };
+
+registerWebPlugin(Http);
