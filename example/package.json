@@ -19,6 +19,7 @@
     "@stencil/core": "^1.12.2"
   },
   "dependencies": {
+    "@capacitor-community/http": "file:..",
     "@capacitor/cli": "^2.1.1",
     "@capacitor/core": "^2.1.1"
   }

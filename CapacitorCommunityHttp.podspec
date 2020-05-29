@@ -1,6 +1,6 @@
 
   Pod::Spec.new do |s|
-    s.name = 'CapacitorHttp'
+    s.name = 'CapacitorCommunityHttp'
     s.version = '0.0.1'
     s.summary = 'A native HTTP plugin for CORS-free requests and file transfers'
     s.license = 'MIT'

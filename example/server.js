@@ -44,11 +44,10 @@ app.get('/get-gzip', compression({
   console.log('Got headers', headers);
   console.log('Got params', params);
   console.log(req.url);
+  res.status(200);
   res.json({
     data: 'compressed'
   });
-  res.status(200);
-  res.send();
 });
 
 app.get('/get-json', (req, res) => {
