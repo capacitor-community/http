@@ -50,6 +50,7 @@ export class AppHome {
 
   getDefault = () => this.get();
 
+  getGzip = () => this.get('/get-gzip');
   getJson = () => this.get('/get-json');
   getHtml = () => this.get('/get-html');
 
@@ -260,6 +261,7 @@ export class AppHome {
 
       <ion-content class="ion-padding">
         <ion-button onClick={this.getDefault}>GET</ion-button>
+        <ion-button onClick={this.getGzip}>GET GZIP</ion-button>
         <ion-button onClick={this.getJson}>GET JSON</ion-button>
         <ion-button onClick={this.getHtml}>GET HTML</ion-button>
         <ion-button onClick={this.head}>HEAD</ion-button>
