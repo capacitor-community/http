@@ -1,6 +1,6 @@
 # Capacitor HTTP Plugin
 
-Capacitory community plugin for native HTTP requests, file download/uploads, and cookie management.
+Capacitor community plugin for native HTTP requests, file download/uploads, and cookie management.
 
 <!-- Badges -->
 <a href="https://npmjs.com/package/@capacitor-community/http">
@@ -16,7 +16,7 @@ Capacitory community plugin for native HTTP requests, file download/uploads, and
 | -----------| -------| -------| -------------------|
 | Max Lynch | [mlynch](https://github.com/mlynch) | [@maxlynch](https://twitter.com/maxlynch) | Ionic |
 
-Mainteinance Status: Actively Maintained
+Maintenance Status: Actively Maintained
 
 ## Installation
 

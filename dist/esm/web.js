@@ -7,7 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import { WebPlugin } from '@capacitor/core';
+import { WebPlugin, registerWebPlugin } from '@capacitor/core';
 export class HttpPluginWeb extends WebPlugin {
     constructor() {
         super({
@@ -129,4 +129,5 @@ export class HttpPluginWeb extends WebPlugin {
 }
 const Http = new HttpPluginWeb();
 export { Http };
+registerWebPlugin(Http);
 //# sourceMappingURL=web.js.map
