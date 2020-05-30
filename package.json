@@ -50,9 +50,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/ionic-team/capacitor-plugin-http"
+    "url": "https://github.com/capacitor-community/http"
   },
   "bugs": {
-    "url": "https://github.com/ionic-team/capacitor-plugin-http/issues"
+    "url": "https://github.com/capacitor-community/http/issues"
   }
 }
