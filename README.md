@@ -21,7 +21,7 @@ Maintenance Status: Actively Maintained
 ## Installation
 
 ```bash
-npm install @capacitor/http
+npm install @capacitor-community/http
 npx cap sync
 ```
 
@@ -57,7 +57,7 @@ To use the plugin while fully supporting the web version, import and use it like
 
 ```typescript
 // Must import the package once to make sure the web support initializes
-import '@capacitor/http';
+import '@capacitor-community/http';
 
 import { Plugins } from '@capacitor/core';
 
