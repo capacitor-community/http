@@ -2,6 +2,7 @@ package com.getcapacitor.plugin.http;
 
 import android.app.Activity;
 import android.content.res.AssetManager;
+import android.util.Log;
 
 import com.getcapacitor.plugin.http.ssl.TLSConfig;
 
@@ -19,6 +20,8 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509TrustManager;
 
 public class ServerTrust implements Runnable {
+
+    public static final String TAG = "ServerTrust";
 
     private String mode = "default";
     private Activity activity;
@@ -71,10 +74,10 @@ public class ServerTrust implements Runnable {
                 this.tlsConfig.setTrustManagers(this.getTrustManagers(this.getCertsFromBundle("certificates")));
             } else {
                 this.tlsConfig.setHostnameVerifier(null);
-                this.tlsConfig.setTrustManagers(this.getTrustManagers(this.getCertsFromKeyStore("AndroidCAStore")));
+                this.tlsConfig.setTrustManagers(this.getTrustManagers(this.getCertsFromKeyStore("AndroidKeyStore")));
             }
         } catch (Exception ex) {
-
+            Log.e(TAG, "Caught exception while executing runnable.");
         }
     }
 

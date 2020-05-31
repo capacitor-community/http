@@ -371,6 +371,8 @@ public class Http extends Plugin {
       ServerTrust serverTrust = new ServerTrust(mode, getBridge().getActivity());
       serverTrust.run();
       call.success();
+    } else {
+      call.reject("Missing mode");
     }
   }
 
