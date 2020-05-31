@@ -363,6 +363,17 @@ public class Http extends Plugin {
     call.resolve();
   }
 
+  @PluginMethod()
+  public void setTrustMode(PluginCall call) {
+    if (call.hasOption("mode")) {
+      String mode = call.getString("mode");
+
+      ServerTrust serverTrust = new ServerTrust(mode, getBridge().getActivity());
+      serverTrust.run();
+      call.success();
+    }
+  }
+
   private void buildResponse(PluginCall call, HttpURLConnection conn) throws Exception {
     int statusCode = conn.getResponseCode();
 
