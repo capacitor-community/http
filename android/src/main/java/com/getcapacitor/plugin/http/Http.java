@@ -95,7 +95,6 @@ public class Http extends Plugin {
     try {
       Integer connectTimeout = call.getInt("connectTimeout");
       Integer readTimeout = call.getInt("readTimeout");
-      JSObject data = call.getObject("data");
 
       URL url = new URL(urlString);
 
@@ -103,7 +102,7 @@ public class Http extends Plugin {
 
       conn.setDoOutput(true);
 
-      setRequestBody(conn, data, headers);
+      setRequestBody(conn, call, headers);
 
       conn.connect();
 
@@ -121,7 +120,7 @@ public class Http extends Plugin {
     if (params != null) {
       url = setParams(url, params);
     }
-    
+
     HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
     conn.setAllowUserInteraction(false);
@@ -391,8 +390,12 @@ public class Http extends Plugin {
           JSObject jsonValue = new JSObject(builder.toString());
           ret.put("data", jsonValue);
         } catch (JSONException e) {
-          JSArray jsonValue = new JSArray(builder.toString());
-          ret.put("data", jsonValue);
+            try {
+                JSArray jsonValue = new JSArray(builder.toString());
+                ret.put("data", jsonValue);
+            } catch (JSONException e2){
+                ret.put("data", builder.toString());
+            }
         }
       } else {
         ret.put("data", builder.toString());
@@ -401,6 +404,10 @@ public class Http extends Plugin {
       ret.put("data", builder.toString());
     }
 
+    if(errorStream != null){
+       ret.put("error", true);
+    }
+    
     call.resolve(ret);
   }
 
@@ -453,17 +460,31 @@ public class Http extends Plugin {
     }
   }
 
-  private void setRequestBody(HttpURLConnection conn, JSObject data, JSObject headers) throws IOException, JSONException {
+  private void setRequestBody(HttpURLConnection conn, PluginCall call, JSObject headers) throws IOException, JSONException {
     String contentType = conn.getRequestProperty("Content-Type");
 
     if (contentType != null) {
       if (contentType.contains("application/json")) {
         DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-        os.writeBytes(data.toString());
+
+        JSObject jsObject;
+        JSArray jsArray = null;
+        jsObject = call.getObject("data", null);
+        if (jsObject != null) {
+          os.writeBytes(jsObject.toString());
+        } else {
+          jsArray = call.getArray("data", null);
+        }
+        if (jsObject == null && jsArray != null) {
+          os.writeBytes(jsArray.toString());
+        } else {
+          String anything = call.getString("data");
+          os.writeBytes(anything);
+        }
         os.flush();
         os.close();
       } else if (contentType.contains("application/x-www-form-urlencoded")) {
-
+        JSObject data = call.getObject("data");
         StringBuilder builder = new StringBuilder();
 
         Iterator<String> keys = data.keys();
@@ -483,8 +504,8 @@ public class Http extends Plugin {
         os.flush();
         os.close();
       } else if (contentType.contains("multipart/form-data")) {
+        JSObject data = call.getObject("data");
         FormUploader uploader = new FormUploader(conn);
-
         Iterator<String> keys = data.keys();
         while (keys.hasNext()) {
           String key = keys.next();
