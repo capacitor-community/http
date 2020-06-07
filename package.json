@@ -26,6 +26,8 @@
     "express": "^4.17.1",
     "multer": "^1.4.2",
     "np": "^6.2.3",
+    "prettier": "^2.0.5",
+    "prettier-plugin-java": "^0.8.0",
     "rimraf": "^3.0.0",
     "typescript": "^3.2.4"
   },
