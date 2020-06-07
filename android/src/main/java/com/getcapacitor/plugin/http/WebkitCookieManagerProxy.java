@@ -1,7 +1,6 @@
 package com.getcapacitor.plugin.http;
 
 import android.webkit.ValueCallback;
-
 import java.io.IOException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -35,17 +34,19 @@ public class WebkitCookieManagerProxy extends CookieManager {
     this(null, null);
   }
 
-  public WebkitCookieManagerProxy(CookieStore store, CookiePolicy cookiePolicy) {
+  public WebkitCookieManagerProxy(
+    CookieStore store,
+    CookiePolicy cookiePolicy
+  ) {
     super(null, cookiePolicy);
-
     this.webkitCookieManager = android.webkit.CookieManager.getInstance();
   }
 
   @Override
-  public void put(URI uri, Map<String, List<String>> responseHeaders) throws IOException {
+  public void put(URI uri, Map<String, List<String>> responseHeaders)
+    throws IOException {
     // make sure our args are valid
-    if ((uri == null) || (responseHeaders == null))
-      return;
+    if ((uri == null) || (responseHeaders == null)) return;
 
     // save our url once
     String url = uri.toString();
@@ -53,9 +54,13 @@ public class WebkitCookieManagerProxy extends CookieManager {
     // go over the headers
     for (String headerKey : responseHeaders.keySet()) {
       // ignore headers which aren't cookie related
-      if ((headerKey == null)
-          || !(headerKey.equalsIgnoreCase("Set-Cookie2") || headerKey.equalsIgnoreCase("Set-Cookie")))
-        continue;
+      if (
+        (headerKey == null) ||
+        !(
+          headerKey.equalsIgnoreCase("Set-Cookie2") ||
+          headerKey.equalsIgnoreCase("Set-Cookie")
+        )
+      ) continue;
 
       // process each of the headers
       for (String headerValue : responseHeaders.get(headerKey)) {
@@ -65,10 +70,15 @@ public class WebkitCookieManagerProxy extends CookieManager {
   }
 
   @Override
-  public Map<String, List<String>> get(URI uri, Map<String, List<String>> requestHeaders) throws IOException {
+  public Map<String, List<String>> get(
+    URI uri,
+    Map<String, List<String>> requestHeaders
+  )
+    throws IOException {
     // make sure our args are valid
-    if ((uri == null) || (requestHeaders == null))
-      throw new IllegalArgumentException("Argument is null");
+    if (
+      (uri == null) || (requestHeaders == null)
+    ) throw new IllegalArgumentException("Argument is null");
 
     // save our url once
     String url = uri.toString();
@@ -80,8 +90,7 @@ public class WebkitCookieManagerProxy extends CookieManager {
     String cookie = this.getCookie(url);
 
     // return it
-    if (cookie != null)
-      res.put("Cookie", Arrays.asList(cookie));
+    if (cookie != null) res.put("Cookie", Arrays.asList(cookie));
     return res;
   }
 
