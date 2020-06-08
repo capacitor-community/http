@@ -30,10 +30,14 @@ public class FormUploader {
     boundary = uuid.toString();
     httpConn = conn;
 
-    httpConn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
+    httpConn.setRequestProperty(
+      "Content-Type",
+      "multipart/form-data; boundary=" + boundary
+    );
 
     outputStream = httpConn.getOutputStream();
-    writer = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
+    writer =
+      new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
   }
 
   /**
@@ -45,10 +49,12 @@ public class FormUploader {
   public void addFormField(String name, String value) {
     writer.append(LINE_FEED);
     writer.append("--" + boundary).append(LINE_FEED);
-    writer.append("Content-Disposition: form-data; name=\"" + name + "\"")
+    writer
+      .append("Content-Disposition: form-data; name=\"" + name + "\"")
       .append(LINE_FEED);
-    writer.append("Content-Type: text/plain; charset=" + charset).append(
-      LINE_FEED);
+    writer
+      .append("Content-Type: text/plain; charset=" + charset)
+      .append(LINE_FEED);
     writer.append(LINE_FEED);
     writer.append(value);
     writer.append(LINE_FEED).append("--" + boundary + "--").append(LINE_FEED);
@@ -67,13 +73,19 @@ public class FormUploader {
     String fileName = uploadFile.getName();
     writer.append(LINE_FEED);
     writer.append("--" + boundary).append(LINE_FEED);
-    writer.append(
-      "Content-Disposition: form-data; name=\"" + fieldName
-        + "\"; filename=\"" + fileName + "\"")
+    writer
+      .append(
+        "Content-Disposition: form-data; name=\"" +
+        fieldName +
+        "\"; filename=\"" +
+        fileName +
+        "\""
+      )
       .append(LINE_FEED);
-    writer.append(
-      "Content-Type: "
-        + URLConnection.guessContentTypeFromName(fileName))
+    writer
+      .append(
+        "Content-Type: " + URLConnection.guessContentTypeFromName(fileName)
+      )
       .append(LINE_FEED)
       .append(LINE_FEED);
     writer.flush();

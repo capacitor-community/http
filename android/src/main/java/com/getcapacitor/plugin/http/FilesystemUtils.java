@@ -3,7 +3,6 @@ package com.getcapacitor.plugin.http;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Environment;
-
 import java.io.File;
 
 public class FilesystemUtils {
@@ -28,7 +27,7 @@ public class FilesystemUtils {
     if (androidDirectory == null) {
       return null;
     } else {
-      if(!androidDirectory.exists()) {
+      if (!androidDirectory.exists()) {
         androidDirectory.mkdir();
       }
     }
@@ -37,13 +36,17 @@ public class FilesystemUtils {
   }
 
   public static File getDirectory(Context c, String directory) {
-    switch(directory) {
+    switch (directory) {
       case DIRECTORY_APPLICATION:
         return c.getFilesDir();
       case DIRECTORY_DOCUMENTS:
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
+        return Environment.getExternalStoragePublicDirectory(
+          Environment.DIRECTORY_DOCUMENTS
+        );
       case DIRECTORY_DOWNLOADS:
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        return Environment.getExternalStoragePublicDirectory(
+          Environment.DIRECTORY_DOWNLOADS
+        );
       case DIRECTORY_DATA:
         return c.getFilesDir();
       case DIRECTORY_CACHE:
@@ -61,8 +64,10 @@ public class FilesystemUtils {
    * @param directory the directory string.
    */
   public static boolean isPublicDirectory(String directory) {
-    return DIRECTORY_DOCUMENTS.equals(directory) ||
+    return (
+      DIRECTORY_DOCUMENTS.equals(directory) ||
       DIRECTORY_DOWNLOADS.equals(directory) ||
-      "EXTERNAL_STORAGE".equals(directory);
+      "EXTERNAL_STORAGE".equals(directory)
+    );
   }
 }
