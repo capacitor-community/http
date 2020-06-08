@@ -493,10 +493,10 @@ public class Http extends Plugin {
           ret.put("data", jsonValue);
         } catch (JSONException e) {
             try {
-                JSArray jsonValue = new JSArray(builder.toString());
-                ret.put("data", jsonValue);
-            } catch (JSONException e2){
-                ret.put("data", builder.toString());
+              JSArray jsonValue = new JSArray(builder.toString());
+              ret.put("data", jsonValue);
+            } catch (JSONException e2) {
+              ret.put("data", builder.toString());
             }
         }
       } else {
@@ -580,21 +580,25 @@ public class Http extends Plugin {
     if (contentType != null) {
       if (contentType.contains("application/json")) {
         DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-
-        JSObject jsObject;
-        JSArray jsArray = null;
-        jsObject = call.getObject("data", null);
+        String content = null;
+        
+        JSObject jsObject = call.getObject("data", null);
         if (jsObject != null) {
-          os.writeBytes(jsObject.toString());
-        } else {
-          jsArray = call.getArray("data", null);
+          content = jsObject.toString();
+        } 
+        
+        if (content == null) {
+          JSArray jsArray = call.getArray("data", null);
+          if (jsArray != null) {
+            content = jsArray.toString();
+          }
         }
-        if (jsObject == null && jsArray != null) {
-          os.writeBytes(jsArray.toString());
-        } else {
-          String anything = call.getString("data");
-          os.writeBytes(anything);
+
+        if (content == null) {
+          content = call.getString("data");
         }
+
+        os.writeBytes(content);
         os.flush();
         os.close();
       } else if (contentType.contains("application/x-www-form-urlencoded")) {
