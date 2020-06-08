@@ -38,8 +38,10 @@ export class HttpPluginWeb extends WebPlugin {
             req['body'] = JSON.stringify(options.data);
         }
         else if (contentType.indexOf('application/x-www-form-urlencoded') === 0) {
+            req['body'] = options.data[Object.keys(options.data)[0]];
         }
         else if (contentType.indexOf('multipart/form-data') === 0) {
+            req['body'] = options.data[Object.keys(options.data)[0]];
         }
         return req;
     }
