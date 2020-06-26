@@ -1,25 +1,27 @@
-# Capacitor HTTP Plugin
+<p align="center"><br><br><img src="https://user-images.githubusercontent.com/236501/85890346-084bed00-b7a2-11ea-816c-77d28b2c09e1.png" width="78" height="78" /></p>
+<h3 align="center">HTTP</h3>
+<p align="center"><strong><code>@capacitor-community/http</code></strong></p>
+<p align="center">
+  Capacitor community plugin for native HTTP requests, file download/uploads, and cookie management.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/maintenance/yes/2020?style=flat-square" />
+  <a href="https://github.com/ionic-team/capacitor/actions?query=workflow%3ACI"><img src="https://img.shields.io/github/workflow/status/ionic-team/capacitor/CI?style=flat-square" /></a>
+  <a href="https://www.npmjs.com/package/@capacitor-community/http"><img src="https://img.shields.io/npm/l/@capacitor-community/http?style=flat-square" /></a>
+<br>
+  <a href="https://www.npmjs.com/package/@capacitor-community/http"><img src="https://img.shields.io/npm/dw/@capacitor-community/http?style=flat-square" /></a>
+  <a href="https://www.npmjs.com/package/@capacitor-community/http"><img src="https://img.shields.io/npm/v/@capacitor-community/http?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-2-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
-
-Capacitor community plugin for native HTTP requests, file download/uploads, and cookie management.
-
-<!-- Badges -->
-<a href="https://npmjs.com/package/@capacitor-community/http">
-  <img src="https://img.shields.io/npm/v/@capacitor-community/http.svg">
-</a>
-<a href="https://npmjs.com/package/@capacitor-community/http">
-  <img src="https://img.shields.io/npm/l/@capacitor-community/http.svg">
-</a>
+</p>
 
 ## Maintainers
 
 | Maintainer | GitHub | Social |
 | -----------| -------| -------|
 | Max Lynch | [mlynch](https://github.com/mlynch) | [@maxlynch](https://twitter.com/maxlynch) |
-
-Maintenance Status: Community Maintained
 
 ## Installation
 
