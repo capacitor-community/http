@@ -1,4 +1,4 @@
-<p align="center"><br><img src="https://user-images.githubusercontent.com/236501/85890346-084bed00-b7a2-11ea-816c-77d28b2c09e1.png" width="78" height="78" /></p>
+<p align="center"><br><img src="https://user-images.githubusercontent.com/236501/85893648-1c92e880-b7a8-11ea-926d-95355b8175c7.png" width="128" height="128" /></p>
 <h3 align="center">HTTP</h3>
 <p align="center"><strong><code>@capacitor-community/http</code></strong></p>
 <p align="center">
