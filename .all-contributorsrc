@@ -24,6 +24,7 @@
       ]
     }
   ],
+  "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
   "contributorsPerLine": 7,
   "projectName": "http",
   "projectOwner": "capacitor-community",
