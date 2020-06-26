@@ -16,8 +16,8 @@ Capacitor community plugin for native HTTP requests, file download/uploads, and 
 ## Maintainers
 
 | Maintainer | GitHub | Social |
-| -----------| -------| -------| -------------------|
-| Max Lynch | [mlynch](https://github.com/mlynch) | [@maxlynch](https://twitter.com/maxlynch)
+| -----------| -------| -------| ------------------- |
+| Max Lynch | [mlynch](https://github.com/mlynch) | [@maxlynch](https://twitter.com/maxlynch) |
 
 Maintenance Status: Community Maintained
 
