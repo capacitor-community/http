@@ -183,6 +183,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="http://priyankpatel.io"><img src="https://avatars3.githubusercontent.com/u/5585797?v=4" width="100px;" alt=""/><br /><sub><b>Priyank Patel</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=priyankpat" title="Code">💻</a></td>
     <td align="center"><a href="http://ionicframework.com/"><img src="https://avatars3.githubusercontent.com/u/11214?v=4" width="100px;" alt=""/><br /><sub><b>Max Lynch</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=mlynch" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/andysousa"><img src="https://avatars0.githubusercontent.com/u/42151009?v=4" width="100px;" alt=""/><br /><sub><b>Andy Sousa</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=andysousa" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/pixelbucket-dev"><img src="https://avatars3.githubusercontent.com/u/12937991?v=4" width="100px;" alt=""/><br /><sub><b>Falk Schieber</b></sub></a><br /><a href="https://github.com/capacitor-community/http/pulls?q=is%3Apr+reviewed-by%3Apixelbucket-dev" title="Reviewed Pull Requests">👀</a></td>
   </tr>
 </table>
 
