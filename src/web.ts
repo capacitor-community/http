@@ -61,7 +61,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
               (contentType.indexOf('multipart/form-data') === 0)) {
       const urlSearchParams = new URLSearchParams();
       for (let key of Object.keys(options.data)) {
-          urlSearchParams.set(key, options.data[key]);
+        urlSearchParams.set(key, options.data[key]);
       } 
       req['body'] = urlSearchParams.toString();
     } 
