@@ -31,6 +31,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "pixelbucket-dev",
+      "name": "Falk Schieber",
+      "avatar_url": "https://avatars3.githubusercontent.com/u/12937991?v=4",
+      "profile": "https://github.com/pixelbucket-dev",
+      "contributions": [
+        "review"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",
