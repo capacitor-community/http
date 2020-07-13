@@ -123,5 +123,5 @@ export interface HttpDownloadFileResult {
   blob?: Blob;
 }
 
-export interface HttpUploadFileResult {
+export interface HttpUploadFileResult extends HttpResponse {
 }

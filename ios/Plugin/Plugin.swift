@@ -96,6 +96,7 @@ public class CAPHttpPlugin: CAPPlugin {
       return call.reject("Must provide a file path to download the file to")
     }
     let name = call.getString("name") ?? "file"
+    let headers = (call.getObject("headers") ?? [:]) as [String:String]
     
     let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
     
@@ -119,6 +120,7 @@ public class CAPHttpPlugin: CAPPlugin {
       return call.reject("Unable to read file to upload", "UPLOAD", e)
     }
 
+    setRequestHeaders(&request, headers)
 
     request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
     
@@ -129,10 +131,9 @@ public class CAPHttpPlugin: CAPPlugin {
         return
       }
       
-      // let res = response as! HTTPURLResponse
+      let res = response as! HTTPURLResponse
       
-      //CAPLog.print("Uploaded file", location)
-      call.resolve()
+      call.resolve(self.buildResponse(data, res))
     }
     
     task.resume()
