@@ -152,6 +152,10 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
 
     const ret = await fetch(options.url, fetchOptions);
+    
+    if(!ret.ok) {
+      return Promise.reject("Download file error: response not ok")
+    }
 
     const blob = await ret.blob();
 

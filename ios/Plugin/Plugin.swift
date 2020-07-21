@@ -48,6 +48,11 @@ public class CAPHttpPlugin: CAPPlugin {
     }
     
     let task = URLSession.shared.downloadTask(with: url) { (downloadLocation, response, error) in
+      guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
+        call.reject("Invalid HTTP response code")
+        return
+      }
+
       if error != nil {
         CAPLog.print("Error on download file", downloadLocation, response, error)
         call.reject("Error", "DOWNLOAD", error, [:])
