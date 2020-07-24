@@ -524,6 +524,8 @@ public class Http extends Plugin {
 
       header.put(entries.getKey(), val.toString());
       ret.put(header);
+      }
+     return ret;
   }
 
   private void setRequestHeaders(HttpURLConnection conn, JSObject headers) {
