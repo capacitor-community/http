@@ -505,25 +505,25 @@ public class Http extends Plugin {
 
     call.resolve(ret);
   }
+  
 
   private JSArray makeResponseHeaders(HttpURLConnection conn) {
     JSArray ret = new JSArray();
 
-    for (Map.Entry<String, List<String>> entries : conn
-      .getHeaderFields()
-      .entrySet()) {
+
+    for (Map.Entry<String, List<String>> entries : conn.getHeaderFields().entrySet()) {
       JSObject header = new JSObject();
 
-      String val = "";
-      for (String headerVal : entries.getValue()) {
-        val += headerVal + ", ";
+      StringBuilder val ;
+      Iterator<String> iterator = entries.getValue().iterator();
+      val = new StringBuilder(iterator.next());
+      while (iterator.hasNext()) {
+        val.append(", ");
+        val.append(iterator.next());
       }
 
-      header.put(entries.getKey(), val);
+      header.put(entries.getKey(), val.toString());
       ret.put(header);
-    }
-
-    return ret;
   }
 
   private void setRequestHeaders(HttpURLConnection conn, JSObject headers) {
