@@ -581,7 +581,6 @@ public class Http extends Plugin {
       if (contentType.contains("application/json")) {
         writeToOutputStream(conn.getOutputStream(), data.toString());
       } else if (contentType.contains("application/x-www-form-urlencoded")) {
-
         StringBuilder builder = new StringBuilder();
 
         Iterator<String> keys = data.keys();
@@ -589,7 +588,9 @@ public class Http extends Plugin {
           String key = keys.next();
           Object d = data.get(key);
           if (d != null) {
-            builder.append(key + "=" + URLEncoder.encode(d.toString(), "UTF-8"));
+            builder.append(
+              key + "=" + URLEncoder.encode(d.toString(), "UTF-8")
+            );
             if (keys.hasNext()) {
               builder.append("&");
             }
