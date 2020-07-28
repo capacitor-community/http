@@ -561,6 +561,13 @@ public class Http extends Plugin {
       return url;
     }
   }
+  
+  private void writeToOutputStream(OutputStream out, String data) throws IOException {
+    try(DataOutputStream os = new DataOutputStream(out)){
+      os.write(data.getBytes(StandardCharsets.UTF_8));
+      os.flush();
+    }
+  }
 
   private void setRequestBody(
     HttpURLConnection conn,
@@ -572,10 +579,7 @@ public class Http extends Plugin {
 
     if (contentType != null) {
       if (contentType.contains("application/json")) {
-        DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-        os.writeBytes(data.toString());
-        os.flush();
-        os.close();
+        writeToOutputStream(conn.getOutputStream(), data.toString());
       } else if (contentType.contains("application/x-www-form-urlencoded")) {
         StringBuilder builder = new StringBuilder();
 
@@ -593,10 +597,7 @@ public class Http extends Plugin {
           }
         }
 
-        DataOutputStream os = new DataOutputStream(conn.getOutputStream());
-        os.writeBytes(builder.toString());
-        os.flush();
-        os.close();
+        writeToOutputStream(conn.getOutputStream(), builder.toString());
       } else if (contentType.contains("multipart/form-data")) {
         FormUploader uploader = new FormUploader(conn);
 
