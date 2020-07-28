@@ -569,7 +569,12 @@ public class Http extends Plugin {
     }
   }
 
-  private void setRequestBody(HttpURLConnection conn, JSObject data, JSObject headers) throws IOException, JSONException {
+  private void setRequestBody(
+    HttpURLConnection conn,
+    JSObject data,
+    JSObject headers
+  )
+    throws IOException, JSONException {
     String contentType = conn.getRequestProperty("Content-Type");
 
     if (contentType != null) {
