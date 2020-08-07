@@ -358,7 +358,7 @@ public class CAPHttpPlugin: CAPPlugin {
     if (jsObject != nil) {
       jsonData = try JSONSerialization.data(withJSONObject: jsObject as Any)
     } else {
-      let jsArray = call.getArray("data", (Any).self)
+      let jsArray = call.getArray("data", (Any).self, [])
       jsonData = try JSONSerialization.data(withJSONObject: jsArray as Any)
     }
     return jsonData
