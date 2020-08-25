@@ -1,4 +1,4 @@
-declare module "@capacitor/core" {
+declare module '@capacitor/core' {
   interface PluginRegistry {
     Http: HttpPlugin;
   }
@@ -13,7 +13,9 @@ export interface HttpPlugin {
   deleteCookie(options: HttpDeleteCookieOptions): Promise<void>;
   clearCookies(options: HttpClearCookiesOptions): Promise<void>;
   uploadFile(options: HttpUploadFileOptions): Promise<HttpUploadFileResult>;
-  downloadFile(options: HttpDownloadFileOptions): Promise<HttpDownloadFileResult>;
+  downloadFile(
+    options: HttpDownloadFileOptions,
+  ): Promise<HttpDownloadFileResult>;
 }
 
 export interface HttpOptions {
@@ -58,7 +60,7 @@ export interface HttpDownloadFileOptions extends HttpOptions {
   filePath: string;
   /**
    * Optionally, the directory to put the file in
-   * 
+   *
    * If this option is used, filePath can be a relative path rather than absolute
    */
   fileDirectory?: FilesystemDirectory;
@@ -83,7 +85,7 @@ export interface HttpUploadFileOptions extends HttpOptions {
   filePath?: string;
   /**
    * Optionally, the directory to look for the file in.
-   * 
+   *
    * If this option is used, filePath can be a relative path rather than absolute
    */
   fileDirectory?: FilesystemDirectory;
@@ -123,5 +125,4 @@ export interface HttpDownloadFileResult {
   blob?: Blob;
 }
 
-export interface HttpUploadFileResult {
-}
+export interface HttpUploadFileResult {}
