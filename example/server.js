@@ -5,8 +5,7 @@ var path = require('path'),
   cors = require('cors'),
   cookieParser = require('cookie-parser'),
   multer = require('multer'),
-  upload = multer({ dest: 'uploads/' })
-
+  upload = multer({ dest: 'uploads/' });
 
 var fs = require('fs');
 
@@ -22,7 +21,6 @@ app.use(cookieParser());
 
 app.listen(3455, function () {
   console.log('listening on port 3455');
-
 });
 
 app.get('/get', (req, res) => {
@@ -35,27 +33,31 @@ app.get('/get', (req, res) => {
   res.send();
 });
 
-app.get('/get-gzip', compression({
-  filter: (req, res) => true,
-  threshold: 1
-}), (req, res) => {
-  const headers = req.headers;
-  const params = req.query;
-  console.log('Got headers', headers);
-  console.log('Got params', params);
-  console.log(req.url);
-  res.status(200);
-  res.json({
-    data: 'compressed'
-  });
-});
+app.get(
+  '/get-gzip',
+  compression({
+    filter: (req, res) => true,
+    threshold: 1,
+  }),
+  (req, res) => {
+    const headers = req.headers;
+    const params = req.query;
+    console.log('Got headers', headers);
+    console.log('Got params', params);
+    console.log(req.url);
+    res.status(200);
+    res.json({
+      data: 'compressed',
+    });
+  },
+);
 
 app.get('/get-json', (req, res) => {
   res.status(200);
   res.json({
     name: 'Max',
-    superpower: 'Being Awesome'
-  })
+    superpower: 'Being Awesome',
+  });
 });
 
 app.get('/get-html', (req, res) => {
@@ -108,7 +110,7 @@ app.get('/cookie', (req, res) => {
 });
 
 app.get('/download-pdf', (req, res) => {
-  console.log('Sending PDF to request', +new Date);
+  console.log('Sending PDF to request', +new Date());
   res.download('document.pdf');
 });
 
@@ -131,7 +133,7 @@ app.post('/form-data', (req, res) => {
 
   res.status(200);
   res.send();
-})
+});
 
 app.post('/form-data-multi', upload.any(), (req, res) => {
   console.log('Got form data multipart post', req.body);
@@ -140,4 +142,4 @@ app.post('/form-data-multi', upload.any(), (req, res) => {
 
   res.status(200);
   res.send();
-}) 
+});

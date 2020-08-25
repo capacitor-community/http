@@ -9,6 +9,7 @@
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "fmt": "npm run prettier -- --write",
+    "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
     "prepublishOnly": "npm run build",
     "npm-publish": "np"
   },

@@ -13,7 +13,7 @@ import {
   HttpDownloadFileOptions,
   HttpDownloadFileResult,
   HttpUploadFileOptions,
-  HttpUploadFileResult
+  HttpUploadFileResult,
 } from './definitions';
 import { WebPlugin, registerWebPlugin } from '@capacitor/core';
 
@@ -21,7 +21,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
   constructor() {
     super({
       name: 'Http',
-      platforms: ['web', 'electron']
+      platforms: ['web', 'electron'],
     });
   }
 
@@ -46,25 +46,31 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     return h;
   }
 
-  private makeFetchOptions(options: HttpOptions, fetchExtra: RequestInit): RequestInit {
+  private makeFetchOptions(
+    options: HttpOptions,
+    fetchExtra: RequestInit,
+  ): RequestInit {
     const req = {
       method: options.method || 'GET',
       headers: options.headers,
-      ...(fetchExtra || {})
+      ...(fetchExtra || {}),
     } as RequestInit;
 
-    const contentType = this.getRequestHeader(options.headers || {}, 'content-type') || '';
+    const contentType =
+      this.getRequestHeader(options.headers || {}, 'content-type') || '';
 
     if (contentType.indexOf('application/json') === 0) {
       req['body'] = JSON.stringify(options.data);
-    } else if ((contentType.indexOf('application/x-www-form-urlencoded') === 0) ||
-              (contentType.indexOf('multipart/form-data') === 0)) {
+    } else if (
+      contentType.indexOf('application/x-www-form-urlencoded') === 0 ||
+      contentType.indexOf('multipart/form-data') === 0
+    ) {
       const urlSearchParams = new URLSearchParams();
       for (let key of Object.keys(options.data)) {
         urlSearchParams.set(key, options.data[key]);
-      } 
+      }
       req['body'] = urlSearchParams.toString();
-    } 
+    }
     return req;
   }
 
@@ -85,23 +91,26 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     return {
       status: ret.status,
       data,
-      headers: this.nativeHeadersToObject(ret.headers)
-    }
+      headers: this.nativeHeadersToObject(ret.headers),
+    };
   }
 
   async setCookie(options: HttpSetCookieOptions) {
-    var expires = "";
+    var expires = '';
     if (options.ageDays) {
       const date = new Date();
-      date.setTime(date.getTime() + (options.ageDays * 24 * 60 * 60 * 1000));
-      expires = "; expires=" + date.toUTCString();
+      date.setTime(date.getTime() + options.ageDays * 24 * 60 * 60 * 1000);
+      expires = '; expires=' + date.toUTCString();
     }
-    document.cookie = options.key + "=" + (options.value || "") + expires + "; path=/";
+    document.cookie =
+      options.key + '=' + (options.value || '') + expires + '; path=/';
   }
 
-  async getCookies(_options: HttpGetCookiesOptions): Promise<HttpGetCookiesResult> {
+  async getCookies(
+    _options: HttpGetCookiesOptions,
+  ): Promise<HttpGetCookiesResult> {
     if (!document.cookie) {
-      return { value: [] }
+      return { value: [] };
     }
 
     var cookies = document.cookie.split(';');
@@ -115,25 +124,30 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
 
         return {
           key,
-          value
-        }
-      })
-    }
+          value,
+        };
+      }),
+    };
   }
 
   async deleteCookie(options: HttpDeleteCookieOptions) {
-    document.cookie = options.key + '=; Max-Age=0'
+    document.cookie = options.key + '=; Max-Age=0';
   }
 
   async clearCookies(_options: HttpClearCookiesOptions) {
     document.cookie
-      .split(";")
-      .forEach(c =>
-        document.cookie = c.replace(/^ +/, '')
-          .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`));
+      .split(';')
+      .forEach(
+        c =>
+          (document.cookie = c
+            .replace(/^ +/, '')
+            .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`)),
+      );
   }
 
-  async uploadFile(options: HttpUploadFileOptions): Promise<HttpUploadFileResult> {
+  async uploadFile(
+    options: HttpUploadFileOptions,
+  ): Promise<HttpUploadFileResult> {
     const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
 
     const formData = new FormData();
@@ -142,13 +156,15 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     await fetch(options.url, {
       ...fetchOptions,
       body: formData,
-      method: 'POST'
+      method: 'POST',
     });
 
     return {};
   }
 
-  async downloadFile(options: HttpDownloadFileOptions): Promise<HttpDownloadFileResult> {
+  async downloadFile(
+    options: HttpDownloadFileOptions,
+  ): Promise<HttpDownloadFileResult> {
     const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
 
     const ret = await fetch(options.url, fetchOptions);
@@ -156,8 +172,8 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     const blob = await ret.blob();
 
     return {
-      blob
-    }
+      blob,
+    };
   }
 }
 
