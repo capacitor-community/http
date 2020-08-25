@@ -8,6 +8,7 @@
     "build": "npm run clean && tsc",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
+    "fmt": "npm run prettier -- --write",
     "prepublishOnly": "npm run build",
     "npm-publish": "np"
   },
@@ -19,6 +20,7 @@
   "devDependencies": {
     "@capacitor/android": "latest",
     "@capacitor/ios": "latest",
+    "@ionic/prettier-config": "^1.0.0",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",
@@ -49,6 +51,7 @@
     "plugin",
     "native"
   ],
+  "prettier": "@ionic/prettier-config",
   "capacitor": {
     "ios": {
       "src": "ios"
