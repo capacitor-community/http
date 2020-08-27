@@ -9,7 +9,7 @@ import {
   HttpClearCookiesOptions,
   HttpGetCookiesOptions,
   HttpGetCookiesResult,
-  //HttpParams,
+  HttpParams,
   HttpDownloadFileOptions,
   HttpDownloadFileResult,
   HttpUploadFileOptions,
@@ -74,10 +74,24 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     return req;
   }
 
+  private makeFetchParams(params: HttpParams): string | null {
+    if (!params) return null;
+    return Object.entries(params).reduce((prev, [key, value]) => {
+      const encodedValue = encodeURIComponent(value);
+      const keyValue = `${key}=${encodedValue}`;
+      return prev ? `${prev}&${keyValue}` : keyValue;
+    }, '');
+  }
+
   async request(options: HttpOptions): Promise<HttpResponse> {
     const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
 
-    const ret = await fetch(options.url, fetchOptions);
+    const fetchParams = this.makeFetchParams(options.params);
+    const fetchUrl = fetchParams
+      ? `${options.url}?${fetchParams}`
+      : options.url;
+
+    const ret = await fetch(fetchUrl, fetchOptions);
 
     const contentType = ret.headers.get('content-type');
 
