@@ -74,7 +74,7 @@ const doGet = () => {
 
   const ret = await Http.request({
     method: 'GET',
-    url: 'https://example.com/my/api,
+    url: 'https://example.com/my/api',
     headers: {
       'X-Fake-Header': 'Max was here'
     },
@@ -91,7 +91,7 @@ const doPost = () => {
 
   const ret = await Http.request({
     method: 'POST',
-    url: 'https://example.com/my/api,
+    url: 'https://example.com/my/api',
     headers: {
       'X-Fake-Header': 'Max was here'
     },
