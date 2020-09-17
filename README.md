@@ -93,7 +93,8 @@ const doPost = () => {
     method: 'POST',
     url: 'https://example.com/my/api',
     headers: {
-      'X-Fake-Header': 'Max was here'
+      'X-Fake-Header': 'Max was here',
+      'Content-Type': 'application/json'
     },
     data: {
       foo: 'bar',
