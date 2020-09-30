@@ -143,7 +143,7 @@ const getCookies = async () => {
 const downloadFile = async () => {
   const { Http } = Plugins;
   const ret = await Http.downloadFile({
-    url: 'https://example.com/path/to/download.pdf'),
+    url: 'https://example.com/path/to/download.pdf',
     filePath: 'document.pdf',
     fileDirectory: FilesystemDirectory.Downloads
   });
