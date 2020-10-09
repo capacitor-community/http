@@ -1,5 +1,9 @@
 package com.getcapacitor.plugin.http;
 
+import com.getcapacitor.JSObject;
+
+import org.json.JSONException;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -8,6 +12,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.HttpURLConnection;
 import java.net.URLConnection;
+import java.util.Iterator;
 import java.util.UUID;
 
 public class FormUploader {
@@ -54,13 +59,28 @@ public class FormUploader {
     }
 
     /**
+     * Adds a form field to the writer
+     *
+     * @param name  field name
+     * @param value field value
+     */
+    private void appendFieldToWriter(String name, String value) {
+        writer.append(LINE_FEED);
+        writer.append("--" + boundary).append(LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"" + name + "\"").append(LINE_FEED);
+        writer.append("Content-Type: text/plain; charset=" + charset).append(LINE_FEED);
+        writer.append(LINE_FEED);
+        writer.append(value);
+    }
+
+    /**
      * Adds a upload file section to the request
      *
      * @param fieldName  name attribute in <input type="file" name="..." />
      * @param uploadFile a File to be uploaded
      * @throws IOException
      */
-    public void addFilePart(String fieldName, File uploadFile) throws IOException {
+    public void addFilePart(String fieldName, File uploadFile, JSObject data) throws IOException {
         String fileName = uploadFile.getName();
         writer.append(LINE_FEED);
         writer.append("--" + boundary).append(LINE_FEED);
@@ -76,6 +96,19 @@ public class FormUploader {
         }
         outputStream.flush();
         inputStream.close();
+        Iterator<String> keyIterator = data.keys();
+        while (keyIterator.hasNext()) {
+            String key = keyIterator.next();
+            try {
+                Object value = data.get(key);
+                if (value == null || !(value instanceof String)) {
+                    continue;
+                }
+                appendFieldToWriter(key, value.toString());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
         writer.append(LINE_FEED).append("--" + boundary + "--").append(LINE_FEED);
         writer.flush();
     }
