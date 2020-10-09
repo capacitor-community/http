@@ -96,19 +96,23 @@ public class FormUploader {
         }
         outputStream.flush();
         inputStream.close();
-        Iterator<String> keyIterator = data.keys();
-        while (keyIterator.hasNext()) {
-            String key = keyIterator.next();
-            try {
-                Object value = data.get(key);
-                if (value == null || !(value instanceof String)) {
-                    continue;
+
+        if (data != null) {
+            Iterator<String> keyIterator = data.keys();
+            while (keyIterator.hasNext()) {
+                String key = keyIterator.next();
+                try {
+                    Object value = data.get(key);
+                    if (value == null || !(value instanceof String)) {
+                        continue;
+                    }
+                    appendFieldToWriter(key, value.toString());
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
-                appendFieldToWriter(key, value.toString());
-            } catch (JSONException e) {
-                e.printStackTrace();
             }
         }
+
         writer.append(LINE_FEED).append("--" + boundary + "--").append(LINE_FEED);
         writer.flush();
     }
