@@ -162,18 +162,16 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
   async uploadFile(
     options: HttpUploadFileOptions,
   ): Promise<HttpUploadFileResult> {
-    const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
-
     const formData = new FormData();
     formData.append(options.name, options.blob);
 
-    await fetch(options.url, {
-      ...fetchOptions,
+    const fetchOptions = {
+      ...options,
       body: formData,
       method: 'POST',
-    });
+    };
 
-    return {};
+    return this.request(fetchOptions);
   }
 
   async downloadFile(
