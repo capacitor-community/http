@@ -5,7 +5,7 @@
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "scripts": {
-    "build": "npm run clean && tsc",
+    "build": "npm run clean && tsc && rollup -c rollup.config.js",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "fmt": "npm run prettier -- --write",
@@ -16,11 +16,12 @@
   "author": "Max Lynch <max@ionic.io>",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/core": "latest"
+    "@capacitor/android": "^3.0.0-alpha.11",
+    "@capacitor/core": "^3.0.0-alpha.9",
+    "@capacitor/filesystem": "^0.1.1",
+    "@capacitor/ios": "^3.0.0-alpha.11"
   },
   "devDependencies": {
-    "@capacitor/android": "latest",
-    "@capacitor/ios": "latest",
     "@ionic/prettier-config": "^1.0.0",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
@@ -34,6 +35,7 @@
     "prettier-plugin-java": "^0.8.0",
     "pretty-quick": "^2.0.1",
     "rimraf": "^3.0.0",
+    "rollup": "^2.35.1",
     "typescript": "^3.2.4"
   },
   "husky": {

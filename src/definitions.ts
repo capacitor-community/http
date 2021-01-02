@@ -1,10 +1,4 @@
-declare module '@capacitor/core' {
-  interface PluginRegistry {
-    Http: HttpPlugin;
-  }
-}
-
-import { FilesystemDirectory } from '@capacitor/core';
+import { Directory } from '@capacitor/filesystem';
 
 export interface HttpPlugin {
   request(options: HttpOptions): Promise<HttpResponse>;
@@ -63,7 +57,7 @@ export interface HttpDownloadFileOptions extends HttpOptions {
    *
    * If this option is used, filePath can be a relative path rather than absolute
    */
-  fileDirectory?: FilesystemDirectory;
+  fileDirectory?: Directory;
 }
 
 export interface HttpUploadFileOptions extends HttpOptions {
@@ -88,7 +82,7 @@ export interface HttpUploadFileOptions extends HttpOptions {
    *
    * If this option is used, filePath can be a relative path rather than absolute
    */
-  fileDirectory?: FilesystemDirectory;
+  fileDirectory?: Directory;
 }
 
 export interface HttpCookie {

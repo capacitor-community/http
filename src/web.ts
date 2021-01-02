@@ -15,14 +15,11 @@ import {
   HttpUploadFileOptions,
   HttpUploadFileResult,
 } from './definitions';
-import { WebPlugin, registerWebPlugin } from '@capacitor/core';
+import { WebPlugin } from '@capacitor/core';
 
-export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
+export class HttpWeb extends WebPlugin implements HttpPlugin {
   constructor() {
-    super({
-      name: 'Http',
-      platforms: ['web', 'electron'],
-    });
+    super();
   }
 
   private getRequestHeader(headers: HttpHeaders, key: string): string {
@@ -48,12 +45,12 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
 
   private makeFetchOptions(
     options: HttpOptions,
-    fetchExtra: RequestInit,
+    fetchExtra: RequestInit = {},
   ): RequestInit {
     const req = {
       method: options.method || 'GET',
       headers: options.headers,
-      ...(fetchExtra || {}),
+      ...fetchExtra,
     } as RequestInit;
 
     const contentType =
@@ -74,7 +71,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     return req;
   }
 
-  private makeFetchParams(params: HttpParams): string | null {
+  private makeFetchParams(params?: HttpParams): string | null {
     if (!params) return null;
     return Object.entries(params).reduce((prev, [key, value]) => {
       const encodedValue = encodeURIComponent(value);
@@ -163,7 +160,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     options: HttpUploadFileOptions,
   ): Promise<HttpUploadFileResult> {
     const formData = new FormData();
-    formData.append(options.name, options.blob);
+    formData.append(options.name, options.blob || 'undefined');
 
     const fetchOptions = {
       ...options,
@@ -189,8 +186,6 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
   }
 }
 
-const Http = new HttpPluginWeb();
+const Http = new HttpWeb();
 
 export { Http };
-
-registerWebPlugin(Http);
