@@ -16,6 +16,7 @@ import {
   HttpUploadFileResult,
 } from './definitions';
 import { WebPlugin, registerWebPlugin } from '@capacitor/core';
+import { HttpHeaders } from '@angular/common/http';
 
 export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
   constructor() {
@@ -26,6 +27,10 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
   }
 
   private getRequestHeader(headers: HttpHeaders, key: string): string {
+    if (headers instanceof HttpHeaders) {
+      return headers.get(key);
+    }
+    
     const originalKeys = Object.keys(headers);
     const keys = Object.keys(headers).map(k => k.toLocaleLowerCase());
     const lowered = keys.reduce((newHeaders, key, index) => {
