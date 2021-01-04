@@ -16,7 +16,7 @@ import {
   HttpUploadFileResult,
 } from './definitions';
 import { WebPlugin, registerWebPlugin } from '@capacitor/core';
-import { HttpHeaders } from '@angular/common/http';
+import { HttpHeaders as AngularHttpHeaders } from '@angular/common/http';
 
 export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
   constructor() {
@@ -26,8 +26,8 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     });
   }
 
-  private getRequestHeader(headers: HttpHeaders, key: string): string {
-    if (headers instanceof HttpHeaders) {
+  private getRequestHeader(headers: HttpHeaders | AngularHttpHeaders, key: string): string {
+    if (headers instanceof AngularHttpHeaders) {
       return headers.get(key);
     }
     
