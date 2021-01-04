@@ -27,7 +27,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
 
   private getRequestHeader(headers: HttpHeaders, key: string): string {
     if (typeof headers.get === 'function') {
-      return headers.get.apply(headers, key);
+      return (headers.get as (arg: string) => string).apply(headers, key);
     }
     
     const originalKeys = Object.keys(headers);
