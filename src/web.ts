@@ -25,7 +25,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     });
   }
 
-  private getRequestHeader(headers: HttpHeaders | AngularHttpHeaders, key: string): string {
+  private getRequestHeader(headers: HttpHeaders, key: string): string {
     if (typeof headers.get === 'function') {
       return headers.get(key);
     }
