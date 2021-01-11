@@ -1,7 +1,6 @@
 import type {
   HttpPlugin,
   HttpOptions,
-  //HttpCookie,
   HttpDeleteCookieOptions,
   HttpHeaders,
   HttpResponse,
@@ -18,10 +17,6 @@ import type {
 import { WebPlugin } from '@capacitor/core';
 
 export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
-  constructor() {
-    super();
-  }
-
   private getRequestHeader(headers: HttpHeaders, key: string): string {
     const originalKeys = Object.keys(headers);
     const keys = Object.keys(headers).map(k => k.toLocaleLowerCase());
