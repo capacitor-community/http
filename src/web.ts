@@ -1,4 +1,4 @@
-import {
+import type {
   HttpPlugin,
   HttpOptions,
   //HttpCookie,
@@ -15,14 +15,11 @@ import {
   HttpUploadFileOptions,
   HttpUploadFileResult,
 } from './definitions';
-import { WebPlugin, registerWebPlugin } from '@capacitor/core';
+import { WebPlugin } from '@capacitor/core';
 
 export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
   constructor() {
-    super({
-      name: 'Http',
-      platforms: ['web', 'electron'],
-    });
+    super();
   }
 
   private getRequestHeader(headers: HttpHeaders, key: string): string {
@@ -48,7 +45,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
 
   private makeFetchOptions(
     options: HttpOptions,
-    fetchExtra: RequestInit,
+    fetchExtra?: RequestInit,
   ): RequestInit {
     const req = {
       method: options.method || 'GET',
@@ -74,7 +71,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     return req;
   }
 
-  private makeFetchParams(params: HttpParams): string | null {
+  private makeFetchParams(params?: HttpParams): string | null {
     if (!params) return null;
     return Object.entries(params).reduce((prev, [key, value]) => {
       const encodedValue = encodeURIComponent(value);
@@ -165,7 +162,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
 
     const formData = new FormData();
-    formData.append(options.name, options.blob);
+    formData.append(options.name, options.blob || '');
 
     await fetch(options.url, {
       ...fetchOptions,
@@ -190,9 +187,3 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     };
   }
 }
-
-const Http = new HttpPluginWeb();
-
-export { Http };
-
-registerWebPlugin(Http);

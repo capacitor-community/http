@@ -4,8 +4,6 @@ declare module '@capacitor/core' {
   }
 }
 
-import { FilesystemDirectory } from '@capacitor/core';
-
 export interface HttpPlugin {
   request(options: HttpOptions): Promise<HttpResponse>;
   setCookie(options: HttpSetCookieOptions): Promise<void>;
@@ -58,12 +56,6 @@ export interface HttpDownloadFileOptions extends HttpOptions {
    * The path the downloaded file should be moved to
    */
   filePath: string;
-  /**
-   * Optionally, the directory to put the file in
-   *
-   * If this option is used, filePath can be a relative path rather than absolute
-   */
-  fileDirectory?: FilesystemDirectory;
 }
 
 export interface HttpUploadFileOptions extends HttpOptions {
@@ -83,12 +75,6 @@ export interface HttpUploadFileOptions extends HttpOptions {
    * For uploading a file natively, the path to the file on disk to upload
    */
   filePath?: string;
-  /**
-   * Optionally, the directory to look for the file in.
-   *
-   * If this option is used, filePath can be a relative path rather than absolute
-   */
-  fileDirectory?: FilesystemDirectory;
 }
 
 export interface HttpCookie {
