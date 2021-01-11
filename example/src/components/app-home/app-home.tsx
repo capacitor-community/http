@@ -1,14 +1,10 @@
 import { Component, h, State } from '@stencil/core';
-
 import { loadingController } from '@ionic/core';
-
-import { Plugins, FilesystemDirectory } from '@capacitor/core';
-
-import '@capacitor-community/http';
+import { Http } from '@capacitor-community/http';
 
 @Component({
   tag: 'app-home',
-  styleUrl: 'app-home.css'
+  styleUrl: 'app-home.css',
 })
 export class AppHome {
   @State() serverUrl = 'http://localhost:3455';
@@ -18,12 +14,10 @@ export class AppHome {
   loading: HTMLIonLoadingElement;
 
   async get(path = '/get', method = 'GET') {
-    const { Http } = Plugins;
-
     this.output = '';
 
     this.loading = await loadingController.create({
-      message: 'Requesting...'
+      message: 'Requesting...',
     });
     this.loading.present();
 
@@ -32,11 +26,11 @@ export class AppHome {
         method: method,
         url: this.apiUrl(path),
         headers: {
-          'X-Fake-Header': 'Max was here'
+          'X-Fake-Header': 'Max was here',
         },
         params: {
-          'size': 'XL'
-        }
+          size: 'XL',
+        },
       });
       console.log('Got ret', ret);
       this.output = JSON.stringify(ret, null, 2);
@@ -55,16 +49,19 @@ export class AppHome {
   getHtml = () => this.get('/get-html');
 
   head = () => this.get('/head', 'HEAD');
-  delete = () => this.mutate('/delete', 'DELETE', { title: 'foo', body: 'bar', userId: 1 });
-  patch = () => this.mutate('/patch', 'PATCH', { title: 'foo', body: 'bar', userId: 1 });
-  post = () => this.mutate('/post', 'POST', { title: 'foo', body: 'bar', userId: 1 });
-  put = () => this.mutate('/put', 'PUT', { title: 'foo', body: 'bar', userId: 1 });
+  delete = () =>
+    this.mutate('/delete', 'DELETE', { title: 'foo', body: 'bar', userId: 1 });
+  patch = () =>
+    this.mutate('/patch', 'PATCH', { title: 'foo', body: 'bar', userId: 1 });
+  post = () =>
+    this.mutate('/post', 'POST', { title: 'foo', body: 'bar', userId: 1 });
+  put = () =>
+    this.mutate('/put', 'PUT', { title: 'foo', body: 'bar', userId: 1 });
 
   async mutate(path, method, data = {}) {
-    const { Http } = Plugins;
     this.output = '';
     this.loading = await loadingController.create({
-      message: 'Requesting...'
+      message: 'Requesting...',
     });
     this.loading.present();
     try {
@@ -74,7 +71,7 @@ export class AppHome {
         headers: {
           'content-type': 'application/json',
         },
-        data
+        data,
       });
       console.log('Got ret', ret);
       this.loading.dismiss();
@@ -92,10 +89,9 @@ export class AppHome {
   testSetCookies = () => this.get('/set-cookies');
 
   formPost = async () => {
-    const { Http } = Plugins;
     this.output = '';
     this.loading = await loadingController.create({
-      message: 'Requesting...'
+      message: 'Requesting...',
     });
     this.loading.present();
     try {
@@ -103,12 +99,12 @@ export class AppHome {
         url: this.apiUrl('/form-data'),
         method: 'POST',
         headers: {
-          'content-type': 'application/x-www-form-urlencoded'
+          'content-type': 'application/x-www-form-urlencoded',
         },
         data: {
           name: 'Max',
-          age: 5
-        }
+          age: 5,
+        },
       });
       console.log('Got ret', ret);
       this.loading.dismiss();
@@ -119,13 +115,12 @@ export class AppHome {
     } finally {
       this.loading.dismiss();
     }
-  }
+  };
 
   formPostMultipart = async () => {
-    const { Http } = Plugins;
     this.output = '';
     this.loading = await loadingController.create({
-      message: 'Requesting...'
+      message: 'Requesting...',
     });
     this.loading.present();
     try {
@@ -133,12 +128,12 @@ export class AppHome {
         url: this.apiUrl('/form-data-multi'),
         method: 'POST',
         headers: {
-          'content-type': 'multipart/form-data'
+          'content-type': 'multipart/form-data',
         },
         data: {
           name: 'Max',
-          age: 5
-        }
+          age: 5,
+        },
       });
       console.log('Got ret', ret);
       this.loading.dismiss();
@@ -149,51 +144,46 @@ export class AppHome {
     } finally {
       this.loading.dismiss();
     }
-  }
+  };
 
   setCookie = async () => {
-    const { Http } = Plugins;
     const ret = await Http.setCookie({
       url: this.apiUrl('/cookie'),
       key: 'language',
-      value: 'en'
+      value: 'en',
     });
-  }
+  };
 
   deleteCookie = async () => {
-    const { Http } = Plugins;
     const ret = await Http.deleteCookie({
       url: this.apiUrl('/cookie'),
       key: 'language',
     });
-  }
+  };
 
   clearCookies = async () => {
-    const { Http } = Plugins;
     const ret = await Http.clearCookies({
       url: this.apiUrl('/cookie'),
     });
-  }
+  };
 
   getCookies = async () => {
-    const { Http } = Plugins;
     const ret = await Http.getCookies({
-      url: this.apiUrl('/cookie')
+      url: this.apiUrl('/cookie'),
     });
     console.log('Got cookies', ret);
     this.output = JSON.stringify(ret.value);
-  }
+  };
 
   testCookies = async () => {
-    const { Http } = Plugins;
     this.loading = await loadingController.create({
-      message: 'Requesting...'
+      message: 'Requesting...',
     });
     this.loading.present();
     try {
       const ret = await Http.request({
         method: 'GET',
-        url: this.apiUrl('/cookie')
+        url: this.apiUrl('/cookie'),
       });
       console.log('Got ret', ret);
       this.loading.dismiss();
@@ -203,20 +193,15 @@ export class AppHome {
     } finally {
       this.loading.dismiss();
     }
-  }
+  };
 
   downloadFile = async () => {
-    const { Filesystem, Http } = Plugins;
-    console.log('Doing download', FilesystemDirectory.Documents);
-
     const ret = await Http.downloadFile({
       url: this.apiUrl('/download-pdf'),
       filePath: 'document.pdf',
-      fileDirectory: FilesystemDirectory.Documents
     });
 
     console.log('Got download ret', ret);
-
 
     /*
     const renameRet = await Filesystem.rename({
@@ -229,27 +214,24 @@ export class AppHome {
     */
 
     if (ret.path) {
+      // @ts-ignore
       const read = await Filesystem.readFile({
         path: 'document.pdf',
-        directory: FilesystemDirectory.Documents
       });
 
       console.log('Read', read);
     }
-  }
+  };
 
   uploadFile = async () => {
-    const { Http } = Plugins;
-
     const ret = await Http.uploadFile({
       url: this.apiUrl('/upload-pdf'),
       name: 'myFile',
       filePath: 'document.pdf',
-      fileDirectory: FilesystemDirectory.Documents
     });
 
     console.log('Got upload ret', ret);
-  }
+  };
 
   render() {
     return [
@@ -273,7 +255,9 @@ export class AppHome {
         <ion-button onClick={this.testSetCookies}>Test Cookies Set</ion-button>
 
         <ion-button onClick={this.formPost}>Form Post</ion-button>
-        <ion-button onClick={this.formPostMultipart}>Form Post Multipart</ion-button>
+        <ion-button onClick={this.formPostMultipart}>
+          Form Post Multipart
+        </ion-button>
 
         <ion-button onClick={this.setCookie}>Set Cookie</ion-button>
         <ion-button onClick={this.getCookies}>Get Cookies</ion-button>
@@ -286,7 +270,7 @@ export class AppHome {
 
         <h4>Output</h4>
         <pre id="output">{this.output}</pre>
-      </ion-content>
+      </ion-content>,
     ];
   }
 }

@@ -1,7 +1,6 @@
-import {
+import type {
   HttpPlugin,
   HttpOptions,
-  //HttpCookie,
   HttpDeleteCookieOptions,
   HttpHeaders,
   HttpResponse,
@@ -185,7 +184,3 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
     };
   }
 }
-
-const Http = new HttpWeb();
-
-export { Http };

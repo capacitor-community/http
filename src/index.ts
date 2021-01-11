@@ -1,5 +1,4 @@
 import { registerPlugin } from '@capacitor/core';
-
 import type { HttpPlugin } from './definitions';
 
 const Http = registerPlugin<HttpPlugin>('Http', {
