@@ -16,7 +16,11 @@ import type {
 } from './definitions';
 import { WebPlugin } from '@capacitor/core';
 
-export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
+export class HttpWeb extends WebPlugin implements HttpPlugin {
+  constructor() {
+    super();
+  }
+
   private getRequestHeader(headers: HttpHeaders, key: string): string {
     const originalKeys = Object.keys(headers);
     const keys = Object.keys(headers).map(k => k.toLocaleLowerCase());
@@ -40,12 +44,12 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
 
   private makeFetchOptions(
     options: HttpOptions,
-    fetchExtra?: RequestInit,
+    fetchExtra: RequestInit = {},
   ): RequestInit {
     const req = {
       method: options.method || 'GET',
       headers: options.headers,
-      ...(fetchExtra || {}),
+      ...fetchExtra,
     } as RequestInit;
 
     const contentType =
@@ -154,18 +158,16 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
   async uploadFile(
     options: HttpUploadFileOptions,
   ): Promise<HttpUploadFileResult> {
-    const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
-
     const formData = new FormData();
-    formData.append(options.name, options.blob || '');
+    formData.append(options.name, options.blob || 'undefined');
 
-    await fetch(options.url, {
-      ...fetchOptions,
+    const fetchOptions = {
+      ...options,
       body: formData,
       method: 'POST',
-    });
+    };
 
-    return {};
+    return this.request(fetchOptions);
   }
 
   async downloadFile(
