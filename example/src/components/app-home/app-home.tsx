@@ -152,6 +152,7 @@ export class AppHome {
       key: 'language',
       value: 'en',
     });
+    console.log(ret);
   };
 
   deleteCookie = async () => {
@@ -159,12 +160,14 @@ export class AppHome {
       url: this.apiUrl('/cookie'),
       key: 'language',
     });
+    console.log(ret);
   };
 
   clearCookies = async () => {
     const ret = await Http.clearCookies({
       url: this.apiUrl('/cookie'),
     });
+    console.log(ret);
   };
 
   getCookies = async () => {

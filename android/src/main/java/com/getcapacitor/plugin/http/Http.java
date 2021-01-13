@@ -16,6 +16,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpCookie;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -23,6 +24,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +36,7 @@ import org.json.JSONException;
  */
 @NativePlugin(requestCodes = { Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS, Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS })
 public class Http extends Plugin {
+
     public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
     public static final int HTTP_REQUEST_UPLOAD_READ_PERMISSIONS = 9023;
 
@@ -117,8 +120,7 @@ public class Http extends Plugin {
         Integer readTimeout,
         JSObject headers,
         JSObject params
-    )
-        throws Exception {
+    ) throws Exception {
         if (params != null) {
             url = setParams(url, params);
         }
@@ -183,7 +185,6 @@ public class Http extends Plugin {
 
                 call.resolve(
                     new JSObject() {
-
                         {
                             put("path", file.getAbsolutePath());
                         }
@@ -238,7 +239,6 @@ public class Http extends Plugin {
         final Http httpPlugin = this;
         bridge.execute(
             new Runnable() {
-
                 @Override
                 public void run() {
                     if (requestCode == Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS) {
