@@ -1,14 +1,13 @@
 package com.getcapacitor.plugin.http;
 
 import android.Manifest;
-import android.content.pm.PackageManager;
 import android.util.Log;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
-import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+import com.getcapacitor.annotation.CapacitorPlugin;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -34,7 +33,7 @@ import org.json.JSONException;
 /**
  * Native HTTP Plugin
  */
-@NativePlugin(requestCodes = { Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS, Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS })
+@CapacitorPlugin(name = "HTTP", requestCodes = { Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS, Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS })
 public class Http extends Plugin {
 
     public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
@@ -65,7 +64,6 @@ public class Http extends Plugin {
             case "POST":
             case "PUT":
                 mutate(call, url, method, headers);
-                return;
         }
     }
 
@@ -81,7 +79,7 @@ public class Http extends Plugin {
         } catch (MalformedURLException ex) {
             call.reject("Invalid URL", ex);
         } catch (IOException ex) {
-            call.reject("Error", ex);
+            call.reject("IO Error", ex);
         } catch (Exception ex) {
             call.reject("Error", ex);
         }
@@ -107,7 +105,7 @@ public class Http extends Plugin {
         } catch (MalformedURLException ex) {
             call.reject("Invalid URL", ex);
         } catch (IOException ex) {
-            call.reject("Error", ex);
+            call.reject("IO Error", ex);
         } catch (Exception ex) {
             call.reject("Error", ex);
         }
@@ -147,7 +145,7 @@ public class Http extends Plugin {
     @PluginMethod
     public void downloadFile(PluginCall call) {
         try {
-            saveCall(call);
+            bridge.saveCall(call);
             String urlString = call.getString("url");
             String filePath = call.getString("filePath");
             String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
@@ -161,9 +159,9 @@ public class Http extends Plugin {
 
             if (
                 !FilesystemUtils.isPublicDirectory(fileDirectory) ||
-                isStoragePermissionGranted(Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                isStoragePermissionGranted(call, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             ) {
-                this.freeSavedCall();
+                call.release(bridge);
 
                 final File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
 
@@ -200,55 +198,15 @@ public class Http extends Plugin {
         }
     }
 
-    private boolean isStoragePermissionGranted(int permissionRequestCode, String permission) {
+    private boolean isStoragePermissionGranted(PluginCall call, String permission) {
         if (hasPermission(permission)) {
             Log.v(getLogTag(), "Permission '" + permission + "' is granted");
             return true;
         } else {
             Log.v(getLogTag(), "Permission '" + permission + "' denied. Asking user for it.");
-            pluginRequestPermissions(new String[] { permission }, permissionRequestCode);
+            requestPermissions(call);
             return false;
         }
-    }
-
-    @Override
-    protected void handleRequestPermissionsResult(final int requestCode, String[] permissions, int[] grantResults) {
-        super.handleRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (getSavedCall() == null) {
-            Log.d(getLogTag(), "No stored plugin call for permissions request result");
-            return;
-        }
-
-        final PluginCall savedCall = getSavedCall();
-
-        for (int i = 0; i < grantResults.length; i++) {
-            int result = grantResults[i];
-            String perm = permissions[i];
-            if (result == PackageManager.PERMISSION_DENIED) {
-                Log.d(getLogTag(), "User denied storage permission: " + perm);
-                savedCall.error("User denied write permission needed to save files");
-                this.freeSavedCall();
-                return;
-            }
-        }
-
-        this.freeSavedCall();
-
-        // Run on background thread to avoid main-thread network requests
-        final Http httpPlugin = this;
-        bridge.execute(
-            new Runnable() {
-                @Override
-                public void run() {
-                    if (requestCode == Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS) {
-                        httpPlugin.downloadFile(savedCall);
-                    } else if (requestCode == Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS) {
-                        httpPlugin.uploadFile(savedCall);
-                    }
-                }
-            }
-        );
     }
 
     @SuppressWarnings("unused")
@@ -265,14 +223,14 @@ public class Http extends Plugin {
         JSObject data = call.getObject("data");
 
         try {
-            saveCall(call);
+            bridge.saveCall(call);
             URL url = new URL(urlString);
 
             if (
                 !FilesystemUtils.isPublicDirectory(fileDirectory) ||
-                isStoragePermissionGranted(Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                isStoragePermissionGranted(call, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             ) {
-                this.freeSavedCall();
+                call.release(bridge);
                 File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
 
                 HttpURLConnection conn = makeUrlConnection(url, "POST", connectTimeout, readTimeout, headers, null);
@@ -422,12 +380,12 @@ public class Http extends Plugin {
         for (Map.Entry<String, List<String>> entries : conn.getHeaderFields().entrySet()) {
             JSObject header = new JSObject();
 
-            String val = "";
+            StringBuilder val = new StringBuilder();
             for (String headerVal : entries.getValue()) {
-                val += headerVal + ", ";
+                val.append(headerVal).append(", ");
             }
 
-            header.put(entries.getKey(), val);
+            header.put(entries.getKey(), val.toString());
             ret.put(header);
         }
 
