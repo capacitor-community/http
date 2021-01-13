@@ -4,7 +4,7 @@ dist
 xcuserdata/
 node_modules/
 cli/dist/commands/copy.js
-Pods/
+Pods
 test_project/
 *.map
 .DS_Store
