@@ -42,18 +42,7 @@ public class MainActivity extends BridgeActivity {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-
-    // Initializes the Bridge
-    this.init(
-        savedInstanceState,
-        new ArrayList<Class<? extends Plugin>>() {
-          {
-            // Additional plugins you've installed go here
-            // Ex: add(TotallyAwesomePlugin.class);
-            add(Http.class);
-          }
-        }
-      );
+    registerPlugin(Http.class);
   }
 }
 
@@ -68,17 +57,10 @@ No configuration required for this plugin
 To use the plugin while fully supporting the web version, import and use it like this:
 
 ```typescript
-// Must import the package once to make sure the web support initializes
-import '@capacitor-community/http';
-
-import { Plugins } from '@capacitor/core';
+import { Http } from '@capacitor-community/http';
 
 // Example of a GET request
 const doGet = () => {
-  // Destructure as close to usage as possible for web plugin to work correctly
-  // when running in the browser
-  const { Http } = Plugins;
-
   const ret = await Http.request({
     method: 'GET',
     url: 'https://example.com/my/api',
@@ -94,8 +76,6 @@ const doGet = () => {
 // Example of a POST request. Note: data
 // can be passed as a raw JS Object (must be JSON serializable)
 const doPost = () => {
-  const { Http } = Plugins;
-
   const ret = await Http.request({
     method: 'POST',
     url: 'https://example.com/my/api',
@@ -111,8 +91,6 @@ const doPost = () => {
 }
 
 const setCookie = async () => {
-  const { Http } = Plugins;
-
   const ret = await Http.setCookie({
     url: this.apiUrl('/cookie'),
     key: 'language',
@@ -121,8 +99,6 @@ const setCookie = async () => {
 }
 
 const deleteCookie = async () => {
-  const { Http } = Plugins;
-
   const ret = await Http.deleteCookie({
     url: this.apiUrl('/cookie'),
     key: 'language',
@@ -130,16 +106,12 @@ const deleteCookie = async () => {
 }
 
 const clearCookies = async () => {
-  const { Http } = Plugins;
-
   const ret = await Http.clearCookies({
     url: this.apiUrl('/cookie'),
   });
 }
 
 const getCookies = async () => {
-  const { Http } = Plugins;
-
   const ret = await Http.getCookies({
     url: this.apiUrl('/cookie')
   });
@@ -148,7 +120,6 @@ const getCookies = async () => {
 };
 
 const downloadFile = async () => {
-  const { Http } = Plugins;
   const ret = await Http.downloadFile({
     url: 'https://example.com/path/to/download.pdf'),
     filePath: 'document.pdf',
@@ -164,7 +135,6 @@ const downloadFile = async () => {
 }
 
 const uploadFile = async () => {
-  const { Http } = Plugins;
   const ret = await Http.uploadFile({
     url: 'https://example.com/path/to/upload.pdf',
     name: 'myFile',
