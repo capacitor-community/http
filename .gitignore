@@ -14,8 +14,8 @@ example/electron/www/*
 example/electron/capacitor.config.json
 example/android/app/src/main/assets/public/*
 !example/android/app/src/main/assets/public/.gitkeep
-example/ios/IonicRunner/public/*
-!example/ios/IonicRunner/public/.gitkeep
+example/ios/App/App/public/*
+!example/ios/App/App/public/.gitkeep
 Build/*
 Index/
 .*.sw*
@@ -35,3 +35,4 @@ android-template/app/app.iml
 .settings/
 .project
 build/
+capacitor-cordova-ios-plugins
