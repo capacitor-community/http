@@ -281,7 +281,7 @@ public class Http extends Plugin {
                 conn.setDoOutput(true);
 
                 FormUploader builder = new FormUploader(conn);
-                builder.addFilePart(name, file);
+                builder.addFilePart(name, file, data);
                 builder.finish();
 
                 buildResponse(call, conn);
