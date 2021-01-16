@@ -319,6 +319,7 @@ public class CAPHttpPlugin: CAPPlugin {
     
     ret["status"] = response.statusCode
     ret["headers"] = response.allHeaderFields
+    ret["url"] = response.url?.absoluteString
     
     let contentType = response.allHeaderFields["Content-Type"] as? String
 

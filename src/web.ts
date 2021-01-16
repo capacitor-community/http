@@ -106,6 +106,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
       status: ret.status,
       data,
       headers: this.nativeHeadersToObject(ret.headers),
+      url: ret.url,
     };
   }
 
