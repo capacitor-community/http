@@ -137,7 +137,9 @@ public class CAPHttpPlugin: CAPPlugin {
       // let res = response as! HTTPURLResponse
       
       //CAPLog.print("Uploaded file", location)
-      call.resolve()
+        let res = response as! HTTPURLResponse
+       
+        call.resolve(self.buildResponse(data, res))
     }
     
     task.resume()
