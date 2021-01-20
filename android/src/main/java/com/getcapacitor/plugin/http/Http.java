@@ -383,6 +383,7 @@ public class Http extends Plugin {
         JSObject ret = new JSObject();
         ret.put("status", statusCode);
         ret.put("headers", makeResponseHeaders(conn));
+        ret.put("url", conn.getURL());
 
         InputStream errorStream = conn.getErrorStream();
         InputStream stream = (errorStream != null ? errorStream : conn.getInputStream());

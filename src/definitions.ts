@@ -51,6 +51,7 @@ export interface HttpResponse {
   data: any;
   status: number;
   headers: HttpHeaders;
+  url: string;
 }
 
 export interface HttpDownloadFileOptions extends HttpOptions {
