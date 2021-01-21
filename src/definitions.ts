@@ -102,6 +102,7 @@ export interface HttpSetCookieOptions {
   key: string;
   value: string;
   ageDays?: number;
+  expires?: string;
 }
 
 export interface HttpGetCookiesOptions {
