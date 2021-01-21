@@ -262,14 +262,16 @@ public class CAPHttpPlugin: CAPPlugin {
   }
   
   func setUrlQuery(_ url: inout URL, _ params: [String:String]) {
-    var cmps = URLComponents(url: url, resolvingAgainstBaseURL: true)
-    if cmps?.queryItems == nil {
-      cmps?.queryItems = []
+    if (params.count != 0) {
+        var cmps = URLComponents(url: url, resolvingAgainstBaseURL: true)
+        if cmps?.queryItems == nil {
+          cmps?.queryItems = []
+        }
+        cmps!.queryItems?.append(contentsOf: params.map({ (key, value) -> URLQueryItem in
+          return URLQueryItem(name: key, value: value)
+        }))
+        url = cmps!.url!
     }
-    cmps!.queryItems?.append(contentsOf: params.map({ (key, value) -> URLQueryItem in
-      return URLQueryItem(name: key, value: value)
-    }))
-    url = cmps!.url!
   }
   
   func setRequestHeaders(_ request: inout URLRequest, _ headers: [String:String]) {
