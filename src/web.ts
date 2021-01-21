@@ -112,7 +112,10 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
 
   async setCookie(options: HttpSetCookieOptions) {
     var expires = '';
-    if (options.ageDays) {
+    if (options.expires) {
+      // remove "expires=" so you can pass with or without the prefix
+      expires = `; expires=${expires.replace('expires=', '')}`;
+    } else if (options.ageDays) {
       const date = new Date();
       date.setTime(date.getTime() + options.ageDays * 24 * 60 * 60 * 1000);
       expires = '; expires=' + date.toUTCString();
