@@ -46,8 +46,14 @@ public class CAPHttpPlugin: CAPPlugin {
     guard let url = URL(string: urlValue) else {
       return call.reject("Invalid URL")
     }
-    
-    let task = URLSession.shared.downloadTask(with: url) { (downloadLocation, response, error) in
+
+    let headers = (call.getObject("headers") ?? [:]) as [String:String]
+
+    var request = URLRequest(url: url)
+
+    setRequestHeaders(&request, headers)
+
+    let task = URLSession.shared.downloadTask(with: request) { (downloadLocation, response, error) in
       if error != nil {
         CAPLog.print("Error on download file", downloadLocation, response, error)
         call.reject("Error", "DOWNLOAD", error, [:])
@@ -107,9 +113,13 @@ public class CAPHttpPlugin: CAPPlugin {
       return call.reject("Unable to get file URL")
     }
    
+    let headers = (call.getObject("headers") ?? [:]) as [String:String]
+
     var request = URLRequest.init(url: url)
     request.httpMethod = "POST"
-    
+
+    setRequestHeaders(&request, headers)
+
     let boundary = UUID().uuidString
     
     let data: [String: Any] = call.getObject("data") ?? [:]
