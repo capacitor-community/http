@@ -48,24 +48,32 @@ public class Http extends Plugin {
     }
 
     @PluginMethod
-    public void request(PluginCall call) {
-        String url = call.getString("url");
-        String method = call.getString("method");
-        JSObject headers = call.getObject("headers");
-        JSObject params = call.getObject("params");
+    public void request(final PluginCall call) {
+        new Thread(
+            new Runnable() {
 
-        switch (method) {
-            case "GET":
-            case "HEAD":
-                get(call, url, method, headers, params);
-                return;
-            case "DELETE":
-            case "PATCH":
-            case "POST":
-            case "PUT":
-                mutate(call, url, method, headers);
-                return;
-        }
+                public void run() {
+                    String url = call.getString("url");
+                    String method = call.getString("method");
+                    JSObject headers = call.getObject("headers");
+                    JSObject params = call.getObject("params");
+
+                    switch (method) {
+                        case "GET":
+                        case "HEAD":
+                            get(call, url, method, headers, params);
+                            return;
+                        case "DELETE":
+                        case "PATCH":
+                        case "POST":
+                        case "PUT":
+                            mutate(call, url, method, headers);
+                            return;
+                    }
+                }
+            }
+        )
+        .start();
     }
 
     private void get(PluginCall call, String urlString, String method, JSObject headers, JSObject params) {
