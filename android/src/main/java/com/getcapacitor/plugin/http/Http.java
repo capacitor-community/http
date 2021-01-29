@@ -2,6 +2,7 @@ package com.getcapacitor.plugin.http;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
 import android.util.Log;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -419,19 +420,12 @@ public class Http extends Plugin {
         call.resolve(ret);
     }
 
-    private JSArray makeResponseHeaders(HttpURLConnection conn) {
-        JSArray ret = new JSArray();
-
-        for (Map.Entry<String, List<String>> entries : conn.getHeaderFields().entrySet()) {
-            JSObject header = new JSObject();
-
-            String val = "";
-            for (String headerVal : entries.getValue()) {
-                val += headerVal + ", ";
-            }
-
-            header.put(entries.getKey(), val);
-            ret.put(header);
+    private JSObject makeResponseHeaders(HttpURLConnection conn) {
+        JSObject ret = new JSObject();
+        
+        for (Map.Entry<String, List<String>> entry : conn.getHeaderFields().entrySet()) {
+            String valuesString = TextUtils.join(", ", entry.getValue());
+            ret.put(entry.getKey(), valuesString);
         }
 
         return ret;
