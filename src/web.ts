@@ -61,24 +61,23 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
 
     if (contentType.indexOf('application/json') === 0) {
       req['body'] = JSON.stringify(options.data);
-    } else if (
-      contentType.indexOf('application/x-www-form-urlencoded') === 0
-    ) {
+    } else if (contentType.indexOf('application/x-www-form-urlencoded') === 0) {
       const urlSearchParams = new URLSearchParams();
       for (let key of Object.keys(options.data)) {
         urlSearchParams.set(key, options.data[key]);
       }
       req['body'] = urlSearchParams.toString();
-    } else{
-      if(contentType.indexOf('multipart/form-data') === 0 || typeof options.data === 'object'){
-        let formData = new FormData();
-        for (let key of Object.keys(options.data)){
-          formData.append(key, options.data[key])
-        }
-        req['body'] = formData;
+    } else if (
+      contentType.indexOf('multipart/form-data') === 0 ||
+      typeof options.data === 'object'
+    ) {
+      let formData = new FormData();
+      for (let key of Object.keys(options.data)) {
+        formData.append(key, options.data[key]);
       }
+      req['body'] = formData;
     }
-      
+
     return req;
   }
 
