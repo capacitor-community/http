@@ -30,6 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * Native HTTP Plugin
@@ -412,15 +413,15 @@ public class Http extends Plugin {
             if (contentType.contains("application/json")) {
                 if ("null".equals(builder.toString())) {
                     ret.put("data", JSONObject.NULL);
-				} else {
-				    try {
-						JSObject jsonValue = new JSObject(builder.toString());
-						ret.put("data", jsonValue);
-				    } catch (JSONException e) {
-						JSArray jsonValue = new JSArray(builder.toString());
-						ret.put("data", jsonValue);
-				    }
-				}
+                } else {
+                    try {
+                        JSObject jsonValue = new JSObject(builder.toString());
+                        ret.put("data", jsonValue);
+                    } catch (JSONException e) {
+                        JSArray jsonValue = new JSArray(builder.toString());
+                        ret.put("data", jsonValue);
+                    }
+                }
             } else {
                 ret.put("data", builder.toString());
             }
