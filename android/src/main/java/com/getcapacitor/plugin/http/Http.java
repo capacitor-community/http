@@ -396,13 +396,7 @@ public class Http extends Plugin {
         InputStream errorStream = conn.getErrorStream();
         InputStream stream = (errorStream != null ? errorStream : conn.getInputStream());
 
-        BufferedReader in = new BufferedReader(new InputStreamReader(stream));
-        StringBuilder builder = new StringBuilder();
-        String line;
-        while ((line = in.readLine()) != null) {
-            builder.append(line).append(System.getProperty("line.separator"));
-        }
-        in.close();
+        String responseString = readAsString(stream);
 
         Log.d(getLogTag(), "GET request completed, got data");
 
@@ -411,17 +405,17 @@ public class Http extends Plugin {
         if (contentType != null) {
             if (contentType.contains("application/json")) {
                 try {
-                    JSObject jsonValue = new JSObject(builder.toString());
+                    JSObject jsonValue = new JSObject(responseString);
                     ret.put("data", jsonValue);
                 } catch (JSONException e) {
-                    JSArray jsonValue = new JSArray(builder.toString());
+                    JSArray jsonValue = new JSArray(responseString);
                     ret.put("data", jsonValue);
                 }
             } else {
-                ret.put("data", builder.toString());
+                ret.put("data", responseString);
             }
         } else {
-            ret.put("data", builder.toString());
+            ret.put("data", responseString);
         }
 
         call.resolve(ret);
@@ -443,6 +437,17 @@ public class Http extends Plugin {
         }
 
         return ret;
+    }
+
+    private String readAsString(InputStream in) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
+            StringBuilder builder = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                builder.append(line).append(System.getProperty("line.separator"));
+            }
+            return builder.toString();
+        }
     }
 
     private void setRequestHeaders(HttpURLConnection conn, JSObject headers) {
