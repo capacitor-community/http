@@ -2,14 +2,21 @@ package com.getcapacitor.plugin.http;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.text.TextUtils;
+import android.util.Base64;
 import android.util.Log;
+
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.NativePlugin;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
+
+import org.json.JSONException;
+
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import org.json.JSONException;
 
 /**
  * Native HTTP Plugin
@@ -80,11 +86,12 @@ public class Http extends Plugin {
         try {
             Integer connectTimeout = call.getInt("connectTimeout");
             Integer readTimeout = call.getInt("readTimeout");
+            ResponseType responseType = ResponseType.parse(call.getString("responseType"));
 
             URL url = new URL(urlString);
             HttpURLConnection conn = makeUrlConnection(url, method, connectTimeout, readTimeout, headers, params);
 
-            buildResponse(call, conn);
+            buildResponse(call, conn, responseType);
         } catch (MalformedURLException ex) {
             call.reject("Invalid URL", ex);
         } catch (IOException ex) {
@@ -386,6 +393,10 @@ public class Http extends Plugin {
     }
 
     private void buildResponse(PluginCall call, HttpURLConnection conn) throws Exception {
+        buildResponse(call, conn, ResponseType.DEFAULT);
+    }
+
+    private void buildResponse(PluginCall call, HttpURLConnection conn, ResponseType responseType) throws IOException, JSONException {
         int statusCode = conn.getResponseCode();
 
         JSObject ret = new JSObject();
@@ -393,29 +404,36 @@ public class Http extends Plugin {
         ret.put("headers", makeResponseHeaders(conn));
         ret.put("url", conn.getURL());
 
+        Log.d(getLogTag(), "Request completed, got data");
+
         InputStream errorStream = conn.getErrorStream();
-        InputStream stream = (errorStream != null ? errorStream : conn.getInputStream());
-
-        String responseString = readAsString(stream);
-
-        Log.d(getLogTag(), "GET request completed, got data");
-
         String contentType = conn.getHeaderField("Content-Type");
 
-        if (contentType != null) {
-            if (contentType.contains("application/json")) {
-                try {
-                    JSObject jsonValue = new JSObject(responseString);
-                    ret.put("data", jsonValue);
-                } catch (JSONException e) {
-                    JSArray jsonValue = new JSArray(responseString);
-                    ret.put("data", jsonValue);
-                }
-            } else {
-                ret.put("data", responseString);
-            }
+        if (contentType != null && contentType.contains("application/json")) {
+            // backward compatibility
+            InputStream stream = (errorStream != null ? errorStream : conn.getInputStream());
+            ret.put("data", parseJSON(readAsString(stream)));
+
+        } else if (errorStream != null) {
+            ret.put("data", readAsString(errorStream));
+
         } else {
-            ret.put("data", responseString);
+            InputStream inputStream = conn.getInputStream();
+            switch (responseType) {
+                case ARRAY_BUFFER:
+                case BLOB:
+                    ret.put("data", readAsBase64(inputStream));
+                    break;
+
+                case JSON:
+                    ret.put("data", parseJSON(readAsString(inputStream)));
+                    break;
+
+                case DOCUMENT:
+                case TEXT:
+                    ret.put("data", readAsString(inputStream));
+                    break;
+            }
         }
 
         call.resolve(ret);
@@ -437,6 +455,26 @@ public class Http extends Plugin {
         }
 
         return ret;
+    }
+
+    private Object parseJSON(String input) throws JSONException {
+        try {
+            return new JSObject(input);
+        } catch (JSONException e) {
+            return new JSArray(input);
+        }
+    }
+
+    private String readAsBase64(InputStream in) throws IOException {
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[1024];
+            int readBytes;
+            while ((readBytes = in.read(buffer)) != -1) {
+                out.write(buffer, 0, readBytes);
+            }
+            byte[] result = out.toByteArray();
+            return Base64.encodeToString(result, 0, result.length, Base64.DEFAULT);
+        }
     }
 
     private String readAsString(InputStream in) throws IOException {
@@ -529,6 +567,34 @@ public class Http extends Plugin {
             return new URI(url);
         } catch (Exception ex) {
             return null;
+        }
+    }
+
+    /**
+     * See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
+     */
+    private enum ResponseType {
+        ARRAY_BUFFER("arraybuffer"),
+        BLOB("blob"),
+        DOCUMENT("document"),
+        JSON("json"),
+        TEXT("text");
+
+        private final String name;
+
+        ResponseType(String name) {
+            this.name = name;
+        }
+
+        static final ResponseType DEFAULT = TEXT;
+
+        static ResponseType parse(String value) {
+            for (ResponseType responseType: values()) {
+                if (responseType.name.equalsIgnoreCase(value)) {
+                    return responseType;
+                }
+            }
+            return DEFAULT;
         }
     }
 }
