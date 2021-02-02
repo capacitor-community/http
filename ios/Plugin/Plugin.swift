@@ -327,10 +327,10 @@ public class CAPHttpPlugin: CAPPlugin {
     
     let contentType = response.allHeaderFields["Content-Type"] as? String
 
-    if data != nil && contentType != nil && contentType!.contains("application/json") {
-      if let json = try? JSONSerialization.jsonObject(with: data!, options: .mutableContainers) {
-        ret["data"] = json
-      }
+    if let data = data, let contentType = contentType, contentType.contains("application/json") {
+        if let json = try? JSONSerialization.jsonObject(with: data, options: .mutableContainers) {
+            ret["data"] = json
+        }
     } else {
       if (data != nil) {
         ret["data"] = String(data: data!, encoding: .utf8);
