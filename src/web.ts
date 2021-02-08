@@ -13,8 +13,10 @@ import type {
   HttpDownloadFileResult,
   HttpUploadFileOptions,
   HttpUploadFileResult,
+  HttpCookie,
 } from './definitions';
 import { WebPlugin } from '@capacitor/core';
+import { getCookie, setCookie, clearCookies, deleteCookie } from './cookie';
 
 export class HttpWeb extends WebPlugin implements HttpPlugin {
   constructor() {
@@ -113,20 +115,20 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
     };
   }
 
+  /**
+   * @deprecated Use cookie.setCookie instead
+   * @param options
+   */
   async setCookie(options: HttpSetCookieOptions) {
-    var expires = '';
-    if (options.expires) {
-      // remove "expires=" so you can pass with or without the prefix
-      expires = `; expires=${expires.replace('expires=', '')}`;
-    } else if (options.ageDays) {
-      const date = new Date();
-      date.setTime(date.getTime() + options.ageDays * 24 * 60 * 60 * 1000);
-      expires = '; expires=' + date.toUTCString();
-    }
-    document.cookie =
-      options.key + '=' + (options.value || '') + expires + '; path=/';
+    const key = options.key;
+    const value = options.value;
+    setCookie(key, value, options);
   }
 
+  /**
+   * @deprecated Use cookie.getCookie instead
+   * @param _options
+   */
   async getCookies(
     _options: HttpGetCookiesOptions,
   ): Promise<HttpGetCookiesResult> {
@@ -134,36 +136,33 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
       return { value: [] };
     }
 
-    var cookies = document.cookie.split(';');
-    return {
-      value: cookies.map(c => {
-        const cParts = c.split(';').map(cv => cv.trim());
-        const cNameValue = cParts[0];
-        const cValueParts = cNameValue.split('=');
-        const key = cValueParts[0];
-        const value = cValueParts[1];
+    const cookies = getCookie();
+    const entries: [string, any][] = Object.entries(cookies);
+    const value: HttpCookie[] = [];
+    for (const [key, value] of entries) {
+      value.push({
+        key,
+        value,
+      });
+    }
 
-        return {
-          key,
-          value,
-        };
-      }),
+    return {
+      value,
     };
   }
 
+  /**
+   * @deprecated Use cookie.deleteCookie instead
+   */
   async deleteCookie(options: HttpDeleteCookieOptions) {
-    document.cookie = options.key + '=; Max-Age=0';
+    deleteCookie(options.key);
   }
 
+  /**
+   * @deprecated Use cookie.clearCookies instead
+   */
   async clearCookies(_options: HttpClearCookiesOptions) {
-    document.cookie
-      .split(';')
-      .forEach(
-        c =>
-          (document.cookie = c
-            .replace(/^ +/, '')
-            .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`)),
-      );
+    clearCookies();
   }
 
   async uploadFile(
