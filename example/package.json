@@ -17,13 +17,13 @@
     "generate": "stencil generate"
   },
   "devDependencies": {
-    "@ionic/core": "^5.5.2",
+    "@ionic/core": "^5.5.4",
     "@stencil/core": "^1.17.4",
     "concurrently": "^5.3.0"
   },
   "dependencies": {
     "@capacitor-community/http": "file:..",
-    "@capacitor/cli": "^3.0.0-alpha.13",
-    "@capacitor/core": "^3.0.0-alpha.12"
+    "@capacitor/cli": "^3.0.0-beta.1",
+    "@capacitor/core": "^3.0.0-beta.1"
   }
 }
