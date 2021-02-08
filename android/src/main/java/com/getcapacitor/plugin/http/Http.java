@@ -58,7 +58,7 @@ public class Http extends Plugin {
 
     }
 
-    @PluginMethod
+    @PluginMethod()
     public void request(final PluginCall call) {
         new Thread(
             new Runnable() {
@@ -161,7 +161,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void downloadFile(PluginCall call) {
         try {
             bridge.saveCall(call);
@@ -229,7 +229,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void uploadFile(PluginCall call) {
         String urlString = call.getString("url");
         String filePath = call.getString("filePath");
@@ -267,7 +267,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void setCookie(PluginCall call) {
         String url = call.getString("url");
         String key = call.getString("key");
@@ -287,7 +287,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void getCookies(PluginCall call) {
         String url = call.getString("url");
 
@@ -328,7 +328,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void deleteCookie(PluginCall call) {
         String url = call.getString("url");
         String key = call.getString("key");
@@ -345,7 +345,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void clearCookies(PluginCall call) {
         cookieManager.removeAllCookies(null);
 
