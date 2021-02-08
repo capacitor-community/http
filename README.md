@@ -65,11 +65,11 @@ const doGet = () => {
     method: 'GET',
     url: 'https://example.com/my/api',
     headers: {
-      'X-Fake-Header': 'Max was here'
+      'X-Fake-Header': 'Max was here',
     },
     params: {
-      'size': 'XL'
-    }
+      size: 'XL',
+    },
   });
 };
 
@@ -81,39 +81,39 @@ const doPost = () => {
     url: 'https://example.com/my/api',
     headers: {
       'X-Fake-Header': 'Max was here',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     },
     data: {
       foo: 'bar',
-      cool: true
-    }
+      cool: true,
+    },
   });
-}
+};
 
 const setCookie = async () => {
   const ret = await Http.setCookie({
     url: this.apiUrl('/cookie'),
     key: 'language',
-    value: 'en'
+    value: 'en',
   });
-}
+};
 
 const deleteCookie = async () => {
   const ret = await Http.deleteCookie({
     url: this.apiUrl('/cookie'),
     key: 'language',
   });
-}
+};
 
 const clearCookies = async () => {
   const ret = await Http.clearCookies({
     url: this.apiUrl('/cookie'),
   });
-}
+};
 
 const getCookies = async () => {
   const ret = await Http.getCookies({
-    url: this.apiUrl('/cookie')
+    url: this.apiUrl('/cookie'),
   });
   console.log('Got cookies', ret);
   this.output = JSON.stringify(ret.value);
@@ -121,27 +121,27 @@ const getCookies = async () => {
 
 const downloadFile = async () => {
   const ret = await Http.downloadFile({
-    url: 'https://example.com/path/to/download.pdf'),
+    url: 'https://example.com/path/to/download.pdf',
     filePath: 'document.pdf',
-    fileDirectory: FilesystemDirectory.Downloads
+    fileDirectory: FilesystemDirectory.Downloads,
   });
   if (ret.path) {
     const read = await Filesystem.readFile({
       path: 'download.pdf',
-      directory: FilesystemDirectory.Downloads
+      directory: FilesystemDirectory.Downloads,
     });
     // Data is here
   }
-}
+};
 
 const uploadFile = async () => {
   const ret = await Http.uploadFile({
     url: 'https://example.com/path/to/upload.pdf',
     name: 'myFile',
     filePath: 'document.pdf',
-    fileDirectory: FilesystemDirectory.Downloads
+    fileDirectory: FilesystemDirectory.Downloads,
   });
-}
+};
 ```
 
 ## API Reference

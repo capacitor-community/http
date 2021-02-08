@@ -99,11 +99,18 @@ import Foundation
     request.httpMethod = "POST"
 
     let boundary = UUID().uuidString
+    
+    let data: [String: Any] = call.getObject("data") ?? [:]
+    let strings: [String: String] = data.compactMapValues { any in
+        any as? String
+    }
 
     var fullFormData: Data?
     do {
-      fullFormData = try generateFullMultipartRequestBody(fileUrl, name, boundary)
-    } catch let e { return call.reject("Unable to read file to upload", "UPLOAD", e) }
+      fullFormData = try generateFullMultipartRequestBody(fileUrl, name, boundary, strings)
+    } catch let e {
+      return call.reject("Unable to read file to upload", "UPLOAD", e)
+    }
 
     setRequestHeaders(&request, headers)
 
@@ -117,7 +124,6 @@ import Foundation
         call.reject("Error", "UPLOAD", error, [:])
         return
       }
-
       let res = response as! HTTPURLResponse
 
       call.resolve(self.buildResponse(data, res))
@@ -215,15 +221,18 @@ import Foundation
 
     task.resume()
   }
-
-  func setUrlQuery(_ url: inout URL, _ params: [String: String]) {
-    var cmps = URLComponents(url: url, resolvingAgainstBaseURL: true)
-    if cmps?.queryItems == nil { cmps?.queryItems = [] }
-    cmps!.queryItems?.append(
-      contentsOf: params.map({ (key, value) -> URLQueryItem in
-        return URLQueryItem(name: key, value: value)
-      }))
-    url = cmps!.url!
+  
+  func setUrlQuery(_ url: inout URL, _ params: [String:String]) {
+    if (params.count != 0) {
+        var cmps = URLComponents(url: url, resolvingAgainstBaseURL: true)
+        if cmps?.queryItems == nil {
+          cmps?.queryItems = []
+        }
+        cmps!.queryItems?.append(contentsOf: params.map({ (key, value) -> URLQueryItem in
+          return URLQueryItem(name: key, value: value)
+        }))
+        url = cmps!.url!
+    }
   }
 
   func setRequestHeaders(_ request: inout URLRequest, _ headers: [String: String]) {
@@ -273,7 +282,8 @@ import Foundation
 
     ret["status"] = response.statusCode
     ret["headers"] = response.allHeaderFields
-
+    ret["url"] = response.url?.absoluteString
+    
     let contentType = response.allHeaderFields["Content-Type"] as? String
 
     if data != nil && contentType != nil && contentType!.contains("application/json") {
@@ -332,13 +342,12 @@ import Foundation
     return nil
   }
 
-  func setRequestDataMultipartFormData(_ request: URLRequest, _ data: [String: Any])
-    -> Data?
-  { return nil }
-
-  func generateFullMultipartRequestBody(_ url: URL, _ name: String, _ boundary: String)
-    throws -> Data
-  {
+  func setRequestDataMultipartFormData(_ request: URLRequest, _ data: [String: Any]) -> Data? {
+    return nil
+  }
+  
+  
+  func generateFullMultipartRequestBody(_ url: URL, _ name: String, _ boundary: String, _ strings: [String:String]) throws -> Data {
     var data = Data()
 
     let fileData = try Data(contentsOf: url)
@@ -351,6 +360,11 @@ import Foundation
         using: .utf8)!)
     data.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
     data.append(fileData)
+    strings.forEach { key, value in
+        data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
+        data.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+        data.append(value.data(using: .utf8)!)
+    }
     data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
 
     return data

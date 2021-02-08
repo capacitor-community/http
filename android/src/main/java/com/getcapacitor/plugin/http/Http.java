@@ -48,23 +48,31 @@ public class Http extends Plugin {
     }
 
     @PluginMethod
-    public void request(PluginCall call) {
-        String url = call.getString("url");
-        String method = call.getString("method");
-        JSObject headers = call.getObject("headers");
-        JSObject params = call.getObject("params");
+    public void request(final PluginCall call) {
+        new Thread(
+            new Runnable() {
+                public void run() {
+                    String url = call.getString("url");
+                    String method = call.getString("method");
+                    JSObject headers = call.getObject("headers");
+                    JSObject params = call.getObject("params");
 
-        switch (method) {
-            case "GET":
-            case "HEAD":
-                get(call, url, method, headers, params);
-                return;
-            case "DELETE":
-            case "PATCH":
-            case "POST":
-            case "PUT":
-                mutate(call, url, method, headers);
-        }
+                    switch (method) {
+                        case "GET":
+                        case "HEAD":
+                            get(call, url, method, headers, params);
+                            return;
+                        case "DELETE":
+                        case "PATCH":
+                        case "POST":
+                        case "PUT":
+                            mutate(call, url, method, headers);
+                            return;
+                    }
+                }
+            }
+        )
+            .start();
     }
 
     private void get(PluginCall call, String urlString, String method, JSObject headers, JSObject params) {
@@ -237,7 +245,7 @@ public class Http extends Plugin {
                 conn.setDoOutput(true);
 
                 FormUploader builder = new FormUploader(conn);
-                builder.addFilePart(name, file);
+                builder.addFilePart(name, file, data);
                 builder.finish();
 
                 buildResponse(call, conn);
@@ -339,6 +347,7 @@ public class Http extends Plugin {
         JSObject ret = new JSObject();
         ret.put("status", statusCode);
         ret.put("headers", makeResponseHeaders(conn));
+        ret.put("url", conn.getURL());
 
         InputStream errorStream = conn.getErrorStream();
         InputStream stream = (errorStream != null ? errorStream : conn.getInputStream());
@@ -347,7 +356,7 @@ public class Http extends Plugin {
         StringBuilder builder = new StringBuilder();
         String line;
         while ((line = in.readLine()) != null) {
-            builder.append(line);
+            builder.append(line).append(System.getProperty("line.separator"));
         }
         in.close();
 

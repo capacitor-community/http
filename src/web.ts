@@ -57,16 +57,23 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
 
     if (contentType.indexOf('application/json') === 0) {
       req['body'] = JSON.stringify(options.data);
-    } else if (
-      contentType.indexOf('application/x-www-form-urlencoded') === 0 ||
-      contentType.indexOf('multipart/form-data') === 0
-    ) {
+    } else if (contentType.indexOf('application/x-www-form-urlencoded') === 0) {
       const urlSearchParams = new URLSearchParams();
       for (let key of Object.keys(options.data)) {
         urlSearchParams.set(key, options.data[key]);
       }
       req['body'] = urlSearchParams.toString();
+    } else if (
+      contentType.indexOf('multipart/form-data') === 0 ||
+      typeof options.data === 'object'
+    ) {
+      let formData = new FormData();
+      for (let key of Object.keys(options.data)) {
+        formData.append(key, options.data[key]);
+      }
+      req['body'] = formData;
     }
+
     return req;
   }
 
@@ -102,12 +109,16 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
       status: ret.status,
       data,
       headers: this.nativeHeadersToObject(ret.headers),
+      url: ret.url,
     };
   }
 
   async setCookie(options: HttpSetCookieOptions) {
     var expires = '';
-    if (options.ageDays) {
+    if (options.expires) {
+      // remove "expires=" so you can pass with or without the prefix
+      expires = `; expires=${expires.replace('expires=', '')}`;
+    } else if (options.ageDays) {
       const date = new Date();
       date.setTime(date.getTime() + options.ageDays * 24 * 60 * 60 * 1000);
       expires = '; expires=' + date.toUTCString();
