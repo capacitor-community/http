@@ -2,12 +2,15 @@ package com.getcapacitor.plugin.http;
 
 import android.Manifest;
 import android.util.Log;
+
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -33,7 +36,13 @@ import org.json.JSONException;
 /**
  * Native HTTP Plugin
  */
-@CapacitorPlugin(name = "HTTP", requestCodes = { Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS, Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS })
+@CapacitorPlugin(
+    name = "HTTP",
+    permissions = {
+        @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }, alias = "HttpWrite"),
+        @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }, alias = "HttpRead"),
+    }
+)
 public class Http extends Plugin {
 
     public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
@@ -45,6 +54,8 @@ public class Http extends Plugin {
     public void load() {
         this.cookieManager = new WebkitCookieManagerProxy(null, java.net.CookiePolicy.ACCEPT_ALL);
         java.net.CookieHandler.setDefault(cookieManager);
+
+
     }
 
     @PluginMethod

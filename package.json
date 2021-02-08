@@ -16,9 +16,9 @@
   "author": "Max Lynch <max@ionic.io>",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/android": "^3.0.0-beta.1",
-    "@capacitor/core": "^3.0.0-beta.1",
-    "@capacitor/ios": "^3.0.0-beta.1",
+    "@capacitor/android": "^3.0.0-beta.2",
+    "@capacitor/core": "^3.0.0-beta.2",
+    "@capacitor/ios": "^3.0.0-beta.2",
     "@capacitor/filesystem": "^0.3.1"
   },
   "devDependencies": {

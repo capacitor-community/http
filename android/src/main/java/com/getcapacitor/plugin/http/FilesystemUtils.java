@@ -38,13 +38,12 @@ public class FilesystemUtils {
     public static File getDirectory(Context c, String directory) {
         switch (directory) {
             case DIRECTORY_APPLICATION:
+            case DIRECTORY_DATA:
                 return c.getFilesDir();
             case DIRECTORY_DOCUMENTS:
                 return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
             case DIRECTORY_DOWNLOADS:
                 return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            case DIRECTORY_DATA:
-                return c.getFilesDir();
             case DIRECTORY_CACHE:
                 return c.getCacheDir();
             case DIRECTORY_EXTERNAL:
