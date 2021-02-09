@@ -37,25 +37,22 @@ import org.json.JSONException;
  * Native HTTP Plugin
  */
 @CapacitorPlugin(
-    name = "HTTP",
+    name = "Http",
     permissions = {
         @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }, alias = "HttpWrite"),
         @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }, alias = "HttpRead"),
     }
 )
 public class Http extends Plugin {
-
     public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
     public static final int HTTP_REQUEST_UPLOAD_READ_PERMISSIONS = 9023;
 
-    WebkitCookieManagerProxy cookieManager;
+    CapacitorCookieManager cookieManager;
 
     @Override
     public void load() {
-        this.cookieManager = new WebkitCookieManagerProxy(null, java.net.CookiePolicy.ACCEPT_ALL);
+        this.cookieManager = new CapacitorCookieManager(null, java.net.CookiePolicy.ACCEPT_ALL);
         java.net.CookieHandler.setDefault(cookieManager);
-
-
     }
 
     @PluginMethod()
@@ -72,18 +69,16 @@ public class Http extends Plugin {
                         case "GET":
                         case "HEAD":
                             get(call, url, method, headers, params);
-                            return;
+                            break;
                         case "DELETE":
                         case "PATCH":
                         case "POST":
                         case "PUT":
                             mutate(call, url, method, headers);
-                            return;
                     }
                 }
             }
-        )
-            .start();
+        ).start();
     }
 
     private void get(PluginCall call, String urlString, String method, JSObject headers, JSObject params) {
@@ -160,7 +155,6 @@ public class Http extends Plugin {
         return conn;
     }
 
-    @SuppressWarnings("unused")
     @PluginMethod()
     public void downloadFile(PluginCall call) {
         try {
@@ -211,7 +205,7 @@ public class Http extends Plugin {
         } catch (MalformedURLException ex) {
             call.reject("Invalid URL", ex);
         } catch (IOException ex) {
-            call.reject("Error", ex);
+            call.reject("IO Error", ex);
         } catch (Exception ex) {
             call.reject("Error", ex);
         }
@@ -228,7 +222,6 @@ public class Http extends Plugin {
         }
     }
 
-    @SuppressWarnings("unused")
     @PluginMethod()
     public void uploadFile(PluginCall call) {
         String urlString = call.getString("url");
@@ -266,7 +259,6 @@ public class Http extends Plugin {
         }
     }
 
-    @SuppressWarnings("unused")
     @PluginMethod()
     public void setCookie(PluginCall call) {
         String url = call.getString("url");
@@ -279,14 +271,11 @@ public class Http extends Plugin {
             return;
         }
 
-        String cookieValue = key + "=" + value;
-
-        cookieManager.setCookie(url, cookieValue);
+        cookieManager.setCookie(url, key, value);
 
         call.resolve();
     }
 
-    @SuppressWarnings("unused")
     @PluginMethod()
     public void getCookies(PluginCall call) {
         String url = call.getString("url");
@@ -297,17 +286,10 @@ public class Http extends Plugin {
             return;
         }
 
-        String cookieString = cookieManager.getCookie(url);
-        ArrayList<HttpCookie> cookies = new ArrayList<>();
+        HttpCookie[] cookies;
 
         try {
-            if (cookieString != null) {
-                String[] singleCookie = cookieString.split(";");
-                for (String c : singleCookie) {
-                    List<HttpCookie> l = HttpCookie.parse(c);
-                    cookies.add(l.get(0));
-                }
-            }
+            cookies = cookieManager.getCookies(url);
         } catch (Exception ex) {
             call.reject("Unable to parse cookies", ex);
             return;
@@ -327,7 +309,6 @@ public class Http extends Plugin {
         call.resolve(ret);
     }
 
-    @SuppressWarnings("unused")
     @PluginMethod()
     public void deleteCookie(PluginCall call) {
         String url = call.getString("url");
@@ -344,11 +325,9 @@ public class Http extends Plugin {
         call.resolve();
     }
 
-    @SuppressWarnings("unused")
     @PluginMethod()
     public void clearCookies(PluginCall call) {
-        cookieManager.removeAllCookies(null);
-
+        cookieManager.removeAllCookies();
         call.resolve();
     }
 
@@ -463,7 +442,7 @@ public class Http extends Plugin {
                     String key = keys.next();
                     Object d = data.get(key);
                     if (d != null) {
-                        builder.append(key + "=" + URLEncoder.encode(d.toString(), "UTF-8"));
+                        builder.append(key).append("=").append(URLEncoder.encode(d.toString(), "UTF-8"));
                         if (keys.hasNext()) {
                             builder.append("&");
                         }

@@ -93,9 +93,9 @@ export interface HttpCookie {
 
 export interface HttpSetCookieOptions {
   /** @deprecated */
-  url: string;
+  url?: string;
   /** @deprecated Use parameters instead */
-  key: string;
+  key?: string;
   /** @deprecated Use parameters instead */
   value?: string;
   /** @deprecated Use expires instead */

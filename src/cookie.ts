@@ -44,9 +44,7 @@ export const setCookie = (
     expires = `; expires=${expires.replace('expires=', '')}`;
   }
 
-  document.cookie = `${encodedKey}=${encodedValue || ''}${
-    options.expires
-  }; path=/`;
+  document.cookie = `${encodedKey}=${encodedValue || ''}${expires}; path=/`;
 };
 
 /**

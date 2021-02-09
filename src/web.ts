@@ -120,7 +120,7 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
    * @param options
    */
   async setCookie(options: HttpSetCookieOptions) {
-    const key = options.key;
+    const key = options.key as string;
     const value = options.value;
     setCookie(key, value, options);
   }
@@ -138,16 +138,16 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
 
     const cookies = getCookie();
     const entries: [string, any][] = Object.entries(cookies);
-    const value: HttpCookie[] = [];
+    const output: HttpCookie[] = new Array();
     for (const [key, value] of entries) {
-      value.push({
+      output.push({
         key,
         value,
       });
     }
 
     return {
-      value,
+      value: output,
     };
   }
 
