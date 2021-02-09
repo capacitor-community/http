@@ -48,12 +48,12 @@ public class FormUploader {
      */
     public void addFormField(String name, String value) {
         writer.append(LINE_FEED);
-        writer.append("--" + boundary).append(LINE_FEED);
-        writer.append("Content-Disposition: form-data; name=\"" + name + "\"").append(LINE_FEED);
-        writer.append("Content-Type: text/plain; charset=" + charset).append(LINE_FEED);
+        writer.append("--").append(boundary).append(LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"").append(name).append("\"").append(LINE_FEED);
+        writer.append("Content-Type: text/plain; charset=").append(charset).append(LINE_FEED);
         writer.append(LINE_FEED);
         writer.append(value);
-        writer.append(LINE_FEED).append("--" + boundary + "--").append(LINE_FEED);
+        writer.append(LINE_FEED).append("--").append(boundary).append("--").append(LINE_FEED);
         writer.flush();
     }
 
@@ -65,9 +65,9 @@ public class FormUploader {
      */
     private void appendFieldToWriter(String name, String value) {
         writer.append(LINE_FEED);
-        writer.append("--" + boundary).append(LINE_FEED);
-        writer.append("Content-Disposition: form-data; name=\"" + name + "\"").append(LINE_FEED);
-        writer.append("Content-Type: text/plain; charset=" + charset).append(LINE_FEED);
+        writer.append("--").append(boundary).append(LINE_FEED);
+        writer.append("Content-Disposition: form-data; name=\"").append(name).append("\"").append(LINE_FEED);
+        writer.append("Content-Type: text/plain; charset=").append(charset).append(LINE_FEED);
         writer.append(LINE_FEED);
         writer.append(value);
     }
@@ -123,7 +123,7 @@ public class FormUploader {
      * @param value - value of the header field
      */
     public void addHeaderField(String name, String value) {
-        writer.append(name + ": " + value).append(LINE_FEED);
+        writer.append(name).append(": ").append(value).append(LINE_FEED);
         writer.flush();
     }
 
@@ -135,8 +135,9 @@ public class FormUploader {
      * @throws IOException
      */
     public void finish() throws IOException {
-        writer.append(LINE_FEED).flush();
-        writer.append("--" + boundary + "--").append(LINE_FEED);
+        writer.append(LINE_FEED);
+        writer.flush();
+        writer.append("--").append(boundary).append("--").append(LINE_FEED);
         writer.close();
     }
 }

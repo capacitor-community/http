@@ -2,12 +2,15 @@ package com.getcapacitor.plugin.http;
 
 import android.Manifest;
 import android.util.Log;
+
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
 import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
+import com.getcapacitor.annotation.Permission;
+
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -33,7 +36,13 @@ import org.json.JSONException;
 /**
  * Native HTTP Plugin
  */
-@CapacitorPlugin(name = "HTTP", requestCodes = { Http.HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS, Http.HTTP_REQUEST_UPLOAD_READ_PERMISSIONS })
+@CapacitorPlugin(
+    name = "HTTP",
+    permissions = {
+        @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }, alias = "HttpWrite"),
+        @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }, alias = "HttpRead"),
+    }
+)
 public class Http extends Plugin {
 
     public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
@@ -45,9 +54,11 @@ public class Http extends Plugin {
     public void load() {
         this.cookieManager = new WebkitCookieManagerProxy(null, java.net.CookiePolicy.ACCEPT_ALL);
         java.net.CookieHandler.setDefault(cookieManager);
+
+
     }
 
-    @PluginMethod
+    @PluginMethod()
     public void request(final PluginCall call) {
         new Thread(
             new Runnable() {
@@ -150,7 +161,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void downloadFile(PluginCall call) {
         try {
             bridge.saveCall(call);
@@ -218,7 +229,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void uploadFile(PluginCall call) {
         String urlString = call.getString("url");
         String filePath = call.getString("filePath");
@@ -256,7 +267,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void setCookie(PluginCall call) {
         String url = call.getString("url");
         String key = call.getString("key");
@@ -276,7 +287,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void getCookies(PluginCall call) {
         String url = call.getString("url");
 
@@ -317,7 +328,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void deleteCookie(PluginCall call) {
         String url = call.getString("url");
         String key = call.getString("key");
@@ -334,7 +345,7 @@ public class Http extends Plugin {
     }
 
     @SuppressWarnings("unused")
-    @PluginMethod
+    @PluginMethod()
     public void clearCookies(PluginCall call) {
         cookieManager.removeAllCookies(null);
 

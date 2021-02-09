@@ -1,29 +1,26 @@
 {
-  "name": "example",
+  "name": "http-example",
   "private": true,
   "version": "0.0.1",
-  "description": "example",
+  "description": "http-example",
   "license": "MIT",
   "files": [
     "dist/"
   ],
   "scripts": {
     "build": "stencil build",
-    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\"",
-    "start:backend": "node server.js",
-    "start:frontend": "stencil build --dev --watch --serve",
+    "start": "stencil build --dev --watch --serve",
     "test": "stencil test --spec --e2e",
     "test.watch": "stencil test --spec --e2e --watch",
     "generate": "stencil generate"
   },
   "devDependencies": {
     "@ionic/core": "^5.5.4",
-    "@stencil/core": "^1.17.4",
-    "concurrently": "^5.3.0"
+    "@stencil/core": "^2.4.0"
   },
   "dependencies": {
     "@capacitor-community/http": "file:..",
-    "@capacitor/cli": "^3.0.0-beta.1",
-    "@capacitor/core": "^3.0.0-beta.1"
+    "@capacitor/cli": "^3.0.0-beta.2",
+    "@capacitor/core": "^3.0.0-beta.2"
   }
 }

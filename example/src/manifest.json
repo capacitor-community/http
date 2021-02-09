@@ -1,6 +1,6 @@
 {
-  "name": "example",
-  "short_name": "example",
+  "name": "http-example",
+  "short_name": "http-example",
   "start_url": "/",
   "display": "standalone",
   "icons": [{
