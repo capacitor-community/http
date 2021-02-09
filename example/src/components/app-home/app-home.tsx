@@ -1,4 +1,3 @@
-import '@capacitor/core';
 import { Component, h, State } from '@stencil/core';
 import { loadingController } from '@ionic/core';
 import { Http } from '@capacitor-community/http';
