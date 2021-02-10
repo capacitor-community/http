@@ -122,7 +122,7 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
    * @param value The value to set
    * @param options Optional additional parameters
    */
-  public setCookie = async (key: string, value: any, options: HttpCookieOptions) => Cookie.setCookie(key, value, options)
+  public setCookie = async (key: string, value: any, options: HttpCookieOptions): Promise<void> => Cookie.setCookie(key, value, options)
 
   /**
    * Gets all cookie values unless a key is specified, then return only that value
