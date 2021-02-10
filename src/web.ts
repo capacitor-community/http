@@ -1,22 +1,18 @@
 import type {
   HttpPlugin,
   HttpOptions,
-  HttpDeleteCookieOptions,
   HttpHeaders,
   HttpResponse,
-  HttpSetCookieOptions,
-  HttpClearCookiesOptions,
-  HttpGetCookiesOptions,
-  HttpGetCookiesResult,
   HttpParams,
   HttpDownloadFileOptions,
   HttpDownloadFileResult,
   HttpUploadFileOptions,
   HttpUploadFileResult,
   HttpCookie,
+  HttpCookieOptions,
 } from './definitions';
 import { WebPlugin } from '@capacitor/core';
-import { getCookie, setCookie, clearCookies, deleteCookie } from './cookie';
+import * as Cookie from './cookie';
 
 export class HttpWeb extends WebPlugin implements HttpPlugin {
   constructor() {
@@ -116,59 +112,34 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
   }
 
   /**
-   * @deprecated Use cookie.setCookie instead
-   * @param options
+   * Gets all HttpCookies
    */
-  async setCookie(options: HttpSetCookieOptions) {
-    const key = options.key as string;
-    const value = options.value;
-    setCookie(key, value, options);
-  }
+  public getCookies = async (): Promise<HttpCookie[]> => Cookie.getCookies()
 
   /**
-   * @deprecated Use cookie.getCookie instead
-   * @param _options
+   * Set a cookie
+   * @param key The key to set
+   * @param value The value to set
+   * @param options Optional additional parameters
    */
-  async getCookies(
-    _options: HttpGetCookiesOptions,
-  ): Promise<HttpGetCookiesResult> {
-    if (!document.cookie) {
-      return { value: [] };
-    }
-
-    const cookies = getCookie();
-    const entries: [string, any][] = Object.entries(cookies);
-    const output: HttpCookie[] = new Array();
-    for (const [key, value] of entries) {
-      output.push({
-        key,
-        value,
-      });
-    }
-
-    return {
-      value: output,
-    };
-  }
-
-  async getCookie(key: string): Promise<HttpCookie> {
-    const cookie = getCookie(key)
-    return cookie;
-  }
+  public setCookie = async (key: string, value: any, options: HttpCookieOptions) => Cookie.setCookie(key, value, options)
 
   /**
-   * @deprecated Use cookie.deleteCookie instead
+   * Gets all cookie values unless a key is specified, then return only that value
+   * @param key The key of the cookie value to get
    */
-  async deleteCookie(options: HttpDeleteCookieOptions) {
-    deleteCookie(options.key);
-  }
+  public getCookie = async (key: string): Promise<HttpCookie> => Cookie.getCookie(key);
 
   /**
-   * @deprecated Use cookie.clearCookies instead
+   * Deletes a cookie given a key
+   * @param key The key of the cookie to delete
    */
-  async clearCookies(_options: HttpClearCookiesOptions) {
-    clearCookies();
-  }
+  public deleteCookie = async (key: string): Promise<void> => Cookie.deleteCookie(key);
+
+  /**
+   * Clears out cookies by setting them to expire immediately
+   */
+  public clearCookies = async (): Promise<void> => Cookie.clearCookies();
 
   async uploadFile(
     options: HttpUploadFileOptions,

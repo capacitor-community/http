@@ -3,11 +3,11 @@ import { Directory } from '@capacitor/filesystem';
 export interface HttpPlugin {
   request(options: HttpOptions): Promise<HttpResponse>;
 
-  setCookie(options: HttpSetCookieOptions): Promise<void>;
+  setCookie(key: string, value: any, options?: HttpCookieOptions): Promise<void>;
   getCookie(key: string): Promise<HttpCookie>;
-  getCookies(options: HttpGetCookiesOptions): Promise<HttpGetCookiesResult>;
-  deleteCookie(options: HttpDeleteCookieOptions): Promise<void>;
-  clearCookies(options: HttpClearCookiesOptions): Promise<void>;
+  getCookies(): Promise<HttpCookie[]>;
+  clearCookies(): Promise<void>;
+  deleteCookie(key: string): Promise<void>;
 
   uploadFile(options: HttpUploadFileOptions): Promise<HttpUploadFileResult>;
   downloadFile(
@@ -94,29 +94,10 @@ export interface HttpCookie {
   value: string;
 }
 
-export interface HttpSetCookieOptions {
-  /** @deprecated */
-  url?: string;
-  /** @deprecated Use parameters instead */
-  key?: string;
-  /** @deprecated Use parameters instead */
-  value?: string;
-  /** @deprecated Use expires instead */
-  ageDays?: number;
-  expires?: string;
-}
-
-export interface HttpGetCookiesOptions {
-  url: string;
-}
-
-export interface HttpDeleteCookieOptions {
-  url: string;
-  key: string;
-}
-
-export interface HttpClearCookiesOptions {
-  url: string;
+export interface HttpCookieOptions {
+  url?: string
+  path?: string
+  expires?: string
 }
 
 export interface HttpGetCookiesResult {

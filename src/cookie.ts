@@ -1,4 +1,4 @@
-import * as Types from './definitions';
+import { HttpCookie, HttpCookieOptions } from './definitions';
 
 /**
  * Safely web encode a string value (inspired by js-cookie)
@@ -25,34 +25,25 @@ const decode = (str: string): string =>
 export const setCookie = (
   key: string,
   value: any,
-  options: Types.HttpSetCookieOptions = {},
+  options: HttpCookieOptions = {},
 ): void => {
   // Safely Encoded Key/Value
   const encodedKey = encode(key);
   const encodedValue = encode(value);
 
-  let expires = options.expires || '';
+  // Clean & sanitize options
+  const expires = `; expires=${(options.expires || '').replace('expires=', '')}`; // Default is "; expires="
+  const path = (options.path || '/').replace('path=', '');  // Default is "path=/"
 
-  // Support options.ageDays, but convert to expires
-  if (options.ageDays) {
-    const date = new Date();
-    date.setTime(date.getTime() + options.ageDays * 864e5);
-    expires = date.toUTCString();
-  }
-
-  if (expires) {
-    expires = `; expires=${expires.replace('expires=', '')}`;
-  }
-
-  document.cookie = `${encodedKey}=${encodedValue || ''}${expires}; path=/`;
+  document.cookie = `${encodedKey}=${encodedValue || ''}${expires}; path=${path}`;
 };
 
 /**
- * Gets all cookie values unless a key is specified, then return only that value
- * @param key The key of the cookie value to get
+ * Gets all HttpCookies
  */
-export const getCookie = (key?: string): any => {
-  const output: any = {};
+export const getCookies = (): HttpCookie[] => {
+  const output: HttpCookie[] = [];
+  const map: any = {}
   if (!document.cookie) {
     return output;
   }
@@ -63,15 +54,36 @@ export const getCookie = (key?: string): any => {
     let [k, v] = cookie.replace(/=/, 'CAP_COOKIE').split('CAP_COOKIE');
     k = decode(k).trim();
     v = decode(v).trim();
-    output[k] = v;
+    map[k] = v;
+  }
 
-    if (k === key) {
-      return v;
-    }
+  const entries: [string, any][] = Object.entries(map);
+  for (const [key, value] of entries) {
+    output.push({
+      key,
+      value,
+    });
   }
 
   return output;
 };
+
+/**
+ * Gets a single HttpCookie given a key
+ */
+export const getCookie = (key: string): HttpCookie => {
+  const cookies = getCookies();
+  for (const cookie of cookies) {
+    if (cookie.key === key) {
+      return cookie
+    }
+  }
+
+  return {
+    key, 
+    value: ''
+  }
+}
 
 /**
  * Deletes a cookie given a key
