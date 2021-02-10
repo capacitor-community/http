@@ -147,7 +147,7 @@ import Foundation
 
     guard let url = URL(string: urlString) else { return call.reject("Invalid URL") }
     
-    cookieManager!.setCookie(url, key, value)
+    cookieManager!.setCookie(url, key, cookieManager!.encode(value))
     
     call.resolve()
   }
@@ -175,7 +175,7 @@ import Foundation
     let cookie = cookieManager!.getCookie(url, key)
     call.resolve([
         "key": cookie.name,
-        "value": cookie.value
+        "value": cookieManager!.decode(cookie.value)
     ])
   }
 

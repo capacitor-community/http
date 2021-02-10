@@ -2,7 +2,15 @@ import Foundation
 import Capacitor
 
 public class CapacitorCookieManager {
-    public func setCookie(_ url: URL, _ key: String, _ value: Any) {
+    public func encode(_ value: String) -> String {
+        return value.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed)!
+    }
+    
+    public func decode(_ value: String) -> String {
+        return value.removingPercentEncoding!
+    }
+    
+    public func setCookie(_ url: URL, _ key: String, _ value: String) {
         let jar = HTTPCookieStorage.shared
         let field = ["Set-Cookie": "\(key)=\(value)"]
         let cookies = HTTPCookie.cookies(withResponseHeaderFields: field, for: url)

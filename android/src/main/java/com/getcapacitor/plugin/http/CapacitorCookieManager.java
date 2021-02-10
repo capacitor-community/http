@@ -1,11 +1,15 @@
 package com.getcapacitor.plugin.http;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
 import java.net.CookieStore;
 import java.net.HttpCookie;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +17,22 @@ import java.util.Map;
 
 public class CapacitorCookieManager extends CookieManager {
     private final android.webkit.CookieManager webkitCookieManager;
+
+    private String encode(String value) {
+        try {
+            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException ex) {
+            return "";
+        }
+    }
+
+    private String decode(String value) {
+        try {
+            return URLDecoder.decode(value, StandardCharsets.UTF_8.toString());
+        } catch (UnsupportedEncodingException ex) {
+            return "";
+        }
+    }
 
     /**
      * Create a new cookie manager for use with @capacitor-community/http with the default cookie
@@ -73,8 +93,9 @@ public class CapacitorCookieManager extends CookieManager {
         if (cookieString != null) {
             String[] singleCookie = cookieString.split(";");
             for (String c : singleCookie) {
-                List<HttpCookie> l = HttpCookie.parse(c);
-                cookieList.add(l.get(0));
+                HttpCookie parsed = HttpCookie.parse(c).get(0);
+                parsed.setValue(decode(parsed.getValue()));
+                cookieList.add(parsed);
             }
         }
         HttpCookie[] cookies = new HttpCookie[cookieList.size()];
@@ -100,7 +121,7 @@ public class CapacitorCookieManager extends CookieManager {
      * @param value the value of the {@code HttpCookie} given a key
      */
     public void setCookie(String url, String key, String value) {
-        String cookieValue = key + "=" + value;
+        String cookieValue = key + "=" + encode(value);
         setCookie(url, cookieValue);
     }
 
