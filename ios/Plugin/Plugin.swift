@@ -1,9 +1,13 @@
-import AudioToolbox
 import Capacitor
 import Foundation
 
 @objc(HttpPlugin) public class HttpPlugin: CAPPlugin {
-
+  var cookieManager: CapacitorCookieManager? = nil
+    
+  @objc override public func load() {
+    cookieManager = CapacitorCookieManager()
+  }
+    
   @objc func request(_ call: CAPPluginCall) {
     guard let urlValue = call.getString("url") else {
       return call.reject("Must provide a URL")
@@ -142,12 +146,9 @@ import Foundation
     }
 
     guard let url = URL(string: urlString) else { return call.reject("Invalid URL") }
-
-    let jar = HTTPCookieStorage.shared
-    let field = ["Set-Cookie": "\(key)=\(value)"]
-    let cookies = HTTPCookie.cookies(withResponseHeaderFields: field, for: url)
-    jar.setCookies(cookies, for: url, mainDocumentURL: url)
-
+    
+    cookieManager!.setCookie(url, key, value)
+    
     call.resolve()
   }
 
@@ -157,15 +158,25 @@ import Foundation
     }
 
     guard let url = URL(string: urlString) else { return call.reject("Invalid URL") }
-
-    let jar = HTTPCookieStorage.shared
-    guard let cookies = jar.cookies(for: url) else { return call.resolve(["value": []]) }
+    let cookies = cookieManager!.getCookies(url)
 
     let c = cookies.map { (cookie: HTTPCookie) -> [String: String] in
       return ["key": cookie.name, "value": cookie.value]
     }
 
     call.resolve(["value": c])
+  }
+    
+  @objc func getCookie(_ call: CAPPluginCall) {
+    guard let key = call.getString("key") else { return call.reject("Must provide key") }
+    guard let urlString = call.getString("url") else { return call.reject("Must provide URL") }
+    guard let url = URL(string: urlString) else { return call.reject("Invalid URL") }
+    
+    let cookie = cookieManager!.getCookie(url, key)
+    call.resolve([
+        "key": cookie.name,
+        "value": cookie.value
+    ])
   }
 
   @objc func deleteCookie(_ call: CAPPluginCall) {
