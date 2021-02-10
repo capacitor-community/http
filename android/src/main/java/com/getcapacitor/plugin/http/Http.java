@@ -310,6 +310,31 @@ public class Http extends Plugin {
     }
 
     @PluginMethod()
+    public void getCookie(PluginCall call) {
+        String url = call.getString("url");
+        String key = call.getString("key");
+
+        URI uri = getUri(url);
+        if (uri == null) {
+            call.reject("Invalid URL");
+            return;
+        }
+
+        HttpCookie cookie;
+        try {
+            cookie = cookieManager.getCookie(url, key);
+        } catch (Exception ex) {
+            call.reject("Unable to parse cookies", ex);
+            return;
+        }
+
+        JSObject ret = new JSObject();
+        ret.put("key", cookie.getName());
+        ret.put("value", cookie.getValue());
+        call.resolve(ret);
+    }
+
+    @PluginMethod()
     public void deleteCookie(PluginCall call) {
         String url = call.getString("url");
         String key = call.getString("key");

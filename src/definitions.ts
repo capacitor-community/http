@@ -2,10 +2,13 @@ import { Directory } from '@capacitor/filesystem';
 
 export interface HttpPlugin {
   request(options: HttpOptions): Promise<HttpResponse>;
+
   setCookie(options: HttpSetCookieOptions): Promise<void>;
+  getCookie(key: string): Promise<HttpCookie>;
   getCookies(options: HttpGetCookiesOptions): Promise<HttpGetCookiesResult>;
   deleteCookie(options: HttpDeleteCookieOptions): Promise<void>;
   clearCookies(options: HttpClearCookiesOptions): Promise<void>;
+
   uploadFile(options: HttpUploadFileOptions): Promise<HttpUploadFileResult>;
   downloadFile(
     options: HttpDownloadFileOptions,

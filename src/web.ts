@@ -151,6 +151,11 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
     };
   }
 
+  async getCookie(key: string): Promise<HttpCookie> {
+    const cookie = getCookie(key)
+    return cookie;
+  }
+
   /**
    * @deprecated Use cookie.deleteCookie instead
    */
