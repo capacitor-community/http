@@ -100,13 +100,27 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
 
     const ret = await fetch(fetchUrl, fetchOptions);
 
-    const contentType = ret.headers.get('content-type');
-
     let data;
+    const contentType = ret.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') === 0) {
       data = await ret.json();
     } else {
-      data = await ret.text();
+      switch (options.responseType) {
+        case 'arraybuffer':
+        case 'blob':
+          data = await this.readAsBase64(await ret.blob());
+          break;
+
+        case 'json':
+          data = await ret.json();
+          break;
+
+        case 'document':
+        case 'text':
+        default:
+          data = await ret.text();    
+          break;
+        }
     }
 
     return {
@@ -116,6 +130,29 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
       url: ret.url,
     };
   }
+
+  private async readAsBase64(blob: Blob): Promise<string> {    
+    var resolveCallback: (result: any) => void;
+    var rejectCallback: (error: any) => void;
+    
+    const promise = new Promise<string>((resolve, reject) => {
+      resolveCallback = resolve;
+      rejectCallback = reject;
+    });
+    
+    const reader = new FileReader(); 
+
+    reader.onload = () => { 
+      const base64String = reader.result as string; 
+      const base64StringWithoutTags = base64String.substr(base64String.indexOf(',') + 1); // remove prefix "data:application/pdf;base64,"      
+      resolveCallback(base64StringWithoutTags);
+    }
+    reader.onerror = (error: any) => rejectCallback(error);
+
+    reader.readAsDataURL(blob);
+    
+    return promise;
+}
 
   async setCookie(options: HttpSetCookieOptions) {
     var expires = '';
