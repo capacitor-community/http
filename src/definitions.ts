@@ -47,6 +47,11 @@ export interface HttpOptions {
    * the requestee. If the response content-type is "json", this value is ignored.
    */
   responseType?: HttpResponseType;
+  /**
+   * Use this option if you need to keep the URL unencoded in certain cases
+   * (already encoded, azure/firebase testing, etc.). The default is _true_.
+   */
+  shouldEncodeUrlParams?: boolean
 }
 
 export interface HttpParams {

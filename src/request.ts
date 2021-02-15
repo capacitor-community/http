@@ -76,7 +76,7 @@ export const buildRequestInit = (options: HttpOptions, extra: RequestInit = {}):
  */
 export const request = async (options: HttpOptions): Promise<HttpResponse> => {
   const requestInit = buildRequestInit(options, options.webFetchExtra);
-  const urlParams = buildUrlParams(options.params);
+  const urlParams = buildUrlParams(options.params, options.shouldEncodeUrlParams);
   const url = urlParams ? `${options.url}?${urlParams}` : options.url;
 
   const response = await fetch(url, requestInit);
