@@ -1,8 +1,6 @@
 package com.getcapacitor.plugin.http;
 
 import android.Manifest;
-import android.content.pm.PackageManager;
-import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 
@@ -55,6 +53,34 @@ public class Http extends Plugin {
     public static final int HTTP_REQUEST_UPLOAD_READ_PERMISSIONS = 9023;
 
     WebkitCookieManagerProxy cookieManager;
+
+    /**
+     * See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
+     */
+    private enum ResponseType {
+        ARRAY_BUFFER("arraybuffer"),
+        BLOB("blob"),
+        DOCUMENT("document"),
+        JSON("json"),
+        TEXT("text");
+
+        private final String name;
+
+        ResponseType(String name) {
+            this.name = name;
+        }
+
+        static final ResponseType DEFAULT = TEXT;
+
+        static ResponseType parse(String value) {
+            for (ResponseType responseType: values()) {
+                if (responseType.name.equalsIgnoreCase(value)) {
+                    return responseType;
+                }
+            }
+            return DEFAULT;
+        }
+    }
 
     @Override
     public void load() {
@@ -380,7 +406,7 @@ public class Http extends Plugin {
             // backward compatibility
             InputStream stream = (errorStream != null ? errorStream : conn.getInputStream());
             ret.put("data", parseJSON(readAsString(stream)));
-        else {
+        } else {
             InputStream inputStream = conn.getInputStream();
             switch (responseType) {
                 case ARRAY_BUFFER:
@@ -420,18 +446,15 @@ public class Http extends Plugin {
 
     private Object parseJSON(String input) throws JSONException {
         try {
-            if ("null".equals(builder.toString())) {
-                ret.put("data", JSONObject.NULL);
+            if ("null".equals(input)) {
+                return JSONObject.NULL;
             } else {
                 try {
-                    JSObject jsonValue = new JSObject(builder.toString());
-                    ret.put("data", jsonValue);
+                    return new JSObject(input);
                 } catch (JSONException e) {
-                    JSArray jsonValue = new JSArray(builder.toString());
-                    ret.put("data", jsonValue);
+                    return new JSArray(input);
                 }
             }
-            return new JSObject(input);
         } catch (JSONException e) {
             return new JSArray(input);
         }
@@ -539,34 +562,6 @@ public class Http extends Plugin {
             return new URI(url);
         } catch (Exception ex) {
             return null;
-        }
-    }
-
-    /**
-     * See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
-     */
-    private enum ResponseType {
-        ARRAY_BUFFER("arraybuffer"),
-        BLOB("blob"),
-        DOCUMENT("document"),
-        JSON("json"),
-        TEXT("text");
-
-        private final String name;
-
-        ResponseType(String name) {
-            this.name = name;
-        }
-
-        static final ResponseType DEFAULT = TEXT;
-
-        static ResponseType parse(String value) {
-            for (ResponseType responseType: values()) {
-                if (responseType.name.equalsIgnoreCase(value)) {
-                    return responseType;
-                }
-            }
-            return DEFAULT;
         }
     }
 }
