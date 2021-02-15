@@ -3,6 +3,7 @@ package com.getcapacitor.plugin.http;
 import android.Manifest;
 import android.util.Log;
 
+import com.getcapacitor.CapConfig;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.Plugin;
@@ -27,7 +28,6 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -47,12 +47,32 @@ public class Http extends Plugin {
     public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
     public static final int HTTP_REQUEST_UPLOAD_READ_PERMISSIONS = 9023;
 
+    CapConfig capConfig;
     CapacitorCookieManager cookieManager;
+
+    /**
+     * Helper function for getting the serverUrl from the Capacitor Config. Returns an empty
+     * string if it is invalid and will auto-reject through {@code call}
+     * @param call the {@code PluginCall} context
+     * @return the string of the server specified in the Capacitor config
+     */
+    private String getServerUrl(PluginCall call) {
+        String url = capConfig.getServerUrl();
+
+        URI uri = getUri(url);
+        if (uri == null) {
+            call.reject("Invalid URL. Check that \"server\" is set correctly in your capacitor.config.json file");
+            return "";
+        }
+
+        return url;
+    }
 
     @Override
     public void load() {
         this.cookieManager = new CapacitorCookieManager(null, java.net.CookiePolicy.ACCEPT_ALL);
         java.net.CookieHandler.setDefault(cookieManager);
+        capConfig = getBridge().getConfig();
     }
 
     @PluginMethod()
@@ -261,93 +281,73 @@ public class Http extends Plugin {
 
     @PluginMethod()
     public void setCookie(PluginCall call) {
-        String url = call.getString("url");
         String key = call.getString("key");
         String value = call.getString("value");
+        String url = getServerUrl(call);
 
-        URI uri = getUri(url);
-        if (uri == null) {
-            call.reject("Invalid URL");
-            return;
+        if (!url.isEmpty()) {
+            cookieManager.setCookie(url, key, value);
+            call.resolve();
         }
-
-        cookieManager.setCookie(url, key, value);
-
-        call.resolve();
     }
 
     @PluginMethod()
+    public void getCookiesMap(PluginCall call) {
+        String url = getServerUrl(call);
+        if (!url.isEmpty()) {
+            HttpCookie[] cookies = cookieManager.getCookies(url);
+            JSObject cookiesJsObject = new JSObject();
+            for (HttpCookie cookie : cookies) {
+                cookiesJsObject.put(cookie.getName(), cookie.getValue());
+            }
+            call.resolve(cookiesJsObject);
+        }
+    }
+
+
+    @PluginMethod()
     public void getCookies(PluginCall call) {
-        String url = call.getString("url");
-
-        URI uri = getUri(url);
-        if (uri == null) {
-            call.reject("Invalid URL");
-            return;
+        String url = getServerUrl(call);
+        if (!url.isEmpty()) {
+            HttpCookie[] cookies = cookieManager.getCookies(url);
+            JSArray cookiesJsArray = new JSArray();
+            for (HttpCookie cookie : cookies) {
+                JSObject cookieJsPair = new JSObject();
+                cookieJsPair.put("key", cookie.getName());
+                cookieJsPair.put("value", cookie.getValue());
+                cookiesJsArray.put(cookieJsPair);
+            }
+            JSObject cookiesJsObject = new JSObject();
+            cookiesJsObject.put("cookies", cookiesJsArray);
+            call.resolve(cookiesJsObject);
         }
-
-        HttpCookie[] cookies;
-
-        try {
-            cookies = cookieManager.getCookies(url);
-        } catch (Exception ex) {
-            call.reject("Unable to parse cookies", ex);
-            return;
-        }
-
-        JSArray cookiesArray = new JSArray();
-
-        for (HttpCookie cookie : cookies) {
-            JSObject ret = new JSObject();
-            ret.put("key", cookie.getName());
-            ret.put("value", cookie.getValue());
-            cookiesArray.put(ret);
-        }
-
-        JSObject ret = new JSObject();
-        ret.put("value", cookiesArray);
-        call.resolve(ret);
     }
 
     @PluginMethod()
     public void getCookie(PluginCall call) {
-        String url = call.getString("url");
         String key = call.getString("key");
-
-        URI uri = getUri(url);
-        if (uri == null) {
-            call.reject("Invalid URL");
-            return;
+        String url = getServerUrl(call);
+        if (!url.isEmpty()) {
+            HttpCookie cookie = cookieManager.getCookie(url, key);
+            JSObject cookieJsObject = new JSObject();
+            cookieJsObject.put("key", key);
+            if (cookie != null) {
+                cookieJsObject.put("value", cookie.getValue());
+            } else {
+                cookieJsObject.put("value", "");
+            }
+            call.resolve(cookieJsObject);
         }
-
-        HttpCookie cookie;
-        try {
-            cookie = cookieManager.getCookie(url, key);
-        } catch (Exception ex) {
-            call.reject("Unable to parse cookies", ex);
-            return;
-        }
-
-        JSObject ret = new JSObject();
-        ret.put("key", cookie.getName());
-        ret.put("value", cookie.getValue());
-        call.resolve(ret);
     }
 
     @PluginMethod()
     public void deleteCookie(PluginCall call) {
-        String url = call.getString("url");
         String key = call.getString("key");
-
-        URI uri = getUri(url);
-        if (uri == null) {
-            call.reject("Invalid URL");
-            return;
+        String url = getServerUrl(call);
+        if (!url.isEmpty()) {
+            cookieManager.setCookie(url, key + "=; Expires=Wed, 31 Dec 2000 23:59:59 GMT");
+            call.resolve();
         }
-
-        cookieManager.setCookie(url, key + "=; Expires=Wed, 31 Dec 2000 23:59:59 GMT");
-
-        call.resolve();
     }
 
     @PluginMethod()

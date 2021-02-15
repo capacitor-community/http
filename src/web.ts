@@ -10,6 +10,8 @@ import type {
   HttpUploadFileResult,
   HttpCookie,
   HttpCookieOptions,
+  HttpCookieMap,
+  HttpGetCookiesResult,
 } from './definitions';
 import { WebPlugin } from '@capacitor/core';
 import * as Cookie from './cookie';
@@ -112,9 +114,26 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
   }
 
   /**
-   * Gets all HttpCookies
+   * Gets all HttpCookies as a Map
    */
-  public getCookies = async (): Promise<HttpCookie[]> => Cookie.getCookies()
+  public getCookiesMap = async (): Promise<HttpCookieMap> => {
+    const cookies = Cookie.getCookies()
+    const output: HttpCookieMap = {}
+
+    for (const cookie of cookies) {
+      output[cookie.key] = cookie.value;
+    }
+
+    return output;
+  }
+
+  /**
+   * Get all HttpCookies as an object with the values as an HttpCookie[]
+   */
+  public getCookies = async (): Promise<HttpGetCookiesResult> => {
+    const cookies = Cookie.getCookies();
+    return { cookies };
+  }
 
   /**
    * Set a cookie

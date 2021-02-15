@@ -79,7 +79,7 @@ public class CapacitorCookieManager extends CookieManager {
             }
         }
 
-        return new HttpCookie("", "");
+        return null;
     }
 
     /**
@@ -88,18 +88,22 @@ public class CapacitorCookieManager extends CookieManager {
      * @return an {@code HttpCookie} array of non-expired cookies
      */
     public HttpCookie[] getCookies(String url) {
-        ArrayList<HttpCookie> cookieList = new ArrayList<>();
-        String cookieString = getCookieString(url);
-        if (cookieString != null) {
-            String[] singleCookie = cookieString.split(";");
-            for (String c : singleCookie) {
-                HttpCookie parsed = HttpCookie.parse(c).get(0);
-                parsed.setValue(decode(parsed.getValue()));
-                cookieList.add(parsed);
+        try {
+            ArrayList<HttpCookie> cookieList = new ArrayList<>();
+            String cookieString = getCookieString(url);
+            if (cookieString != null) {
+                String[] singleCookie = cookieString.split(";");
+                for (String c : singleCookie) {
+                    HttpCookie parsed = HttpCookie.parse(c).get(0);
+                    parsed.setValue(decode(parsed.getValue()));
+                    cookieList.add(parsed);
+                }
             }
+            HttpCookie[] cookies = new HttpCookie[cookieList.size()];
+            return cookieList.toArray(cookies);
+        } catch (Exception ex) {
+            return new HttpCookie[0];
         }
-        HttpCookie[] cookies = new HttpCookie[cookieList.size()];
-        return cookieList.toArray(cookies);
     }
 
     /**

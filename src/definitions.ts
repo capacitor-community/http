@@ -5,7 +5,8 @@ export interface HttpPlugin {
 
   setCookie(key: string, value: any, options?: HttpCookieOptions): Promise<void>;
   getCookie(key: string): Promise<HttpCookie>;
-  getCookies(): Promise<HttpCookie[]>;
+  getCookies(): Promise<HttpGetCookiesResult>;
+  getCookiesMap(): Promise<HttpCookieMap>;
   clearCookies(): Promise<void>;
   deleteCookie(key: string): Promise<void>;
 
@@ -94,6 +95,10 @@ export interface HttpCookie {
   value: string;
 }
 
+export interface HttpCookieMap {
+  [key: string]: any
+}
+
 export interface HttpCookieOptions {
   url?: string
   path?: string
@@ -101,7 +106,7 @@ export interface HttpCookieOptions {
 }
 
 export interface HttpGetCookiesResult {
-  value: HttpCookie[];
+  cookies: HttpCookie[];
 }
 
 export interface HttpDownloadFileResult {
