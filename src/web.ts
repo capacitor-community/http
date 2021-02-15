@@ -96,13 +96,27 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
 
     const ret = await fetch(fetchUrl, fetchOptions);
 
-    const contentType = ret.headers.get('content-type');
-
     let data;
+    const contentType = ret.headers.get('content-type');
     if (contentType && contentType.indexOf('application/json') === 0) {
       data = await ret.json();
     } else {
-      data = await ret.text();
+      switch (options.responseType) {
+        case 'arraybuffer':
+        case 'blob':
+          data = await this.readAsBase64(await ret.blob());
+          break;
+
+        case 'json':
+          data = await ret.json();
+          break;
+
+        case 'document':
+        case 'text':
+        default:
+          data = await ret.text();    
+          break;
+        }
     }
 
     return {
@@ -119,7 +133,7 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
   public getCookiesMap = async (): Promise<HttpCookieMap> => {
     const cookies = Cookie.getCookies()
     const output: HttpCookieMap = {}
-
+    
     for (const cookie of cookies) {
       output[cookie.key] = cookie.value;
     }
@@ -187,5 +201,28 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
     return {
       blob,
     };
+  }
+  
+  private readAsBase64 = async (blob: Blob): Promise<string> => {    
+    let resolveCallback: (result: any) => void;
+    let rejectCallback: (error: any) => void;
+    
+    const promise = new Promise<string>((resolve, reject) => {
+      resolveCallback = resolve;
+      rejectCallback = reject;
+    });
+    
+    const reader = new FileReader(); 
+    
+    reader.onload = () => { 
+      const base64String = reader.result as string; 
+      const base64StringWithoutTags = base64String.substr(base64String.indexOf(',') + 1); // remove prefix "data:application/pdf;base64,"      
+      resolveCallback(base64StringWithoutTags);
+    }
+    reader.onerror = (error: any) => rejectCallback(error);
+
+    reader.readAsDataURL(blob);
+    
+    return promise;
   }
 }

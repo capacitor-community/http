@@ -35,6 +35,11 @@ export interface HttpOptions {
    * Extra arguments for fetch when running on the web
    */
   webFetchExtra?: RequestInit;
+  /**
+   * This is used to parse the response appropriately before returning it to
+   * the requestee.
+   */
+  responseType?: 'arraybuffer' | 'blob' | 'json' | 'text' | 'document';
 }
 
 export interface HttpParams {

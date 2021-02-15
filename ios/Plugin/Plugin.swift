@@ -233,8 +233,9 @@ import Foundation
       }
 
       let res = response as! HTTPURLResponse
-
-      call.resolve(self.buildResponse(data, res))
+     
+      let responseType = ResponseType(string: call.getString("responseType"))
+      call.resolve(self.buildResponse(data, res, responseType: responseType))
     }
 
     task.resume()
@@ -295,35 +296,56 @@ import Foundation
     task.resume()
   }
 
-  func buildResponse(_ data: Data?, _ response: HTTPURLResponse) -> [String: Any] {
-    var ret = [:] as [String: Any]
-
+  private func buildResponse(_ data: Data?, _ response: HTTPURLResponse, responseType: ResponseType = .default) -> [String:Any] {
+    var ret = [:] as [String:Any]
+    
     ret["status"] = response.statusCode
     ret["headers"] = response.allHeaderFields
     ret["url"] = response.url?.absoluteString
     
+    guard let data = data else {
+      ret["data"] = ""
+      return ret
+    }
+    
     let contentType = response.allHeaderFields["Content-Type"] as? String
-
-    if data != nil && contentType != nil && contentType!.contains("application/json") {
-      if let json = try? JSONSerialization.jsonObject(
-        with: data!, options: .mutableContainers)
-      {
-        ret["data"] = json
-      }
+        // backward compatibility
+        if let contentType = contentType, contentType.contains("application/json") {
+        ret["data"] = jsonOrError(data: data)
     } else {
-      if data != nil {
-        ret["data"] = String(data: data!, encoding: .utf8)
-      } else {
-        ret["data"] = ""
-      }
+        switch responseType {
+        case .arrayBuffer, .blob:
+            ret["data"] = data.base64EncodedString()
+            break
+        case .json:
+            ret["data"] = jsonOrError(data: data)
+            break;
+        case .document, .text:
+            ret["data"] = String(data: data, encoding: .utf8);
+            break
+        }
+    }
+
+    if data == nil && (contentType == nil || !contentType!.contains("application/json")) {
+      ret["data"] = ""
     }
 
     return ret
   }
 
+  private func jsonOrError(data: Data) -> Any {
+    do {
+      return try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+    } catch {
+      return error.localizedDescription
+    }
+  }
+
   func getRequestHeader(_ headers: [String: Any], _ header: String) -> Any? {
-    var normalizedHeaders = [:] as [String: Any]
-    headers.keys.forEach { (key) in normalizedHeaders[key.lowercased()] = headers[key] }
+    var normalizedHeaders = [:] as [String:Any]
+    headers.keys.forEach { (key) in
+      normalizedHeaders[key.lowercased()] = headers[key]
+    }
     return normalizedHeaders[header.lowercased()]
   }
 
@@ -388,4 +410,29 @@ import Foundation
     return data
   }
 
+}
+
+/// See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
+fileprivate enum ResponseType: String {
+    case arrayBuffer = "arraybuffer"
+    case blob = "blob"
+    case document = "document"
+    case json = "json"
+    case text = "text"
+    
+    static let `default`: ResponseType = .text
+    
+    init(string: String?) {
+        guard let string = string else {
+            self = .default
+            return
+        }
+        
+        guard let responseType = ResponseType(rawValue: string.lowercased()) else {
+            self = .default
+            return
+        }
+        
+        self = responseType
+    }
 }
