@@ -171,11 +171,9 @@ export class AppHome {
   };
 
   getCookies = async () => {
-    const ret = await Http.getCookies({
-      url: this.apiUrl('/cookie'),
-    });
+    const ret = await Http.getCookies();
     console.log('Got cookies', ret);
-    this.output = JSON.stringify(ret.value);
+    this.output = JSON.stringify(ret.cookies);
   };
 
   testCookies = async () => {

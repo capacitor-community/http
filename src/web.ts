@@ -1,20 +1,20 @@
 import type {
   HttpPlugin,
   HttpOptions,
-  HttpDeleteCookieOptions,
   HttpHeaders,
   HttpResponse,
-  HttpSetCookieOptions,
-  HttpClearCookiesOptions,
-  HttpGetCookiesOptions,
-  HttpGetCookiesResult,
   HttpParams,
   HttpDownloadFileOptions,
   HttpDownloadFileResult,
   HttpUploadFileOptions,
   HttpUploadFileResult,
+  HttpCookie,
+  HttpCookieOptions,
+  HttpCookieMap,
+  HttpGetCookiesResult,
 } from './definitions';
 import { WebPlugin } from '@capacitor/core';
+import * as Cookie from './cookie';
 
 export class HttpWeb extends WebPlugin implements HttpPlugin {
   constructor() {
@@ -127,81 +127,52 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
     };
   }
 
-  private async readAsBase64(blob: Blob): Promise<string> {    
-    var resolveCallback: (result: any) => void;
-    var rejectCallback: (error: any) => void;
+  /**
+   * Gets all HttpCookies as a Map
+   */
+  public getCookiesMap = async (): Promise<HttpCookieMap> => {
+    const cookies = Cookie.getCookies()
+    const output: HttpCookieMap = {}
     
-    const promise = new Promise<string>((resolve, reject) => {
-      resolveCallback = resolve;
-      rejectCallback = reject;
-    });
-    
-    const reader = new FileReader(); 
-
-    reader.onload = () => { 
-      const base64String = reader.result as string; 
-      const base64StringWithoutTags = base64String.substr(base64String.indexOf(',') + 1); // remove prefix "data:application/pdf;base64,"      
-      resolveCallback(base64StringWithoutTags);
-    }
-    reader.onerror = (error: any) => rejectCallback(error);
-
-    reader.readAsDataURL(blob);
-    
-    return promise;
-}
-
-  async setCookie(options: HttpSetCookieOptions) {
-    var expires = '';
-    if (options.expires) {
-      // remove "expires=" so you can pass with or without the prefix
-      expires = `; expires=${expires.replace('expires=', '')}`;
-    } else if (options.ageDays) {
-      const date = new Date();
-      date.setTime(date.getTime() + options.ageDays * 24 * 60 * 60 * 1000);
-      expires = '; expires=' + date.toUTCString();
-    }
-    document.cookie =
-      options.key + '=' + (options.value || '') + expires + '; path=/';
-  }
-
-  async getCookies(
-    _options: HttpGetCookiesOptions,
-  ): Promise<HttpGetCookiesResult> {
-    if (!document.cookie) {
-      return { value: [] };
+    for (const cookie of cookies) {
+      output[cookie.key] = cookie.value;
     }
 
-    var cookies = document.cookie.split(';');
-    return {
-      value: cookies.map(c => {
-        const cParts = c.split(';').map(cv => cv.trim());
-        const cNameValue = cParts[0];
-        const cValueParts = cNameValue.split('=');
-        const key = cValueParts[0];
-        const value = cValueParts[1];
-
-        return {
-          key,
-          value,
-        };
-      }),
-    };
+    return output;
   }
 
-  async deleteCookie(options: HttpDeleteCookieOptions) {
-    document.cookie = options.key + '=; Max-Age=0';
+  /**
+   * Get all HttpCookies as an object with the values as an HttpCookie[]
+   */
+  public getCookies = async (): Promise<HttpGetCookiesResult> => {
+    const cookies = Cookie.getCookies();
+    return { cookies };
   }
 
-  async clearCookies(_options: HttpClearCookiesOptions) {
-    document.cookie
-      .split(';')
-      .forEach(
-        c =>
-          (document.cookie = c
-            .replace(/^ +/, '')
-            .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`)),
-      );
-  }
+  /**
+   * Set a cookie
+   * @param key The key to set
+   * @param value The value to set
+   * @param options Optional additional parameters
+   */
+  public setCookie = async (key: string, value: any, options: HttpCookieOptions): Promise<void> => Cookie.setCookie(key, value, options)
+
+  /**
+   * Gets all cookie values unless a key is specified, then return only that value
+   * @param key The key of the cookie value to get
+   */
+  public getCookie = async (key: string): Promise<HttpCookie> => Cookie.getCookie(key);
+
+  /**
+   * Deletes a cookie given a key
+   * @param key The key of the cookie to delete
+   */
+  public deleteCookie = async (key: string): Promise<void> => Cookie.deleteCookie(key);
+
+  /**
+   * Clears out cookies by setting them to expire immediately
+   */
+  public clearCookies = async (): Promise<void> => Cookie.clearCookies();
 
   async uploadFile(
     options: HttpUploadFileOptions,
@@ -230,5 +201,28 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
     return {
       blob,
     };
+  }
+  
+  private readAsBase64 = async (blob: Blob): Promise<string> => {    
+    let resolveCallback: (result: any) => void;
+    let rejectCallback: (error: any) => void;
+    
+    const promise = new Promise<string>((resolve, reject) => {
+      resolveCallback = resolve;
+      rejectCallback = reject;
+    });
+    
+    const reader = new FileReader(); 
+    
+    reader.onload = () => { 
+      const base64String = reader.result as string; 
+      const base64StringWithoutTags = base64String.substr(base64String.indexOf(',') + 1); // remove prefix "data:application/pdf;base64,"      
+      resolveCallback(base64StringWithoutTags);
+    }
+    reader.onerror = (error: any) => rejectCallback(error);
+
+    reader.readAsDataURL(blob);
+    
+    return promise;
   }
 }

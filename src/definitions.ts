@@ -2,10 +2,14 @@ import { Directory } from '@capacitor/filesystem';
 
 export interface HttpPlugin {
   request(options: HttpOptions): Promise<HttpResponse>;
-  setCookie(options: HttpSetCookieOptions): Promise<void>;
-  getCookies(options: HttpGetCookiesOptions): Promise<HttpGetCookiesResult>;
-  deleteCookie(options: HttpDeleteCookieOptions): Promise<void>;
-  clearCookies(options: HttpClearCookiesOptions): Promise<void>;
+
+  setCookie(key: string, value: any, options?: HttpCookieOptions): Promise<void>;
+  getCookie(key: string): Promise<HttpCookie>;
+  getCookies(): Promise<HttpGetCookiesResult>;
+  getCookiesMap(): Promise<HttpCookieMap>;
+  clearCookies(): Promise<void>;
+  deleteCookie(key: string): Promise<void>;
+
   uploadFile(options: HttpUploadFileOptions): Promise<HttpUploadFileResult>;
   downloadFile(
     options: HttpDownloadFileOptions,
@@ -96,29 +100,18 @@ export interface HttpCookie {
   value: string;
 }
 
-export interface HttpSetCookieOptions {
-  url: string;
-  key: string;
-  value: string;
-  ageDays?: number;
-  expires?: string;
+export interface HttpCookieMap {
+  [key: string]: any
 }
 
-export interface HttpGetCookiesOptions {
-  url: string;
-}
-
-export interface HttpDeleteCookieOptions {
-  url: string;
-  key: string;
-}
-
-export interface HttpClearCookiesOptions {
-  url: string;
+export interface HttpCookieOptions {
+  url?: string
+  path?: string
+  expires?: string
 }
 
 export interface HttpGetCookiesResult {
-  value: HttpCookie[];
+  cookies: HttpCookie[];
 }
 
 export interface HttpDownloadFileResult {

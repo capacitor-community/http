@@ -1,9 +1,24 @@
-import AudioToolbox
 import Capacitor
 import Foundation
 
 @objc(HttpPlugin) public class HttpPlugin: CAPPlugin {
-
+  var cookieManager: CapacitorCookieManager? = nil
+  var capConfig: InstanceConfiguration? = nil
+    
+    private func getServerUrl(_ call: CAPPluginCall) -> URL? {
+        guard let url = capConfig?.serverURL else {
+            call.reject("Invalid URL. Check that \"server\" is set correctly in your capacitor.config.json file")
+            return nil
+        }
+        
+        return url;
+    }
+    
+  @objc override public func load() {
+    cookieManager = CapacitorCookieManager()
+    capConfig = bridge?.config
+  }
+    
   @objc func request(_ call: CAPPluginCall) {
     guard let urlValue = call.getString("url") else {
       return call.reject("Must provide a URL")
@@ -134,65 +149,68 @@ import Foundation
 
   @objc func setCookie(_ call: CAPPluginCall) {
     guard let key = call.getString("key") else { return call.reject("Must provide key") }
-    guard let value = call.getString("value") else {
-      return call.reject("Must provide value")
+    guard let value = call.getString("value") else { return call.reject("Must provide value") }
+    
+    let url = getServerUrl(call)
+    if url != nil {
+        cookieManager!.setCookie(url!, key, cookieManager!.encode(value))
+        call.resolve()
     }
-    guard let urlString = call.getString("url") else {
-      return call.reject("Must provide URL")
-    }
-
-    guard let url = URL(string: urlString) else { return call.reject("Invalid URL") }
-
-    let jar = HTTPCookieStorage.shared
-    let field = ["Set-Cookie": "\(key)=\(value)"]
-    let cookies = HTTPCookie.cookies(withResponseHeaderFields: field, for: url)
-    jar.setCookies(cookies, for: url, mainDocumentURL: url)
-
-    call.resolve()
   }
 
   @objc func getCookies(_ call: CAPPluginCall) {
-    guard let urlString = call.getString("url") else {
-      return call.reject("Must provide URL")
+    let url = getServerUrl(call)
+    if url != nil {
+        let cookies = cookieManager!.getCookies(url!)
+        let output = cookies.map { (cookie: HTTPCookie) -> [String: String] in
+            return [
+                "key": cookie.name,
+                "value": cookie.value,
+            ]
+        }
+        call.resolve([
+            "cookies": output
+        ])
     }
-
-    guard let url = URL(string: urlString) else { return call.reject("Invalid URL") }
-
-    let jar = HTTPCookieStorage.shared
-    guard let cookies = jar.cookies(for: url) else { return call.resolve(["value": []]) }
-
-    let c = cookies.map { (cookie: HTTPCookie) -> [String: String] in
-      return ["key": cookie.name, "value": cookie.value]
+  }
+    
+  @objc func getCookie(_ call: CAPPluginCall) {
+    guard let key = call.getString("key") else { return call.reject("Must provide key") }
+    let url = getServerUrl(call)
+    if url != nil {
+        let cookie = cookieManager!.getCookie(url!, key)
+        call.resolve([
+            "key": cookie.name,
+            "value": cookieManager!.decode(cookie.value)
+        ])
     }
-
-    call.resolve(["value": c])
   }
 
   @objc func deleteCookie(_ call: CAPPluginCall) {
-    guard let urlString = call.getString("url") else {
-      return call.reject("Must provide URL")
-    }
     guard let key = call.getString("key") else { return call.reject("Must provide key") }
-    guard let url = URL(string: urlString) else { return call.reject("Invalid URL") }
+    let url = getServerUrl(call)
+    if url != nil {
+        let jar = HTTPCookieStorage.shared
 
-    let jar = HTTPCookieStorage.shared
+        let cookie = jar.cookies(for: url!)?.first(where: { (cookie) -> Bool in
+          return cookie.name == key
+        })
 
-    let cookie = jar.cookies(for: url)?.first(where: { (cookie) -> Bool in
-      return cookie.name == key
-    })
-    if cookie != nil { jar.deleteCookie(cookie!) }
+        if cookie != nil {
+            jar.deleteCookie(cookie!)
+        }
 
-    call.resolve()
+        call.resolve()
+    }
   }
 
   @objc func clearCookies(_ call: CAPPluginCall) {
-    guard let urlString = call.getString("url") else {
-      return call.reject("Must provide URL")
+    let url = getServerUrl(call)
+    if url != nil {
+        let jar = HTTPCookieStorage.shared
+        jar.cookies(for: url!)?.forEach({ (cookie) in jar.deleteCookie(cookie) })
+        call.resolve()
     }
-    guard let url = URL(string: urlString) else { return call.reject("Invalid URL") }
-    let jar = HTTPCookieStorage.shared
-    jar.cookies(for: url)?.forEach({ (cookie) in jar.deleteCookie(cookie) })
-    call.resolve()
   }
 
   // Handle GET operations
