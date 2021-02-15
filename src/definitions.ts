@@ -1,5 +1,7 @@
 import { Directory } from '@capacitor/filesystem';
 
+type HttpResponseType = 'arraybuffer' | 'blob' | 'json' | 'text' | 'document';
+
 export interface HttpPlugin {
   request(options: HttpOptions): Promise<HttpResponse>;
 
@@ -39,7 +41,7 @@ export interface HttpOptions {
    * This is used to parse the response appropriately before returning it to
    * the requestee.
    */
-  responseType?: 'arraybuffer' | 'blob' | 'json' | 'text' | 'document';
+  responseType?: HttpResponseType;
 }
 
 export interface HttpParams {
