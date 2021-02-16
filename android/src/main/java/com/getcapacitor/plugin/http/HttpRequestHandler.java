@@ -197,20 +197,12 @@ public class HttpRequestHandler {
         return output;
     }
 
-    private static JSArray buildResponseHeaders(CapacitorHttpUrlConnection connection) {
-        // TODO: FIX TRAILING COMMA
-        JSArray output = new JSArray();
+    private static JSObject buildResponseHeaders(CapacitorHttpUrlConnection connection) {
+        JSObject output = new JSObject();
 
-        for (Map.Entry<String, List<String>> entries : connection.getHeaderFields().entrySet()) {
-            JSObject header = new JSObject();
-
-            StringBuilder val = new StringBuilder();
-            for (String headerVal : entries.getValue()) {
-                val.append(headerVal).append(", ");
-            }
-
-            header.put(entries.getKey(), val.toString());
-            output.put(header);
+        for (Map.Entry<String, List<String>> entry : connection.getHeaderFields().entrySet()) {
+            String valuesString = TextUtils.join(", ", entry.getValue());
+            output.put(entry.getKey(), valuesString);
         }
 
         return output;
