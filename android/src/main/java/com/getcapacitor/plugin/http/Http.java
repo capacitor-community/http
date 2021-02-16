@@ -73,30 +73,15 @@ public class Http extends Plugin {
     }
 
     /**
-     * See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
+     * Try to parse a url string and if it can't be parsed, return null
+     * @param url the url string to try to parse
+     * @return a parsed URI
      */
-    private enum ResponseType {
-        ARRAY_BUFFER("arraybuffer"),
-        BLOB("blob"),
-        DOCUMENT("document"),
-        JSON("json"),
-        TEXT("text");
-
-        private final String name;
-
-        ResponseType(String name) {
-            this.name = name;
-        }
-
-        static final ResponseType DEFAULT = TEXT;
-
-        static ResponseType parse(String value) {
-            for (ResponseType responseType: values()) {
-                if (responseType.name.equalsIgnoreCase(value)) {
-                    return responseType;
-                }
-            }
-            return DEFAULT;
+    private URI getUri(String url) {
+        try {
+            return new URI(url);
+        } catch (Exception ex) {
+            return null;
         }
     }
 
@@ -112,148 +97,35 @@ public class Http extends Plugin {
         new Thread(
             new Runnable() {
                 public void run() {
-                    String url = call.getString("url");
-                    String method = call.getString("method");
-                    JSObject headers = call.getObject("headers");
-                    JSObject params = call.getObject("params");
-
-                    switch (method) {
-                        case "GET":
-                        case "HEAD":
-                            get(call, url, method, headers, params);
-                            break;
-                        case "DELETE":
-                        case "PATCH":
-                        case "POST":
-                        case "PUT":
-                            mutate(call, url, method, headers);
+                    try {
+                        JSObject response = HttpRequestHandler.request(call);
+                        call.resolve(response);
+                    } catch (IOException e) {
+                        call.reject("IO Exception");
+                    } catch (URISyntaxException e) {
+                        call.reject("URI Syntax Exception");
+                    } catch (JSONException e) {
+                        call.reject("JSON Exception");
                     }
                 }
             }
         ).start();
     }
 
-    private void get(PluginCall call, String urlString, String method, JSObject headers, JSObject params) {
-        try {
-            Integer connectTimeout = call.getInt("connectTimeout");
-            Integer readTimeout = call.getInt("readTimeout");
-            ResponseType responseType = ResponseType.parse(call.getString("responseType"));
-
-            URL url = new URL(urlString);
-            HttpURLConnection conn = makeUrlConnection(url, method, connectTimeout, readTimeout, headers, params);
-
-            buildResponse(call, conn, responseType);
-        } catch (MalformedURLException ex) {
-            call.reject("Invalid URL", ex);
-        } catch (IOException ex) {
-            call.reject("IO Error", ex);
-        } catch (Exception ex) {
-            call.reject("Error", ex);
-        }
-    }
-
-    private void mutate(PluginCall call, String urlString, String method, JSObject headers) {
-        try {
-            Integer connectTimeout = call.getInt("connectTimeout");
-            Integer readTimeout = call.getInt("readTimeout");
-            JSObject data = call.getObject("data");
-
-            URL url = new URL(urlString);
-
-            HttpURLConnection conn = makeUrlConnection(url, method, connectTimeout, readTimeout, headers, null);
-
-            conn.setDoOutput(true);
-
-            setRequestBody(conn, data, headers);
-
-            conn.connect();
-
-            buildResponse(call, conn);
-        } catch (MalformedURLException ex) {
-            call.reject("Invalid URL", ex);
-        } catch (IOException ex) {
-            call.reject("IO Error", ex);
-        } catch (Exception ex) {
-            call.reject("Error", ex);
-        }
-    }
-
-    private HttpURLConnection makeUrlConnection(
-        URL url,
-        String method,
-        Integer connectTimeout,
-        Integer readTimeout,
-        JSObject headers,
-        JSObject params
-    ) throws Exception {
-        if (params != null) {
-            url = setParams(url, params);
-        }
-
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-
-        conn.setAllowUserInteraction(false);
-        conn.setRequestMethod(method);
-
-        if (connectTimeout != null) {
-            conn.setConnectTimeout(connectTimeout);
-        }
-
-        if (readTimeout != null) {
-            conn.setReadTimeout(readTimeout);
-        }
-
-        setRequestHeaders(conn, headers);
-
-        return conn;
-    }
-
     @PluginMethod()
     public void downloadFile(PluginCall call) {
         try {
             bridge.saveCall(call);
-            String urlString = call.getString("url");
-            String filePath = call.getString("filePath");
             String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
-            JSObject headers = call.getObject("headers");
-            JSObject params = call.getObject("params");
-
-            Integer connectTimeout = call.getInt("connectTimeout");
-            Integer readTimeout = call.getInt("readTimeout");
-
-            URL url = new URL(urlString);
 
             if (
                 !FilesystemUtils.isPublicDirectory(fileDirectory) ||
                 isStoragePermissionGranted(call, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             ) {
                 call.release(bridge);
+                JSObject response = HttpRequestHandler.downloadFile(call, getContext());
 
-                final File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
-
-                HttpURLConnection conn = makeUrlConnection(url, "GET", connectTimeout, readTimeout, headers, params);
-
-                InputStream is = conn.getInputStream();
-
-                FileOutputStream fos = new FileOutputStream(file, false);
-
-                byte[] buffer = new byte[1024];
-                int len;
-
-                while ((len = is.read(buffer)) > 0) {
-                    fos.write(buffer, 0, len);
-                }
-
-                is.close();
-                fos.close();
-
-                call.resolve(
-                    new JSObject() {
-                        {
-                            put("path", file.getAbsolutePath());
-                        }
-                    }
-                );
+                call.resolve(response);
             }
         } catch (MalformedURLException ex) {
             call.reject("Invalid URL", ex);
@@ -277,35 +149,17 @@ public class Http extends Plugin {
 
     @PluginMethod()
     public void uploadFile(PluginCall call) {
-        String urlString = call.getString("url");
-        String filePath = call.getString("filePath");
-        String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
-        String name = call.getString("name", "file");
-        Integer connectTimeout = call.getInt("connectTimeout");
-        Integer readTimeout = call.getInt("readTimeout");
-        JSObject headers = call.getObject("headers");
-        JSObject params = call.getObject("params");
-        JSObject data = call.getObject("data");
-
         try {
+            String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
             bridge.saveCall(call);
-            URL url = new URL(urlString);
 
             if (
                 !FilesystemUtils.isPublicDirectory(fileDirectory) ||
                 isStoragePermissionGranted(call, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             ) {
                 call.release(bridge);
-                File file = FilesystemUtils.getFileObject(getContext(), filePath, fileDirectory);
-
-                HttpURLConnection conn = makeUrlConnection(url, "POST", connectTimeout, readTimeout, headers, null);
-                conn.setDoOutput(true);
-
-                FormUploader builder = new FormUploader(conn);
-                builder.addFilePart(name, file, data);
-                builder.finish();
-
-                buildResponse(call, conn);
+                JSObject response = HttpRequestHandler.uploadFile(call, getContext());
+                call.resolve(response);
             }
         } catch (Exception ex) {
             call.reject("Error", ex);
@@ -387,185 +241,5 @@ public class Http extends Plugin {
     public void clearCookies(PluginCall call) {
         cookieManager.removeAllCookies();
         call.resolve();
-    }
-
-    private void buildResponse(PluginCall call, HttpURLConnection conn) throws Exception {
-        buildResponse(call, conn, ResponseType.DEFAULT);
-    }
-
-    private void buildResponse(PluginCall call, HttpURLConnection conn, ResponseType responseType) throws IOException, JSONException {
-        int statusCode = conn.getResponseCode();
-
-        JSObject ret = new JSObject();
-        ret.put("status", statusCode);
-        ret.put("headers", makeResponseHeaders(conn));
-        ret.put("url", conn.getURL());
-
-        Log.d(getLogTag(), "Request completed, got data");
-
-        InputStream errorStream = conn.getErrorStream();
-        String contentType = conn.getHeaderField("Content-Type");
-
-        if (contentType != null && contentType.contains("application/json")) {
-            // backward compatibility
-            InputStream stream = (errorStream != null ? errorStream : conn.getInputStream());
-            ret.put("data", parseJSON(readAsString(stream)));
-        } else {
-            InputStream inputStream = conn.getInputStream();
-            switch (responseType) {
-                case ARRAY_BUFFER:
-                case BLOB:
-                    ret.put("data", readAsBase64(inputStream));
-                    break;
-                case JSON:
-                    ret.put("data", parseJSON(readAsString(inputStream)));
-                    break;
-                case DOCUMENT:
-                case TEXT:
-                    ret.put("data", readAsString(inputStream));
-                    break;
-            }
-        }
-
-        call.resolve(ret);
-    }
-
-    private JSArray makeResponseHeaders(HttpURLConnection conn) {
-        JSArray ret = new JSArray();
-
-        for (Map.Entry<String, List<String>> entries : conn.getHeaderFields().entrySet()) {
-            JSObject header = new JSObject();
-
-            StringBuilder val = new StringBuilder();
-            for (String headerVal : entries.getValue()) {
-                val.append(headerVal).append(", ");
-            }
-
-            header.put(entries.getKey(), val.toString());
-            ret.put(header);
-        }
-
-        return ret;
-    }
-
-    private Object parseJSON(String input) throws JSONException {
-        try {
-            if ("null".equals(input)) {
-                return JSONObject.NULL;
-            } else {
-                try {
-                    return new JSObject(input);
-                } catch (JSONException e) {
-                    return new JSArray(input);
-                }
-            }
-        } catch (JSONException e) {
-            return new JSArray(input);
-        }
-    }
-
-    private String readAsBase64(InputStream in) throws IOException {
-        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-            byte[] buffer = new byte[1024];
-            int readBytes;
-            while ((readBytes = in.read(buffer)) != -1) {
-                out.write(buffer, 0, readBytes);
-            }
-            byte[] result = out.toByteArray();
-            return Base64.encodeToString(result, 0, result.length, Base64.DEFAULT);
-        }
-    }
-
-    private String readAsString(InputStream in) throws IOException {
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
-            StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append(System.getProperty("line.separator"));
-            }
-            return builder.toString();
-        }
-    }
-
-    private void setRequestHeaders(HttpURLConnection conn, JSObject headers) {
-        Iterator<String> keys = headers.keys();
-        while (keys.hasNext()) {
-            String key = keys.next();
-            String value = headers.getString(key);
-            conn.setRequestProperty(key, value);
-        }
-    }
-
-    private URL setParams(URL url, JSObject params) {
-        String newQuery = url.getQuery();
-        Iterator<String> keys = params.keys();
-        while (keys.hasNext()) {
-            String key = keys.next();
-            String value = params.getString(key);
-            if (newQuery == null) {
-                newQuery = key + "=" + value;
-            } else {
-                newQuery += "&" + key + "=" + value;
-            }
-        }
-        try {
-            URI uri = url.toURI();
-            URI newUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), newQuery, uri.getFragment());
-            return newUri.toURL();
-        } catch (URISyntaxException | MalformedURLException e) {
-            return url;
-        }
-    }
-
-    private void writeToOutputStream(OutputStream out, String data) throws IOException {
-        try (DataOutputStream os = new DataOutputStream(out)) {
-            os.write(data.getBytes(StandardCharsets.UTF_8));
-            os.flush();
-        }
-    }
-
-    private void setRequestBody(HttpURLConnection conn, JSObject data, JSObject headers) throws IOException, JSONException {
-        String contentType = conn.getRequestProperty("Content-Type");
-
-        if (contentType != null) {
-            if (contentType.contains("application/json")) {
-                writeToOutputStream(conn.getOutputStream(), data.toString());
-            } else if (contentType.contains("application/x-www-form-urlencoded")) {
-                StringBuilder builder = new StringBuilder();
-
-                Iterator<String> keys = data.keys();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-                    Object d = data.get(key);
-                    if (d != null) {
-                        builder.append(key).append("=").append(URLEncoder.encode(d.toString(), "UTF-8"));
-                        if (keys.hasNext()) {
-                            builder.append("&");
-                        }
-                    }
-                }
-
-                writeToOutputStream(conn.getOutputStream(), builder.toString());
-            } else if (contentType.contains("multipart/form-data")) {
-                FormUploader uploader = new FormUploader(conn);
-
-                Iterator<String> keys = data.keys();
-                while (keys.hasNext()) {
-                    String key = keys.next();
-
-                    String d = data.get(key).toString();
-                    uploader.addFormField(key, d);
-                }
-                uploader.finish();
-            }
-        }
-    }
-
-    private URI getUri(String url) {
-        try {
-            return new URI(url);
-        } catch (Exception ex) {
-            return null;
-        }
     }
 }
