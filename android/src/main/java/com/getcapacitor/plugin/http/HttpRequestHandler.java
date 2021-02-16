@@ -1,7 +1,7 @@
 package com.getcapacitor.plugin.http;
 
-import android.Manifest;
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Base64;
 
 import com.getcapacitor.JSArray;
@@ -348,6 +348,14 @@ public class HttpRequestHandler {
         };
     }
 
+    /**
+     * Makes an Http Request to upload a file based on the PluginCall parameters
+     * @param call The Capacitor PluginCall that contains the options need for an Http request
+     * @param context The Android Context required for writing to the filesystem
+     * @throws IOException throws an IO request when a connection can't be made
+     * @throws URISyntaxException thrown when the URI is malformed
+     * @throws JSONException thrown when malformed JSON is passed into the function
+     */
     public static JSObject uploadFile(PluginCall call, Context context) throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url");
         String method = call.getString("method").toUpperCase();

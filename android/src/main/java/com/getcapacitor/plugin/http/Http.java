@@ -85,6 +85,17 @@ public class Http extends Plugin {
         }
     }
 
+    private boolean isStoragePermissionGranted(PluginCall call, String permission) {
+        if (hasPermission(permission)) {
+            Log.v(getLogTag(), "Permission '" + permission + "' is granted");
+            return true;
+        } else {
+            Log.v(getLogTag(), "Permission '" + permission + "' denied. Asking user for it.");
+            requestPermissions(call);
+            return false;
+        }
+    }
+
     @Override
     public void load() {
         this.cookieManager = new CapacitorCookieManager(null, java.net.CookiePolicy.ACCEPT_ALL);
@@ -133,17 +144,6 @@ public class Http extends Plugin {
             call.reject("IO Error", ex);
         } catch (Exception ex) {
             call.reject("Error", ex);
-        }
-    }
-
-    private boolean isStoragePermissionGranted(PluginCall call, String permission) {
-        if (hasPermission(permission)) {
-            Log.v(getLogTag(), "Permission '" + permission + "' is granted");
-            return true;
-        } else {
-            Log.v(getLogTag(), "Permission '" + permission + "' denied. Asking user for it.");
-            requestPermissions(call);
-            return false;
         }
     }
 
