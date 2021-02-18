@@ -78,11 +78,11 @@ public class HttpRequestHandler {
             return this;
         }
 
-        public  HttpURLConnectionBuilder setParams(JSObject params) throws MalformedURLException, URISyntaxException {
-            return this.setParams(params, true);
+        public  HttpURLConnectionBuilder setUrlParams(JSObject params) throws MalformedURLException, URISyntaxException {
+            return this.setUrlParams(params, true);
         }
 
-        public HttpURLConnectionBuilder setParams(JSObject params, boolean shouldEncode) throws URISyntaxException, MalformedURLException {
+        public HttpURLConnectionBuilder setUrlParams(JSObject params, boolean shouldEncode) throws URISyntaxException, MalformedURLException {
             String initialQuery = url.getQuery();
             String initialQueryBuilderStr = initialQuery == null ? "" : initialQuery;
 
@@ -279,7 +279,7 @@ public class HttpRequestHandler {
                 .setUrl(url)
                 .setMethod(method)
                 .setHeaders(headers)
-                .setParams(params)
+                .setUrlParams(params)
                 .setConnectTimeout(connectTimeout)
                 .setReadTimeout(readTimeout)
                 .openConnection();
@@ -321,7 +321,7 @@ public class HttpRequestHandler {
                 .setUrl(url)
                 .setMethod(method)
                 .setHeaders(headers)
-                .setParams(params)
+                .setUrlParams(params)
                 .setConnectTimeout(connectTimeout)
                 .setReadTimeout(readTimeout)
                 .openConnection();
@@ -377,7 +377,7 @@ public class HttpRequestHandler {
                 .setUrl(url)
                 .setMethod(method)
                 .setHeaders(headers)
-                .setParams(params)
+                .setUrlParams(params)
                 .setConnectTimeout(connectTimeout)
                 .setReadTimeout(readTimeout)
                 .openConnection();
