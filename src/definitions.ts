@@ -1,7 +1,14 @@
 import { Directory } from '@capacitor/filesystem';
 
+type HttpResponseType = 'arraybuffer' | 'blob' | 'json' | 'text' | 'document';
+
 export interface HttpPlugin {
   request(options: HttpOptions): Promise<HttpResponse>;
+  get(options: HttpOptions): Promise<HttpResponse>;
+  post(options: HttpOptions): Promise<HttpResponse>;
+  put(options: HttpOptions): Promise<HttpResponse>;
+  patch(options: HttpOptions): Promise<HttpResponse>;
+  del(options: HttpOptions): Promise<HttpResponse>;
 
   setCookie(key: string, value: any, options?: HttpCookieOptions): Promise<void>;
   getCookie(key: string): Promise<HttpCookie>;
@@ -37,9 +44,14 @@ export interface HttpOptions {
   webFetchExtra?: RequestInit;
   /**
    * This is used to parse the response appropriately before returning it to
-   * the requestee.
+   * the requestee. If the response content-type is "json", this value is ignored.
    */
-  responseType?: 'arraybuffer' | 'blob' | 'json' | 'text' | 'document';
+  responseType?: HttpResponseType;
+  /**
+   * Use this option if you need to keep the URL unencoded in certain cases
+   * (already encoded, azure/firebase testing, etc.). The default is _true_.
+   */
+  shouldEncodeUrlParams?: boolean
 }
 
 export interface HttpParams {

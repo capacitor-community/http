@@ -1,20 +1,5 @@
 import { HttpCookie, HttpCookieOptions } from './definitions';
-
-/**
- * Safely web encode a string value (inspired by js-cookie)
- * @param str The string value to encode
- */
-const encode = (str: string) =>
-  encodeURIComponent(str)
-    .replace(/%(2[346B]|5E|60|7C)/g, decodeURIComponent)
-    .replace(/[()]/g, escape);
-
-/**
- * Safely web decode a string value (inspired by js-cookie)
- * @param str The string value to decode
- */
-const decode = (str: string): string =>
-  str.replace(/(%[\dA-F]{2})+/gi, decodeURIComponent);
+import { encode, decode } from './utils'
 
 /**
  * Set a cookie

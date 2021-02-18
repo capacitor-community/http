@@ -1,9 +1,7 @@
 import type {
   HttpPlugin,
   HttpOptions,
-  HttpHeaders,
   HttpResponse,
-  HttpParams,
   HttpDownloadFileOptions,
   HttpDownloadFileResult,
   HttpUploadFileOptions,
@@ -15,117 +13,48 @@ import type {
 } from './definitions';
 import { WebPlugin } from '@capacitor/core';
 import * as Cookie from './cookie';
+import * as Request from './request';
 
 export class HttpWeb extends WebPlugin implements HttpPlugin {
   constructor() {
     super();
   }
 
-  private getRequestHeader(headers: HttpHeaders, key: string): string {
-    const originalKeys = Object.keys(headers);
-    const keys = Object.keys(headers).map(k => k.toLocaleLowerCase());
-    const lowered = keys.reduce((newHeaders, key, index) => {
-      newHeaders[key] = headers[originalKeys[index]];
-      return newHeaders;
-    }, {} as HttpHeaders);
+  /**
+   * Perform an Http request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public request = async(options: HttpOptions): Promise<HttpResponse> => Request.request(options);
 
-    return lowered[key.toLocaleLowerCase()];
-  }
+  /**
+   * Perform an Http GET request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public get = async (options: HttpOptions): Promise<HttpResponse> => Request.get(options);
 
-  private nativeHeadersToObject(headers: Headers): HttpHeaders {
-    const h = {} as HttpHeaders;
+  /**
+   * Perform an Http POST request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public post = async (options: HttpOptions): Promise<HttpResponse> => Request.post(options);
 
-    headers.forEach((value: string, key: string) => {
-      h[key] = value;
-    });
+  /**
+   * Perform an Http PUT request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public put = async (options: HttpOptions): Promise<HttpResponse> => Request.put(options);
 
-    return h;
-  }
+  /**
+   * Perform an Http PATCH request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public patch = async (options: HttpOptions): Promise<HttpResponse> => Request.patch(options);
 
-  private makeFetchOptions(
-    options: HttpOptions,
-    fetchExtra: RequestInit = {},
-  ): RequestInit {
-    const req = {
-      method: options.method || 'GET',
-      headers: options.headers,
-      ...fetchExtra,
-    } as RequestInit;
-
-    const contentType =
-      this.getRequestHeader(options.headers || {}, 'content-type') || '';
-
-    if (contentType.indexOf('application/json') === 0) {
-      req['body'] = JSON.stringify(options.data);
-    } else if (contentType.indexOf('application/x-www-form-urlencoded') === 0) {
-      const urlSearchParams = new URLSearchParams();
-      for (let key of Object.keys(options.data)) {
-        urlSearchParams.set(key, options.data[key]);
-      }
-      req['body'] = urlSearchParams.toString();
-    } else if (
-      contentType.indexOf('multipart/form-data') === 0 ||
-      typeof options.data === 'object'
-    ) {
-      let formData = new FormData();
-      for (let key of Object.keys(options.data)) {
-        formData.append(key, options.data[key]);
-      }
-      req['body'] = formData;
-    }
-
-    return req;
-  }
-
-  private makeFetchParams(params?: HttpParams): string | null {
-    if (!params) return null;
-    return Object.entries(params).reduce((prev, [key, value]) => {
-      const encodedValue = encodeURIComponent(value);
-      const keyValue = `${key}=${encodedValue}`;
-      return prev ? `${prev}&${keyValue}` : keyValue;
-    }, '');
-  }
-
-  async request(options: HttpOptions): Promise<HttpResponse> {
-    const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
-
-    const fetchParams = this.makeFetchParams(options.params);
-    const fetchUrl = fetchParams
-      ? `${options.url}?${fetchParams}`
-      : options.url;
-
-    const ret = await fetch(fetchUrl, fetchOptions);
-
-    let data;
-    const contentType = ret.headers.get('content-type');
-    if (contentType && contentType.indexOf('application/json') === 0) {
-      data = await ret.json();
-    } else {
-      switch (options.responseType) {
-        case 'arraybuffer':
-        case 'blob':
-          data = await this.readAsBase64(await ret.blob());
-          break;
-
-        case 'json':
-          data = await ret.json();
-          break;
-
-        case 'document':
-        case 'text':
-        default:
-          data = await ret.text();    
-          break;
-        }
-    }
-
-    return {
-      status: ret.status,
-      data,
-      headers: this.nativeHeadersToObject(ret.headers),
-      url: ret.url,
-    };
-  }
+  /**
+   * Perform an Http DELETE request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public del = async (options: HttpOptions): Promise<HttpResponse> => Request.del(options);
 
   /**
    * Gets all HttpCookies as a Map
@@ -174,55 +103,32 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
    */
   public clearCookies = async (): Promise<void> => Cookie.clearCookies();
 
-  async uploadFile(
-    options: HttpUploadFileOptions,
-  ): Promise<HttpUploadFileResult> {
+  /**
+   * Uploads a file through a POST request
+   * @param options TODO
+   */
+  public uploadFile = async (options: HttpUploadFileOptions): Promise<HttpUploadFileResult> => {
     const formData = new FormData();
     formData.append(options.name, options.blob || 'undefined');
-
     const fetchOptions = {
       ...options,
       body: formData,
       method: 'POST',
     };
 
-    return this.request(fetchOptions);
+    return this.post(fetchOptions);
   }
 
-  async downloadFile(
-    options: HttpDownloadFileOptions,
-  ): Promise<HttpDownloadFileResult> {
-    const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
-
-    const ret = await fetch(options.url, fetchOptions);
-
-    const blob = await ret.blob();
-
+  /**
+   * Downloads a file
+   * @param options TODO
+   */
+  public downloadFile = async (options: HttpDownloadFileOptions): Promise<HttpDownloadFileResult> => {
+    const requestInit = Request.buildRequestInit(options, options.webFetchExtra);
+    const response = await fetch(options.url, requestInit);
+    const blob = await response.blob();
     return {
       blob,
     };
-  }
-  
-  private readAsBase64 = async (blob: Blob): Promise<string> => {    
-    let resolveCallback: (result: any) => void;
-    let rejectCallback: (error: any) => void;
-    
-    const promise = new Promise<string>((resolve, reject) => {
-      resolveCallback = resolve;
-      rejectCallback = reject;
-    });
-    
-    const reader = new FileReader(); 
-    
-    reader.onload = () => { 
-      const base64String = reader.result as string; 
-      const base64StringWithoutTags = base64String.substr(base64String.indexOf(',') + 1); // remove prefix "data:application/pdf;base64,"      
-      resolveCallback(base64StringWithoutTags);
-    }
-    reader.onerror = (error: any) => rejectCallback(error);
-
-    reader.readAsDataURL(blob);
-    
-    return promise;
   }
 }
