@@ -53,9 +53,6 @@ public class CapacitorUrlRequest {
         return nil
     }
     
-    /// Set the headers on the CapacitorUrlRequest
-    /// - Parameters:
-    ///     - headers: A Dictionary of header values
     public func setRequestHeaders(_ headers: [String: String]) {
         headers.keys.forEach { (key: String) in
             let value = headers[key]
@@ -69,11 +66,7 @@ public class CapacitorUrlRequest {
         let contentType = self.getRequestHeader("Content-Type") as? String
 
         if contentType != nil {
-            do {
-                request.httpBody = try getRequestData(body, contentType!)
-            } catch let e {
-                return
-            }
+            request.httpBody = try? getRequestData(body, contentType!)
         }
     }
     
