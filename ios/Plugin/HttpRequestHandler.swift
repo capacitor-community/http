@@ -159,6 +159,7 @@ class HttpRequestHandler {
         
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as! [String: String]
+        let responseType = call.getString("responseType") ?? "text";
         
         let isHttpMutate = method == "DELETE" ||
             method == "PATCH" ||
@@ -186,7 +187,8 @@ class HttpRequestHandler {
                 return;
             }
 
-            call.resolve(HttpRequestHandler.buildResponse(data, response as! HTTPURLResponse))
+            let type = ResponseType(rawValue: responseType) ?? .default
+            call.resolve(self.buildResponse(data, response as! HTTPURLResponse, responseType: type))
         }
         
         task.resume();
@@ -199,6 +201,7 @@ class HttpRequestHandler {
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as! [String: String]
         let body = (call.getObject("data") ?? [:]) as [String: Any]
+        let responseType = call.getString("responseType") ?? "text";
         
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
@@ -225,7 +228,8 @@ class HttpRequestHandler {
                 call.reject("Error", "UPLOAD", error, [:])
                 return
             }
-            call.resolve(self.buildResponse(data, response as! HTTPURLResponse))
+            let type = ResponseType(rawValue: responseType) ?? .default
+            call.resolve(self.buildResponse(data, response as! HTTPURLResponse, responseType: type))
         }
 
         task.resume()
