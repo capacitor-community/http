@@ -74,6 +74,10 @@ public class CapacitorUrlRequest {
         request.setValue(data, forHTTPHeaderField: "Content-Type")
     }
     
+    public func setTimeout(_ timeout: TimeInterval) {
+        request.timeoutInterval = timeout;
+    }
+    
     public func getUrlRequest() -> URLRequest {
         return request;
     }

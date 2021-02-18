@@ -43,8 +43,6 @@ class HttpRequestHandler {
         private var url: URL?
         private var method: String?
         private var params: [String:String]?
-        private var connectTimeout: Int?
-        private var readTimeout: Int?
         private var request: CapacitorUrlRequest?
         
         /// Set the URL of the HttpRequest
@@ -57,16 +55,6 @@ class HttpRequestHandler {
                 throw URLError(.badURL)
             }
             url = u
-            return self;
-        }
-        
-        public func setConnectTimeout(_ connectTimeout: Int) -> CapacitorHttpRequestBuilder {
-            self.connectTimeout = connectTimeout;
-            return self;
-        }
-
-        public func setReadTimeout(_ readTimeout: Int) -> CapacitorHttpRequestBuilder{
-            self.readTimeout = readTimeout;
             return self;
         }
 
@@ -160,6 +148,8 @@ class HttpRequestHandler {
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as! [String: String]
         let responseType = call.getString("responseType") ?? "text";
+        let connectTimeout = call.getDouble("connectTimeout");
+        let readTimeout = call.getDouble("readTimeout");
         
         let isHttpMutate = method == "DELETE" ||
             method == "PATCH" ||
@@ -174,6 +164,10 @@ class HttpRequestHandler {
             .build();
         
         request.setRequestHeaders(headers)
+        
+        // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
+        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+        request.setTimeout(timeout)
         
         if isHttpMutate {
             let data = call.getObject("data") ?? [:]
@@ -202,6 +196,8 @@ class HttpRequestHandler {
         let params = (call.getObject("params") ?? [:]) as! [String: String]
         let body = (call.getObject("data") ?? [:]) as [String: Any]
         let responseType = call.getString("responseType") ?? "text";
+        let connectTimeout = call.getDouble("connectTimeout");
+        let readTimeout = call.getDouble("readTimeout");
         
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
@@ -215,6 +211,10 @@ class HttpRequestHandler {
             .build();
         
         request.setRequestHeaders(headers)
+        
+        // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
+        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+        request.setTimeout(timeout)
         
         let boundary = UUID().uuidString
         request.setContentType("multipart/form-data; boundary=\(boundary)");
@@ -240,6 +240,8 @@ class HttpRequestHandler {
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as! [String: String]
+        let connectTimeout = call.getDouble("connectTimeout");
+        let readTimeout = call.getDouble("readTimeout");
         
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
@@ -252,6 +254,10 @@ class HttpRequestHandler {
             .build();
         
         request.setRequestHeaders(headers)
+        
+        // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
+        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+        request.setTimeout(timeout)
 
         let urlRequest = request.getUrlRequest()
         let task = URLSession.shared.downloadTask(with: urlRequest) { (downloadLocation, response, error) in
