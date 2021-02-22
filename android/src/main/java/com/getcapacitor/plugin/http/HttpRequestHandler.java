@@ -216,7 +216,7 @@ public class HttpRequestHandler {
      */
     private static Object parseJSON(String input) throws JSONException {
         try {
-            if ("null".equals(input)) {
+            if ("null".equals(input.trim())) {
                 return JSONObject.NULL;
             } else {
                 try {
