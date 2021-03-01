@@ -55,12 +55,12 @@ class HttpRequestHandler {
                 throw URLError(.badURL)
             }
             url = u
-            return self;
+            return self
         }
 
         public func setMethod(_ method: String) -> CapacitorHttpRequestBuilder {
             self.method = method;
-            return self;
+            return self
         }
         
         public func setUrlParams(_ params: [String:String]) -> CapacitorHttpRequestBuilder {
@@ -74,9 +74,8 @@ class HttpRequestHandler {
                 }))
                 url = cmps!.url!
             }
-            return self;
+            return self
         }
-        
         
         public func openConnection() -> CapacitorHttpRequestBuilder {
             request = CapacitorUrlRequest(url!, method: method)
