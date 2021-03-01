@@ -5,8 +5,9 @@ public class CapacitorUrlRequest {
     private var request: URLRequest;
     private var headers: [String:String];
 
-    init(_ url: URL) {
+    init(_ url: URL, method: String) {
         request = URLRequest(url: url)
+        request.httpMethod = method
         headers = [:]
     }
     
