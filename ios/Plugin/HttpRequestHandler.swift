@@ -41,7 +41,7 @@ func tryParseJson(_ data: Data) -> Any {
 class HttpRequestHandler {
     private class CapacitorHttpRequestBuilder {
         private var url: URL?
-        private var method: String!
+        private var method: String?
         private var params: [String:String]?
         private var request: CapacitorUrlRequest?
         
@@ -78,7 +78,7 @@ class HttpRequestHandler {
         }
         
         public func openConnection() -> CapacitorHttpRequestBuilder {
-            request = CapacitorUrlRequest(url!, method: method)
+            request = CapacitorUrlRequest(url!, method: method!)
             return self
         }
         
