@@ -16,6 +16,9 @@
 		50ADFFA82020EE4F00D50D53 /* Plugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 50ADFFA72020EE4F00D50D53 /* Plugin.m */; };
 		50AE585B245BCD5300EC74FC /* FilesystemUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50AE585A245BCD5300EC74FC /* FilesystemUtils.swift */; };
 		50E1A94820377CB70090CE1A /* Plugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50E1A94720377CB70090CE1A /* Plugin.swift */; };
+		90F75FE325ECD8DA003A2E3A /* CapacitorCookieManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F75FE025ECD8DA003A2E3A /* CapacitorCookieManager.swift */; };
+		90F75FE425ECD8DA003A2E3A /* HttpRequestHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F75FE125ECD8DA003A2E3A /* HttpRequestHandler.swift */; };
+		90F75FE525ECD8DA003A2E3A /* CapacitorUrlRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 90F75FE225ECD8DA003A2E3A /* CapacitorUrlRequest.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -41,6 +44,9 @@
 		50AE585A245BCD5300EC74FC /* FilesystemUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilesystemUtils.swift; sourceTree = "<group>"; };
 		50E1A94720377CB70090CE1A /* Plugin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Plugin.swift; sourceTree = "<group>"; };
 		5E23F77F099397094342571A /* Pods-Plugin.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Plugin.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Plugin/Pods-Plugin.debug.xcconfig"; sourceTree = "<group>"; };
+		90F75FE025ECD8DA003A2E3A /* CapacitorCookieManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CapacitorCookieManager.swift; sourceTree = "<group>"; };
+		90F75FE125ECD8DA003A2E3A /* HttpRequestHandler.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HttpRequestHandler.swift; sourceTree = "<group>"; };
+		90F75FE225ECD8DA003A2E3A /* CapacitorUrlRequest.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CapacitorUrlRequest.swift; sourceTree = "<group>"; };
 		91781294A431A2A7CC6EB714 /* Pods-Plugin.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Plugin.release.xcconfig"; path = "Pods/Target Support Files/Pods-Plugin/Pods-Plugin.release.xcconfig"; sourceTree = "<group>"; };
 		96ED1B6440D6672E406C8D19 /* Pods-PluginTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PluginTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-PluginTests/Pods-PluginTests.debug.xcconfig"; sourceTree = "<group>"; };
 		F65BB2953ECE002E1EF3E424 /* Pods-PluginTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-PluginTests.release.xcconfig"; path = "Pods/Target Support Files/Pods-PluginTests/Pods-PluginTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -92,11 +98,14 @@
 		50ADFF8A201F53D600D50D53 /* Plugin */ = {
 			isa = PBXGroup;
 			children = (
-				50E1A94720377CB70090CE1A /* Plugin.swift */,
+				90F75FE025ECD8DA003A2E3A /* CapacitorCookieManager.swift */,
+				90F75FE225ECD8DA003A2E3A /* CapacitorUrlRequest.swift */,
+				50AE585A245BCD5300EC74FC /* FilesystemUtils.swift */,
+				90F75FE125ECD8DA003A2E3A /* HttpRequestHandler.swift */,
+				50ADFF8C201F53D600D50D53 /* Info.plist */,
 				50ADFF8B201F53D600D50D53 /* Plugin.h */,
 				50ADFFA72020EE4F00D50D53 /* Plugin.m */,
-				50ADFF8C201F53D600D50D53 /* Info.plist */,
-				50AE585A245BCD5300EC74FC /* FilesystemUtils.swift */,
+				50E1A94720377CB70090CE1A /* Plugin.swift */,
 			);
 			path = Plugin;
 			sourceTree = "<group>";
@@ -305,8 +314,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				90F75FE525ECD8DA003A2E3A /* CapacitorUrlRequest.swift in Sources */,
 				50E1A94820377CB70090CE1A /* Plugin.swift in Sources */,
 				50ADFFA82020EE4F00D50D53 /* Plugin.m in Sources */,
+				90F75FE325ECD8DA003A2E3A /* CapacitorCookieManager.swift in Sources */,
+				90F75FE425ECD8DA003A2E3A /* HttpRequestHandler.swift in Sources */,
 				50AE585B245BCD5300EC74FC /* FilesystemUtils.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
