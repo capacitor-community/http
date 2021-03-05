@@ -39,7 +39,7 @@ import Foundation
         guard let _ = URL(string: u) else { return call.reject("Invalid URL") }
 
         do {
-            try HttpRequestHandler.request(call)
+            try HttpRequestHandler.download(call)
         } catch let e {
             call.reject(e.localizedDescription)
         }
