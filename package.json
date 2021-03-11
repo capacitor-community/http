@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/http",
-  "version": "1.0.0-alpha.1",
+  "version": "1.0.0-alpha.2",
   "description": "A native HTTP plugin for CORS-free requests and file transfers",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -16,10 +16,10 @@
   "author": "Max Lynch <max@ionic.io>",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/android": "^3.0.0-beta.2",
-    "@capacitor/core": "^3.0.0-beta.2",
-    "@capacitor/ios": "^3.0.0-beta.2",
-    "@capacitor/filesystem": "^0.3.1"
+    "@capacitor/android": "^3.0.0-rc.0",
+    "@capacitor/core": "^3.0.0-rc.0",
+    "@capacitor/filesystem": "^0.3.2",
+    "@capacitor/ios": "^3.0.0-rc.0"
   },
   "devDependencies": {
     "@ionic/prettier-config": "^1.0.1",
