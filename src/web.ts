@@ -7,9 +7,11 @@ import type {
   HttpUploadFileOptions,
   HttpUploadFileResult,
   HttpCookie,
-  HttpCookieOptions,
   HttpCookieMap,
   HttpGetCookiesResult,
+  HttpSetCookieOptions,
+  HttpMultiCookiesOptions,
+  HttpSingleCookieOptions,
 } from './definitions';
 import { WebPlugin } from '@capacitor/core';
 import * as Cookie from './cookie';
@@ -73,7 +75,10 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
   /**
    * Get all HttpCookies as an object with the values as an HttpCookie[]
    */
-  public getCookies = async (): Promise<HttpGetCookiesResult> => {
+  public getCookies = async (options: HttpMultiCookiesOptions): Promise<HttpGetCookiesResult> => {
+    // @ts-ignore
+    const { url } = options;
+  
     const cookies = Cookie.getCookies();
     return { cookies };
   }
@@ -84,24 +89,28 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
    * @param value The value to set
    * @param options Optional additional parameters
    */
-  public setCookie = async (key: string, value: any, options: HttpCookieOptions): Promise<void> => Cookie.setCookie(key, value, options)
+  public setCookie = async (options: HttpSetCookieOptions): Promise<void> => {
+    const { key, value, expires = "", path = "" } = options
+    Cookie.setCookie(key, value, { expires, path });
+  }
 
   /**
    * Gets all cookie values unless a key is specified, then return only that value
    * @param key The key of the cookie value to get
    */
-  public getCookie = async (key: string): Promise<HttpCookie> => Cookie.getCookie(key);
+  public getCookie = async (options: HttpSingleCookieOptions): Promise<HttpCookie> => Cookie.getCookie(options.key);
 
   /**
    * Deletes a cookie given a key
    * @param key The key of the cookie to delete
    */
-  public deleteCookie = async (key: string): Promise<void> => Cookie.deleteCookie(key);
+  public deleteCookie = async (options: HttpSingleCookieOptions): Promise<void> => Cookie.deleteCookie(options.key);
 
   /**
    * Clears out cookies by setting them to expire immediately
    */
-  public clearCookies = async (): Promise<void> => Cookie.clearCookies();
+  // @ts-ignore
+  public clearCookies = async (options: HttpMultiCookiesOptions): Promise<void> => Cookie.clearCookies();
 
   /**
    * Uploads a file through a POST request

@@ -59,94 +59,110 @@ To use the plugin while fully supporting the web version, import and use it like
 ```typescript
 import { Http } from '@capacitor-community/http';
 
+
 // Example of a GET request
 const doGet = () => {
-  const ret = await Http.request({
-    method: 'GET',
+  const options = {
     url: 'https://example.com/my/api',
-    headers: {
-      'X-Fake-Header': 'Max was here',
-    },
-    params: {
-      size: 'XL',
-    },
-  });
+    headers: { 'X-Fake-Header': 'Max was here' },
+    params: { size: 'XL' },
+  }
+
+  const response: HttpResponse = await Http.get(options)
+  
+  // or...
+  // const response = await Http.request({ ...options, method: 'GET' })
 };
 
 // Example of a POST request. Note: data
 // can be passed as a raw JS Object (must be JSON serializable)
 const doPost = () => {
-  const ret = await Http.request({
-    method: 'POST',
+  const options = {
     url: 'https://example.com/my/api',
-    headers: {
-      'X-Fake-Header': 'Max was here',
-      'Content-Type': 'application/json',
-    },
-    data: {
-      foo: 'bar',
-      cool: true,
-    },
-  });
+    headers: { 'X-Fake-Header': 'Thomas was here' },
+    data: { foo: 'bar', cool: true, },
+  }
+
+  const response: HttpResponse = await Http.post(options)
+
+  // or...
+  // const response = await Http.request({ ...options, method: 'POST' })
 };
 
 const setCookie = async () => {
-  const ret = await Http.setCookie({
-    url: this.apiUrl('/cookie'),
+  const options = {
+    url: 'http://example.com',
     key: 'language',
     value: 'en',
-  });
+  };
+
+  await Http.setCookie(options);
 };
 
 const deleteCookie = async () => {
-  const ret = await Http.deleteCookie({
-    url: this.apiUrl('/cookie'),
+  const options = {
+    url: 'http://example.com',
     key: 'language',
-  });
+  };
+
+  await Http.deleteCookie(options);
 };
 
 const clearCookies = async () => {
-  const ret = await Http.clearCookies({
-    url: this.apiUrl('/cookie'),
-  });
+  await Http.clearCookies({ url: 'http://example.com' });
 };
 
 const getCookies = async () => {
-  const ret = await Http.getCookies({
-    url: this.apiUrl('/cookie'),
-  });
-  console.log('Got cookies', ret);
-  this.output = JSON.stringify(ret.value);
+  const cookies: HttpCookie[] = await Http.getCookies({ url: 'http://example.com' });
 };
 
 const downloadFile = async () => {
-  const ret = await Http.downloadFile({
+  const options = {
     url: 'https://example.com/path/to/download.pdf',
     filePath: 'document.pdf',
     fileDirectory: FilesystemDirectory.Downloads,
-  });
-  if (ret.path) {
+  }
+
+  // Writes to local filesystem
+  const response: HttpDownloadFileResult = await Http.downloadFile(options);
+
+  // Then read the file
+  if (response.path) {
     const read = await Filesystem.readFile({
       path: 'download.pdf',
       directory: FilesystemDirectory.Downloads,
     });
-    // Data is here
   }
 };
 
 const uploadFile = async () => {
-  const ret = await Http.uploadFile({
+  const options = {
     url: 'https://example.com/path/to/upload.pdf',
     name: 'myFile',
     filePath: 'document.pdf',
     fileDirectory: FilesystemDirectory.Downloads,
-  });
+  }
+
+  const response: HttpUploadFileResult = await Http.uploadFile();
 };
 ```
 
 ## API Reference
 
 Coming soon
+
+### Third Party Cookies on iOS
+
+As of iOS 14, you cannot use 3rd party cookies by default. There is an open issue on the Capacitor Core repo on properly patching in cookies on iOS. For now, you must specify a domain of for the cookie you are saving to properly save and send them via requests. You can also add the following lines to your `Info.plist` file to get better support for cookies on iOS. You can add up to 10 domains.
+
+```xml
+<key>WKAppBoundDomains</key>
+<array>
+    <string>www.mydomain.com</string>
+    <string>api.mydomain.com</string>
+    <string>www.myothercooldomain.com</string>
+</array>
+```
 
 ## Contributors ✨
 

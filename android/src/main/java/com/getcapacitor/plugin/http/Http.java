@@ -61,11 +61,11 @@ public class Http extends Plugin {
      * @return the string of the server specified in the Capacitor config
      */
     private String getServerUrl(PluginCall call) {
-        String url = capConfig.getServerUrl();
+        String url = call.getString("url", "");
 
         URI uri = getUri(url);
         if (uri == null) {
-            call.reject("Invalid URL. Check that \"server\" is set correctly in your capacitor.config.json file");
+            call.reject("Invalid URL. Check that \"server\" is passed in correctly");
             return "";
         }
 
@@ -112,10 +112,13 @@ public class Http extends Plugin {
                         JSObject response = HttpRequestHandler.request(call);
                         call.resolve(response);
                     } catch (IOException e) {
+                        System.out.println(e.toString());
                         call.reject("IO Exception");
                     } catch (URISyntaxException e) {
+                        System.out.println(e.toString());
                         call.reject("URI Syntax Exception");
                     } catch (JSONException e) {
+                        System.out.println(e.toString());
                         call.reject("JSON Exception");
                     }
                 }

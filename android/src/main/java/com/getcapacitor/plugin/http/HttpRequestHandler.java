@@ -3,6 +3,7 @@ package com.getcapacitor.plugin.http;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -161,6 +162,7 @@ public class HttpRequestHandler {
     }
 
     private static JSObject buildResponse(CapacitorHttpUrlConnection connection, ResponseType responseType) throws IOException, JSONException {
+
         int statusCode = connection.getResponseCode();
 
         JSObject output = new JSObject();
@@ -261,8 +263,8 @@ public class HttpRequestHandler {
      * @throws JSONException thrown when the incoming JSON is malformed
      */
     public static JSObject request(PluginCall call) throws IOException, URISyntaxException, JSONException {
-        String urlString = call.getString("url");
-        String method = call.getString("method").toUpperCase();
+        String urlString = call.getString("url", "");
+        String method = call.getString("method", "").toUpperCase();
         JSObject headers = call.getObject("headers");
         JSObject params = call.getObject("params");
         Integer connectTimeout = call.getInt("connectTimeout");
@@ -291,8 +293,9 @@ public class HttpRequestHandler {
             JSObject data = call.getObject("data");
             connection.setDoOutput(true);
             connection.setRequestBody(data);
-            connection.connect();
         }
+
+        connection.connect();
 
         return buildResponse(connection, responseType);
     }

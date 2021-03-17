@@ -29,6 +29,7 @@ public class CapacitorHttpUrlConnection {
      */
     public CapacitorHttpUrlConnection(HttpURLConnection conn) {
         connection = conn;
+        connection.setRequestProperty("Accept-Charset", java.nio.charset.StandardCharsets.UTF_8.name());
     }
 
     /**
