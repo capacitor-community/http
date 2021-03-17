@@ -51,7 +51,7 @@ export interface HttpOptions {
    * Use this option if you need to keep the URL unencoded in certain cases
    * (already encoded, azure/firebase testing, etc.). The default is _true_.
    */
-  shouldEncodeUrlParams?: boolean
+  shouldEncodeUrlParams?: boolean;
 }
 
 export interface HttpParams {
@@ -113,35 +113,35 @@ export interface HttpCookie {
 }
 
 export interface HttpCookieMap {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface HttpCookieOptions {
-  url?: string
-  path?: string
-  expires?: string
+  url?: string;
+  path?: string;
+  expires?: string;
 }
 
 export interface HttpSingleCookieOptions {
-  url: string
-  key: string
+  url: string;
+  key: string;
 }
 
 export interface HttpSetCookieOptions {
-  url: string
-  key: string
-  value: string
-  path?: string
-  expires?: string
+  url: string;
+  key: string;
+  value: string;
+  path?: string;
+  expires?: string;
 }
 
 export interface HttpMultiCookiesOptions {
-  url: string
+  url: string;
 }
 
 export interface HttpCookieExtraOptions {
-  path?: string
-  expires?: string
+  path?: string;
+  expires?: string;
 }
 
 export interface HttpGetCookiesResult {

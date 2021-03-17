@@ -1,9 +1,6 @@
 package com.getcapacitor.plugin.http;
 
 import com.getcapacitor.JSObject;
-
-import org.json.JSONException;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +14,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.json.JSONException;
 
 public class CapacitorHttpUrlConnection {
+
     private final HttpURLConnection connection;
 
     /**
@@ -169,9 +168,7 @@ public class CapacitorHttpUrlConnection {
             while (keys.hasNext()) {
                 String key = keys.next();
                 Object d = body.get(key);
-                builder.append(key)
-                       .append("=")
-                       .append(URLEncoder.encode(d.toString(), "UTF-8"));
+                builder.append(key).append("=").append(URLEncoder.encode(d.toString(), "UTF-8"));
 
                 if (keys.hasNext()) {
                     builder.append("&");
@@ -273,7 +270,6 @@ public class CapacitorHttpUrlConnection {
     public InputStream getErrorStream() {
         return connection.getErrorStream();
     }
-
 
     /**
      * Returns the value of the named header field.

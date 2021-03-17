@@ -4,14 +4,9 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
-
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -27,12 +22,16 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 public class HttpRequestHandler {
+
     /**
      * Internal builder class for building a CapacitorHttpUrlConnection
      */
     private static class HttpURLConnectionBuilder {
+
         private Integer connectTimeout;
         private Integer readTimeout;
         private JSObject headers;
@@ -72,18 +71,19 @@ public class HttpRequestHandler {
             connection.setAllowUserInteraction(false);
             connection.setRequestMethod(method);
 
-            if (connectTimeout != null)  connection.setConnectTimeout(connectTimeout);
+            if (connectTimeout != null) connection.setConnectTimeout(connectTimeout);
             if (readTimeout != null) connection.setReadTimeout(readTimeout);
 
             connection.setRequestHeaders(headers);
             return this;
         }
 
-        public  HttpURLConnectionBuilder setUrlParams(JSObject params) throws MalformedURLException, URISyntaxException {
+        public HttpURLConnectionBuilder setUrlParams(JSObject params) throws MalformedURLException, URISyntaxException {
             return this.setUrlParams(params, true);
         }
 
-        public HttpURLConnectionBuilder setUrlParams(JSObject params, boolean shouldEncode) throws URISyntaxException, MalformedURLException {
+        public HttpURLConnectionBuilder setUrlParams(JSObject params, boolean shouldEncode)
+            throws URISyntaxException, MalformedURLException {
             String initialQuery = url.getQuery();
             String initialQueryBuilderStr = initialQuery == null ? "" : initialQuery;
 
@@ -97,27 +97,17 @@ public class HttpRequestHandler {
                 if (urlQueryBuilder.length() > 0) {
                     urlQueryBuilder.append("&");
                 }
-                urlQueryBuilder.append(key)
-                        .append("=")
-                        .append(value);
+                urlQueryBuilder.append(key).append("=").append(value);
             }
 
             String urlQuery = urlQueryBuilder.toString();
 
             URI uri = url.toURI();
             if (shouldEncode) {
-                URI encodedUri = new URI(uri.getScheme(),
-                        uri.getAuthority(),
-                        uri.getPath(),
-                        urlQuery,
-                        uri.getFragment());
+                URI encodedUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), urlQuery, uri.getFragment());
                 this.url = encodedUri.toURL();
             } else {
-                String unEncodedUrlString = uri.getScheme() +
-                        uri.getAuthority() +
-                        uri.getPath() +
-                        urlQuery +
-                        uri.getFragment();
+                String unEncodedUrlString = uri.getScheme() + uri.getAuthority() + uri.getPath() + urlQuery + uri.getFragment();
                 this.url = new URL(unEncodedUrlString);
             }
 
@@ -148,7 +138,7 @@ public class HttpRequestHandler {
         static final ResponseType DEFAULT = TEXT;
 
         static ResponseType parse(String value) {
-            for (ResponseType responseType: values()) {
+            for (ResponseType responseType : values()) {
                 if (responseType.name.equalsIgnoreCase(value)) {
                     return responseType;
                 }
@@ -161,8 +151,8 @@ public class HttpRequestHandler {
         buildResponse(conn, ResponseType.DEFAULT);
     }
 
-    private static JSObject buildResponse(CapacitorHttpUrlConnection connection, ResponseType responseType) throws IOException, JSONException {
-
+    private static JSObject buildResponse(CapacitorHttpUrlConnection connection, ResponseType responseType)
+        throws IOException, JSONException {
         int statusCode = connection.getResponseCode();
 
         JSObject output = new JSObject();
@@ -271,20 +261,17 @@ public class HttpRequestHandler {
         Integer readTimeout = call.getInt("readTimeout");
         ResponseType responseType = ResponseType.parse(call.getString("responseType"));
 
-        boolean isHttpMutate = method.equals("DELETE") ||
-                method.equals("PATCH") ||
-                method.equals("POST") ||
-                method.equals("PUT");
+        boolean isHttpMutate = method.equals("DELETE") || method.equals("PATCH") || method.equals("POST") || method.equals("PUT");
 
         URL url = new URL(urlString);
         HttpURLConnectionBuilder connectionBuilder = new HttpURLConnectionBuilder()
-                .setUrl(url)
-                .setMethod(method)
-                .setHeaders(headers)
-                .setUrlParams(params)
-                .setConnectTimeout(connectTimeout)
-                .setReadTimeout(readTimeout)
-                .openConnection();
+            .setUrl(url)
+            .setMethod(method)
+            .setHeaders(headers)
+            .setUrlParams(params)
+            .setConnectTimeout(connectTimeout)
+            .setReadTimeout(readTimeout)
+            .openConnection();
 
         CapacitorHttpUrlConnection connection = connectionBuilder.build();
 
@@ -321,13 +308,13 @@ public class HttpRequestHandler {
         final File file = FilesystemUtils.getFileObject(context, filePath, fileDirectory);
 
         HttpURLConnectionBuilder connectionBuilder = new HttpURLConnectionBuilder()
-                .setUrl(url)
-                .setMethod(method)
-                .setHeaders(headers)
-                .setUrlParams(params)
-                .setConnectTimeout(connectTimeout)
-                .setReadTimeout(readTimeout)
-                .openConnection();
+            .setUrl(url)
+            .setMethod(method)
+            .setHeaders(headers)
+            .setUrlParams(params)
+            .setConnectTimeout(connectTimeout)
+            .setReadTimeout(readTimeout)
+            .openConnection();
 
         CapacitorHttpUrlConnection connection = connectionBuilder.build();
         InputStream connectionInputStream = connection.getInputStream();
@@ -377,13 +364,13 @@ public class HttpRequestHandler {
         File file = FilesystemUtils.getFileObject(context, filePath, fileDirectory);
 
         HttpURLConnectionBuilder connectionBuilder = new HttpURLConnectionBuilder()
-                .setUrl(url)
-                .setMethod(method)
-                .setHeaders(headers)
-                .setUrlParams(params)
-                .setConnectTimeout(connectTimeout)
-                .setReadTimeout(readTimeout)
-                .openConnection();
+            .setUrl(url)
+            .setMethod(method)
+            .setHeaders(headers)
+            .setUrlParams(params)
+            .setConnectTimeout(connectTimeout)
+            .setReadTimeout(readTimeout)
+            .openConnection();
 
         CapacitorHttpUrlConnection connection = connectionBuilder.build();
         connection.setDoOutput(true);
