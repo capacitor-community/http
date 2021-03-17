@@ -6,11 +6,12 @@ import Foundation
     var capConfig: InstanceConfiguration? = nil
     
     private func getServerUrl(_ call: CAPPluginCall) -> URL? {
-        guard let url = capConfig?.serverURL else {
-            call.reject("Invalid URL. Check that \"server\" is set correctly in your capacitor.config.json file")
+        guard let urlString = call.getString("url") else {
+            call.reject("Invalid URL. Check that \"url\" is passed in correctly")
             return nil
         }
         
+        let url = URL(string: urlString)
         return url;
     }
     
