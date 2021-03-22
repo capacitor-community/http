@@ -10,12 +10,12 @@ export interface HttpPlugin {
   patch(options: HttpOptions): Promise<HttpResponse>;
   del(options: HttpOptions): Promise<HttpResponse>;
 
-  setCookie(key: string, value: any, options?: HttpCookieOptions): Promise<void>;
-  getCookie(key: string): Promise<HttpCookie>;
-  getCookies(): Promise<HttpGetCookiesResult>;
+  setCookie(options: HttpSetCookieOptions): Promise<void>;
+  getCookie(options: HttpSingleCookieOptions): Promise<HttpCookie>;
+  getCookies(options: HttpMultiCookiesOptions): Promise<HttpGetCookiesResult>;
   getCookiesMap(): Promise<HttpCookieMap>;
-  clearCookies(): Promise<void>;
-  deleteCookie(key: string): Promise<void>;
+  clearCookies(options: HttpMultiCookiesOptions): Promise<void>;
+  deleteCookie(options: HttpSingleCookieOptions): Promise<void>;
 
   uploadFile(options: HttpUploadFileOptions): Promise<HttpUploadFileResult>;
   downloadFile(
@@ -51,7 +51,7 @@ export interface HttpOptions {
    * Use this option if you need to keep the URL unencoded in certain cases
    * (already encoded, azure/firebase testing, etc.). The default is _true_.
    */
-  shouldEncodeUrlParams?: boolean
+  shouldEncodeUrlParams?: boolean;
 }
 
 export interface HttpParams {
@@ -113,13 +113,35 @@ export interface HttpCookie {
 }
 
 export interface HttpCookieMap {
-  [key: string]: any
+  [key: string]: any;
 }
 
 export interface HttpCookieOptions {
-  url?: string
-  path?: string
-  expires?: string
+  url?: string;
+  path?: string;
+  expires?: string;
+}
+
+export interface HttpSingleCookieOptions {
+  url: string;
+  key: string;
+}
+
+export interface HttpSetCookieOptions {
+  url: string;
+  key: string;
+  value: string;
+  path?: string;
+  expires?: string;
+}
+
+export interface HttpMultiCookiesOptions {
+  url: string;
+}
+
+export interface HttpCookieExtraOptions {
+  path?: string;
+  expires?: string;
 }
 
 export interface HttpGetCookiesResult {

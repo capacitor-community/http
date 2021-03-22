@@ -1,5 +1,5 @@
 import { HttpCookie, HttpCookieOptions } from './definitions';
-import { encode, decode } from './utils'
+import { encode, decode } from './utils';
 
 /**
  * Set a cookie
@@ -17,10 +17,15 @@ export const setCookie = (
   const encodedValue = encode(value);
 
   // Clean & sanitize options
-  const expires = `; expires=${(options.expires || '').replace('expires=', '')}`; // Default is "; expires="
-  const path = (options.path || '/').replace('path=', '');  // Default is "path=/"
+  const expires = `; expires=${(options.expires || '').replace(
+    'expires=',
+    '',
+  )}`; // Default is "; expires="
+  const path = (options.path || '/').replace('path=', ''); // Default is "path=/"
 
-  document.cookie = `${encodedKey}=${encodedValue || ''}${expires}; path=${path}`;
+  document.cookie = `${encodedKey}=${
+    encodedValue || ''
+  }${expires}; path=${path}`;
 };
 
 /**
@@ -28,7 +33,7 @@ export const setCookie = (
  */
 export const getCookies = (): HttpCookie[] => {
   const output: HttpCookie[] = [];
-  const map: any = {}
+  const map: any = {};
   if (!document.cookie) {
     return output;
   }
@@ -60,15 +65,15 @@ export const getCookie = (key: string): HttpCookie => {
   const cookies = getCookies();
   for (const cookie of cookies) {
     if (cookie.key === key) {
-      return cookie
+      return cookie;
     }
   }
 
   return {
-    key, 
-    value: ''
-  }
-}
+    key,
+    value: '',
+  };
+};
 
 /**
  * Deletes a cookie given a key
