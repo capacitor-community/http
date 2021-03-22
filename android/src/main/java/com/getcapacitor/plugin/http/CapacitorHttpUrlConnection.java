@@ -1,9 +1,6 @@
 package com.getcapacitor.plugin.http;
 
 import com.getcapacitor.JSObject;
-
-import org.json.JSONException;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,9 +13,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import org.json.JSONException;
 
 public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
-    private final HttpURLConnection connection;
+
+  private final HttpURLConnection connection;
 
     /**
      * Make a new CapacitorHttpUrlConnection instance, which wraps around HttpUrlConnection
@@ -28,6 +27,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
      */
     public CapacitorHttpUrlConnection(HttpURLConnection conn) {
         connection = conn;
+        connection.setRequestProperty("Accept-Charset", java.nio.charset.StandardCharsets.UTF_8.name());
     }
 
     /**
@@ -167,9 +167,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
             while (keys.hasNext()) {
                 String key = keys.next();
                 Object d = body.get(key);
-                builder.append(key)
-                       .append("=")
-                       .append(URLEncoder.encode(d.toString(), "UTF-8"));
+                builder.append(key).append("=").append(URLEncoder.encode(d.toString(), "UTF-8"));
 
                 if (keys.hasNext()) {
                     builder.append("&");
@@ -255,8 +253,17 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
         return connection.getErrorStream();
     }
 
-
-    @Override
+    /**
+     * Returns the value of the named header field.
+     * <p>
+     * If called on a connection that sets the same header multiple times
+     * with possibly different values, only the last value is returned.
+     *
+     *
+     * @param   name   the name of a header field.
+     * @return  the value of the named header field, or {@code null}
+     *          if there is no such field in the header.
+     */
     public String getHeaderField(String name) {
         return connection.getHeaderField(name);
     }

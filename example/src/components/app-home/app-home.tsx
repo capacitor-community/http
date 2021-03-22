@@ -156,22 +156,23 @@ export class AppHome {
   };
 
   deleteCookie = async () => {
-    const ret = await Http.deleteCookie({
+    const options = {
       url: this.apiUrl('/cookie'),
       key: 'language',
-    });
+    }
+    const ret = await Http.deleteCookie(options);
     console.log(ret);
   };
 
   clearCookies = async () => {
-    const ret = await Http.clearCookies({
-      url: this.apiUrl('/cookie'),
-    });
+    const ret = await Http.clearCookies({ url: this.apiUrl('/') });
     console.log(ret);
   };
 
   getCookies = async () => {
-    const ret = await Http.getCookies();
+    const ret = await Http.getCookies({
+      url: this.apiUrl('/cookie'),
+    });
     console.log('Got cookies', ret);
     this.output = JSON.stringify(ret.cookies);
   };

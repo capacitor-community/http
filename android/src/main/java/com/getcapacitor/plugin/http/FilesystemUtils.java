@@ -6,6 +6,7 @@ import android.os.Environment;
 import java.io.File;
 
 public class FilesystemUtils {
+
     public static final String DIRECTORY_DOCUMENTS = "DOCUMENTS";
     public static final String DIRECTORY_APPLICATION = "APPLICATION";
     public static final String DIRECTORY_DOWNLOADS = "DOWNLOADS";
