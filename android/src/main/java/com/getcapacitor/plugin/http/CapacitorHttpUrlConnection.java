@@ -12,13 +12,12 @@ import java.net.ProtocolException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.net.UnknownServiceException;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class CapacitorHttpUrlConnection {
+public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
     private final HttpURLConnection connection;
 
     /**
@@ -251,58 +250,18 @@ public class CapacitorHttpUrlConnection {
         return connection.getURL();
     }
 
-    /**
-     * Returns the error stream if the connection failed
-     * but the server sent useful data nonetheless. The
-     * typical example is when an HTTP server responds
-     * with a 404, which will cause a FileNotFoundException
-     * to be thrown in connect, but the server sent an HTML
-     * help page with suggestions as to what to do.
-     *
-     * <p>This method will not cause a connection to be initiated.  If
-     * the connection was not connected, or if the server did not have
-     * an error while connecting or if the server had an error but
-     * no error data was sent, this method will return null. This is
-     * the default.
-     *
-     * @return an error stream if any, null if there have been no
-     * errors, the connection is not connected or the server sent no
-     * useful data.
-     */
+    @Override
     public InputStream getErrorStream() {
         return connection.getErrorStream();
     }
 
 
-    /**
-     * Returns the value of the named header field.
-     * <p>
-     * If called on a connection that sets the same header multiple times
-     * with possibly different values, only the last value is returned.
-     *
-     *
-     * @param   name   the name of a header field.
-     * @return  the value of the named header field, or {@code null}
-     *          if there is no such field in the header.
-     */
+    @Override
     public String getHeaderField(String name) {
         return connection.getHeaderField(name);
     }
 
-    /**
-     * Returns an input stream that reads from this open connection.
-     *
-     * A SocketTimeoutException can be thrown when reading from the
-     * returned input stream if the read timeout expires before data
-     * is available for read.
-     *
-     * @return     an input stream that reads from this open connection.
-     * @exception  IOException              if an I/O error occurs while
-     *               creating the input stream.
-     * @exception UnknownServiceException  if the protocol does not support
-     *               input.
-     * @see #setReadTimeout(int)
-     */
+    @Override
     public InputStream getInputStream() throws IOException {
         return connection.getInputStream();
     }
