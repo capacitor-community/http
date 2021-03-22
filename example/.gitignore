@@ -24,3 +24,7 @@ $RECYCLE.BIN/
 Thumbs.db
 UserInterfaceState.xcuserstate
 .env
+
+# Server Uploads/Downloads TODO: fix example to not use fixed path
+server/document.pdf
+server/uploads/*

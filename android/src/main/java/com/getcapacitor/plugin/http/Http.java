@@ -3,7 +3,6 @@ package com.getcapacitor.plugin.http;
 import android.Manifest;
 import android.util.Base64;
 import android.util.Log;
-
 import com.getcapacitor.CapConfig;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -12,7 +11,6 @@ import com.getcapacitor.PluginCall;
 import com.getcapacitor.PluginMethod;
 import com.getcapacitor.annotation.CapacitorPlugin;
 import com.getcapacitor.annotation.Permission;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -33,7 +31,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -44,10 +41,11 @@ import org.json.JSONObject;
     name = "Http",
     permissions = {
         @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }, alias = "HttpWrite"),
-        @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }, alias = "HttpRead"),
+        @Permission(strings = { Manifest.permission.WRITE_EXTERNAL_STORAGE }, alias = "HttpRead")
     }
 )
 public class Http extends Plugin {
+
     public static final int HTTP_REQUEST_DOWNLOAD_WRITE_PERMISSIONS = 9022;
     public static final int HTTP_REQUEST_UPLOAD_READ_PERMISSIONS = 9023;
 
@@ -61,11 +59,11 @@ public class Http extends Plugin {
      * @return the string of the server specified in the Capacitor config
      */
     private String getServerUrl(PluginCall call) {
-        String url = capConfig.getServerUrl();
+        String url = call.getString("url", "");
 
         URI uri = getUri(url);
         if (uri == null) {
-            call.reject("Invalid URL. Check that \"server\" is set correctly in your capacitor.config.json file");
+            call.reject("Invalid URL. Check that \"server\" is passed in correctly");
             return "";
         }
 
@@ -103,7 +101,7 @@ public class Http extends Plugin {
         capConfig = getBridge().getConfig();
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void request(final PluginCall call) {
         new Thread(
             new Runnable() {
@@ -112,18 +110,22 @@ public class Http extends Plugin {
                         JSObject response = HttpRequestHandler.request(call);
                         call.resolve(response);
                     } catch (IOException e) {
+                        System.out.println(e.toString());
                         call.reject("IO Exception");
                     } catch (URISyntaxException e) {
+                        System.out.println(e.toString());
                         call.reject("URI Syntax Exception");
                     } catch (JSONException e) {
+                        System.out.println(e.toString());
                         call.reject("JSON Exception");
                     }
                 }
             }
-        ).start();
+        )
+            .start();
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void downloadFile(PluginCall call) {
         try {
             bridge.saveCall(call);
@@ -147,7 +149,7 @@ public class Http extends Plugin {
         }
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void uploadFile(PluginCall call) {
         try {
             String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
@@ -166,7 +168,7 @@ public class Http extends Plugin {
         }
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void setCookie(PluginCall call) {
         String key = call.getString("key");
         String value = call.getString("value");
@@ -178,7 +180,7 @@ public class Http extends Plugin {
         }
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void getCookiesMap(PluginCall call) {
         String url = getServerUrl(call);
         if (!url.isEmpty()) {
@@ -191,8 +193,7 @@ public class Http extends Plugin {
         }
     }
 
-
-    @PluginMethod()
+    @PluginMethod
     public void getCookies(PluginCall call) {
         String url = getServerUrl(call);
         if (!url.isEmpty()) {
@@ -210,7 +211,7 @@ public class Http extends Plugin {
         }
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void getCookie(PluginCall call) {
         String key = call.getString("key");
         String url = getServerUrl(call);
@@ -227,7 +228,7 @@ public class Http extends Plugin {
         }
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void deleteCookie(PluginCall call) {
         String key = call.getString("key");
         String url = getServerUrl(call);
@@ -237,7 +238,7 @@ public class Http extends Plugin {
         }
     }
 
-    @PluginMethod()
+    @PluginMethod
     public void clearCookies(PluginCall call) {
         cookieManager.removeAllCookies();
         call.resolve();

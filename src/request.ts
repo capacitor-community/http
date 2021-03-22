@@ -1,4 +1,9 @@
-import type { HttpOptions, HttpResponse, HttpParams, HttpHeaders } from './definitions'
+import type {
+  HttpOptions,
+  HttpResponse,
+  HttpParams,
+  HttpHeaders,
+} from './definitions';
 import { readBlobAsBase64 } from './utils';
 
 /**
@@ -12,15 +17,18 @@ const normalizeHttpHeaders = (headers: HttpHeaders = {}): HttpHeaders => {
     acc[key] = headers[originalKeys[index]];
     return acc;
   }, {});
-  return normalized
-}
+  return normalized;
+};
 
 /**
  * Builds a string of url parameters that
  * @param params A map of url parameters
  * @param shouldEncode true if you should encodeURIComponent() the values (true by default)
  */
-const buildUrlParams = (params?: HttpParams, shouldEncode: boolean = true): string | null => {
+const buildUrlParams = (
+  params?: HttpParams,
+  shouldEncode: boolean = true,
+): string | null => {
   if (!params) return null;
 
   const output = Object.entries(params).reduce((accumulator, entry) => {
@@ -32,14 +40,17 @@ const buildUrlParams = (params?: HttpParams, shouldEncode: boolean = true): stri
 
   // Remove initial "&" from the reduce
   return output.substr(1);
-}
+};
 
 /**
  * Build the RequestInit object based on the options passed into the initial request
  * @param options The Http plugin options
  * @param extra Any extra RequestInit values
  */
-export const buildRequestInit = (options: HttpOptions, extra: RequestInit = {}): RequestInit => {
+export const buildRequestInit = (
+  options: HttpOptions,
+  extra: RequestInit = {},
+): RequestInit => {
   const output: RequestInit = {
     method: options.method || 'GET',
     headers: options.headers,
@@ -59,7 +70,10 @@ export const buildRequestInit = (options: HttpOptions, extra: RequestInit = {}):
       params.set(key, value as any);
     }
     output.body = params.toString();
-  } else if (type.includes('multipart/form-data') || typeof options.data === 'object') {
+  } else if (
+    type.includes('multipart/form-data') ||
+    typeof options.data === 'object'
+  ) {
     const form = new FormData();
     for (const [key, value] of Object.entries(options.data)) {
       form.append(key, value as any);
@@ -68,7 +82,7 @@ export const buildRequestInit = (options: HttpOptions, extra: RequestInit = {}):
   }
 
   return output;
-}
+};
 
 /**
  * Perform an Http request given a set of options
@@ -76,7 +90,10 @@ export const buildRequestInit = (options: HttpOptions, extra: RequestInit = {}):
  */
 export const request = async (options: HttpOptions): Promise<HttpResponse> => {
   const requestInit = buildRequestInit(options, options.webFetchExtra);
-  const urlParams = buildUrlParams(options.params, options.shouldEncodeUrlParams);
+  const urlParams = buildUrlParams(
+    options.params,
+    options.shouldEncodeUrlParams,
+  );
   const url = urlParams ? `${options.url}?${urlParams}` : options.url;
 
   const response = await fetch(url, requestInit);
@@ -87,14 +104,14 @@ export const request = async (options: HttpOptions): Promise<HttpResponse> => {
 
   // If the response content-type is json, force the response to be json
   if (contentType.includes('application/json')) {
-    responseType = 'json'
+    responseType = 'json';
   }
 
   let data: any;
   switch (responseType) {
     case 'arraybuffer':
     case 'blob':
-      const blob = await response.blob()
+      const blob = await response.blob();
       data = await readBlobAsBase64(blob);
       break;
     case 'json':
@@ -103,7 +120,7 @@ export const request = async (options: HttpOptions): Promise<HttpResponse> => {
     case 'document':
     case 'text':
     default:
-      data = await response.text();    
+      data = await response.text();
   }
 
   // Convert fetch headers to Capacitor HttpHeaders
@@ -118,34 +135,39 @@ export const request = async (options: HttpOptions): Promise<HttpResponse> => {
     status: response.status,
     url: response.url,
   };
-}
+};
 
 /**
  * Perform an Http GET request given a set of options
  * @param options Options to build the HTTP request
  */
-export const get = async (options: HttpOptions): Promise<HttpResponse> => request({ ...options, method: 'GET' });
+export const get = async (options: HttpOptions): Promise<HttpResponse> =>
+  request({ ...options, method: 'GET' });
 
 /**
  * Perform an Http POST request given a set of options
  * @param options Options to build the HTTP request
  */
-export const post = async (options: HttpOptions): Promise<HttpResponse> => request({ ...options, method: 'POST' });
+export const post = async (options: HttpOptions): Promise<HttpResponse> =>
+  request({ ...options, method: 'POST' });
 
 /**
  * Perform an Http PUT request given a set of options
  * @param options Options to build the HTTP request
  */
-export const put = async (options: HttpOptions): Promise<HttpResponse> => request({ ...options, method: 'PUT' });
+export const put = async (options: HttpOptions): Promise<HttpResponse> =>
+  request({ ...options, method: 'PUT' });
 
 /**
  * Perform an Http PATCH request given a set of options
  * @param options Options to build the HTTP request
  */
-export const patch = async (options: HttpOptions): Promise<HttpResponse> => request({ ...options, method: 'PATCH' });
+export const patch = async (options: HttpOptions): Promise<HttpResponse> =>
+  request({ ...options, method: 'PATCH' });
 
 /**
  * Perform an Http DELETE request given a set of options
  * @param options Options to build the HTTP request
  */
-export const del = async (options: HttpOptions): Promise<HttpResponse> => request({ ...options, method: 'DELETE' });
+export const del = async (options: HttpOptions): Promise<HttpResponse> =>
+  request({ ...options, method: 'DELETE' });

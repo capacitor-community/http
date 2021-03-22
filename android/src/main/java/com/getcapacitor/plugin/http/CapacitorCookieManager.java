@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 public class CapacitorCookieManager extends CookieManager {
+
     private final android.webkit.CookieManager webkitCookieManager;
 
     private String encode(String value) {
