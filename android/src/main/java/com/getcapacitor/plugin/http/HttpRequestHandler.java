@@ -27,6 +27,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import static com.getcapacitor.plugin.http.MimeType.APPLICATION_JSON;
+
 public class HttpRequestHandler {
     /**
      * Internal builder class for building a CapacitorHttpUrlConnection
@@ -167,34 +169,44 @@ public class HttpRequestHandler {
         output.put("status", statusCode);
         output.put("headers", buildResponseHeaders(connection));
         output.put("url", connection.getURL());
+        output.put("data", readData(connection, responseType));
 
         // Log.d(getLogTag(), "Request completed, got data");
 
+        return output;
+    }
+
+     static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType) throws IOException, JSONException {
         InputStream errorStream = connection.getErrorStream();
         String contentType = connection.getHeaderField("Content-Type");
 
-        if (contentType != null && contentType.contains("application/json")) {
+        if (errorStream != null) {
+            if (contentType != null && contentType.contains(APPLICATION_JSON.getValue())) {
+                return parseJSON(readStreamAsString(errorStream));
+            } else {
+                return readStreamAsString(errorStream);
+            }
+
+        } else if (contentType != null && contentType.contains(APPLICATION_JSON.getValue())) {
             // backward compatibility
-            InputStream stream = (errorStream != null ? errorStream : connection.getInputStream());
-            output.put("data", parseJSON(readStreamAsString(stream)));
+            return parseJSON(readStreamAsString(connection.getInputStream()));
+
         } else {
-            InputStream inputStream = connection.getInputStream();
+            InputStream stream = connection.getInputStream();
             switch (responseType) {
                 case ARRAY_BUFFER:
                 case BLOB:
-                    output.put("data", readStreamAsBase64(inputStream));
-                    break;
+                    return readStreamAsBase64(stream);
+
                 case JSON:
-                    output.put("data", parseJSON(readStreamAsString(inputStream)));
-                    break;
+                    return parseJSON(readStreamAsString(stream));
+
                 case DOCUMENT:
                 case TEXT:
-                    output.put("data", readStreamAsString(inputStream));
-                    break;
+                default:
+                    return readStreamAsString(stream);
             }
         }
-
-        return output;
     }
 
     private static JSObject buildResponseHeaders(CapacitorHttpUrlConnection connection) {
@@ -326,7 +338,7 @@ public class HttpRequestHandler {
                 .setReadTimeout(readTimeout)
                 .openConnection();
 
-        CapacitorHttpUrlConnection connection = connectionBuilder.build();
+        ICapacitorHttpUrlConnection connection = connectionBuilder.build();
         InputStream connectionInputStream = connection.getInputStream();
 
         FileOutputStream fileOutputStream = new FileOutputStream(file, false);
