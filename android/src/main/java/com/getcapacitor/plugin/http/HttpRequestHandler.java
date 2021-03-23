@@ -26,6 +26,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import static com.getcapacitor.plugin.http.MimeType.APPLICATION_JSON;
+import static com.getcapacitor.plugin.http.MimeType.APPLICATION_VND_API_JSON;
 
 public class HttpRequestHandler {
 
@@ -173,7 +174,7 @@ public class HttpRequestHandler {
         String contentType = connection.getHeaderField("Content-Type");
 
         if (errorStream != null) {
-            if (contentType != null && contentType.contains(APPLICATION_JSON.getValue())) {
+            if (isOneOf(contentType, APPLICATION_JSON, APPLICATION_VND_API_JSON)) {
                 return parseJSON(readStreamAsString(errorStream));
             } else {
                 return readStreamAsString(errorStream);
@@ -199,6 +200,17 @@ public class HttpRequestHandler {
                     return readStreamAsString(stream);
             }
         }
+    }
+
+    private static boolean isOneOf(String contentType, MimeType... mimeTypes) {
+        if (contentType != null) {
+            for (MimeType mimeType : mimeTypes) {
+                if (contentType.contains(mimeType.getValue())) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     private static JSObject buildResponseHeaders(CapacitorHttpUrlConnection connection) {

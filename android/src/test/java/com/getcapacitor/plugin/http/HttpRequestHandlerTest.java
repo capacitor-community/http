@@ -28,6 +28,17 @@ public class HttpRequestHandlerTest {
     }
 
     @Test
+    public void readData_error_with_JSON() throws IOException, JSONException {
+        JSObject jsonObject = new JSObject("{ 'message' : 'Hello world!' }");
+
+        JSObject result = (JSObject) HttpRequestHandler.readData(
+                errorWithJson(jsonObject),
+                JSON);
+
+        assertEquals(jsonObject.toString(), result.toString());
+    }
+
+    @Test
     public void readData_success_with_JSON() throws IOException, JSONException {
         JSObject jsonObject = new JSObject("{ 'message' : 'Hello world!' }");
 
@@ -44,6 +55,13 @@ public class HttpRequestHandlerTest {
                 null,
                 new ByteArrayInputStream(htmlErrorMessage.getBytes(UTF_8)),
                 MimeType.TEXT_HTML.getValue());
+    }
+
+    private static CapacitorHttpUrlResponseMock errorWithJson(JSONObject jsonObject) {
+        return new CapacitorHttpUrlResponseMock(
+                null,
+                new ByteArrayInputStream(jsonObject.toString().getBytes(UTF_8)),
+                MimeType.APPLICATION_VND_API_JSON.getValue());
     }
 
     private static CapacitorHttpUrlResponseMock successWithJson(JSONObject jsonObject) {
