@@ -66,7 +66,7 @@ export const buildRequestInit = (
     output.body = JSON.stringify(options.data);
   } else if (type.includes('application/x-www-form-urlencoded')) {
     const params = new URLSearchParams();
-    for (const [key, value] of Object.entries(options.data)) {
+    for (const [key, value] of Object.entries(options.data || {})) {
       params.set(key, value as any);
     }
     output.body = params.toString();
@@ -75,7 +75,7 @@ export const buildRequestInit = (
     typeof options.data === 'object'
   ) {
     const form = new FormData();
-    for (const [key, value] of Object.entries(options.data)) {
+    for (const [key, value] of Object.entries(options.data || {})) {
       form.append(key, value as any);
     }
     output.body = form;
