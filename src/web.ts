@@ -121,8 +121,8 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
   /**
    * Clears out cookies by setting them to expire immediately
    */
-  // @ts-ignore
   public clearCookies = async (
+    // @ts-ignore
     options: HttpMultiCookiesOptions,
   ): Promise<void> => Cookie.clearCookies();
 
