@@ -36,3 +36,4 @@ android-template/app/app.iml
 .settings/
 .project
 android/build
+/.vs

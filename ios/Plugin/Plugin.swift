@@ -294,9 +294,9 @@ public class CAPHttpPlugin: CAPPlugin {
     
     let contentType = getRequestHeader(headers, "Content-Type") as? String
     
-    if data != nil && contentType != nil {
+    if contentType != nil {
       do {
-        request.httpBody = try getRequestData(request, data!, contentType!)
+        request.httpBody = try getRequestData(request, call, data!, contentType!)
       } catch let e {
         call.reject("Unable to set request data", "MUTATE", e)
         return
@@ -350,19 +350,27 @@ public class CAPHttpPlugin: CAPPlugin {
     return normalizedHeaders[header.lowercased()]
   }
   
-  func getRequestData(_ request: URLRequest, _ data: [String:Any], _ contentType: String) throws -> Data? {
+  func getRequestData(_ request: URLRequest, _ call: CAPPluginCall, _ data: [String:Any]?, _ contentType: String) throws -> Data? {
     if contentType.contains("application/json") {
-      return try setRequestDataJson(request, data)
-    } else if contentType.contains("application/x-www-form-urlencoded") {
-      return setRequestDataFormUrlEncoded(request, data)
-    } else if contentType.contains("multipart/form-data") {
-      return setRequestDataMultipartFormData(request, data)
+      return try setRequestDataJson(request, call)
+    } else if data != nil && contentType.contains("application/x-www-form-urlencoded") {
+      return setRequestDataFormUrlEncoded(request, data!)
+    } else if data != nil && contentType.contains("multipart/form-data") {
+      return setRequestDataMultipartFormData(request, data!)
     }
     return nil
   }
   
-  func setRequestDataJson(_ request: URLRequest, _ data: [String:Any]) throws -> Data? {
-    let jsonData = try JSONSerialization.data(withJSONObject: data)
+  func setRequestDataJson(_ request: URLRequest, _ call: CAPPluginCall) throws -> Data? {
+    let jsonData: Data
+    let jsObject = call.getObject("data")
+
+    if (jsObject != nil) {
+      jsonData = try JSONSerialization.data(withJSONObject: jsObject as Any)
+    } else {
+      let jsArray = call.getArray("data", (Any).self, [])
+      jsonData = try JSONSerialization.data(withJSONObject: jsArray as Any)
+    }
     return jsonData
   }
   
