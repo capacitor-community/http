@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.Map;
 import org.json.JSONException;
 
-public class CapacitorHttpUrlConnection {
+public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
 
     private final HttpURLConnection connection;
 
@@ -267,6 +267,7 @@ public class CapacitorHttpUrlConnection {
      * errors, the connection is not connected or the server sent no
      * useful data.
      */
+    @Override
     public InputStream getErrorStream() {
         return connection.getErrorStream();
     }
@@ -282,6 +283,7 @@ public class CapacitorHttpUrlConnection {
      * @return  the value of the named header field, or {@code null}
      *          if there is no such field in the header.
      */
+    @Override
     public String getHeaderField(String name) {
         return connection.getHeaderField(name);
     }
@@ -300,6 +302,7 @@ public class CapacitorHttpUrlConnection {
      *               input.
      * @see #setReadTimeout(int)
      */
+    @Override
     public InputStream getInputStream() throws IOException {
         return connection.getInputStream();
     }
