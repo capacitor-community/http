@@ -223,7 +223,7 @@ class HttpRequestHandler {
         let urlRequest = request.getUrlRequest();
         let task = URLSession.shared.uploadTask(with: urlRequest, from: form) { (data, response, error) in
             if error != nil {
-                CAPLog.print("Error on upload file", data, response, error)
+                CAPLog.print("Error on upload file", String(describing: data), String(describing: response), String(describing: error))
                 call.reject("Error", "UPLOAD", error, [:])
                 return
             }
@@ -261,7 +261,7 @@ class HttpRequestHandler {
         let urlRequest = request.getUrlRequest()
         let task = URLSession.shared.downloadTask(with: urlRequest) { (downloadLocation, response, error) in
             if error != nil {
-                CAPLog.print("Error on download file", downloadLocation, response, error)
+                CAPLog.print("Error on download file", String(describing: downloadLocation), String(describing: response), String(describing: error))
                 call.reject("Error", "DOWNLOAD", error, [:])
                 return
             }
