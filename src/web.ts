@@ -121,7 +121,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     var expires = '';
     if (options.expires) {
       // remove "expires=" so you can pass with or without the prefix
-      expires = `; expires=${expires.replace('expires=', '')}`;
+      expires = `; expires=${options.expires.replace('expires=', '')}`;
     } else if (options.ageDays) {
       const date = new Date();
       date.setTime(date.getTime() + options.ageDays * 24 * 60 * 60 * 1000);
