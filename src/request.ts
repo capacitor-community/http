@@ -100,7 +100,7 @@ export const request = async (options: HttpOptions): Promise<HttpResponse> => {
   const contentType = response.headers.get('content-type') || '';
 
   // Default to 'text' responseType so no parsing happens
-  let { responseType = 'text' } = options;
+  let { responseType = 'text' } = response.ok ? options : {};
 
   // If the response content-type is json, force the response to be json
   if (contentType.includes('application/json')) {
