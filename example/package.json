@@ -21,7 +21,7 @@
   },
   "dependencies": {
     "@capacitor-community/http": "file:..",
-    "@capacitor/cli": "^3.0.0-rc.0",
-    "@capacitor/core": "^3.0.0-rc.0"
+    "@capacitor/cli": "^3.0.0-rc.3",
+    "@capacitor/core": "^3.0.0-rc.3"
   }
 }
