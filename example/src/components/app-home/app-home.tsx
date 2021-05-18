@@ -7,7 +7,7 @@ import { Http } from '@capacitor-community/http';
   styleUrl: 'app-home.css',
 })
 export class AppHome {
-  @State() serverUrl = 'http://localhost:3455';
+  @State() serverUrl = 'https://593a77b47934.ngrok.io';
 
   @State() output: string = '';
 
@@ -29,7 +29,7 @@ export class AppHome {
           'X-Fake-Header': 'Max was here',
         },
         params: {
-          size: ['XL', 'L'],
+          size: ['XL', 'L', 'M', 'S', 'XS'],
           music: 'cool',
         },
       });

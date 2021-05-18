@@ -1,5 +1,8 @@
 package com.getcapacitor.plugin.http;
 
+import static com.getcapacitor.plugin.http.MimeType.APPLICATION_JSON;
+import static com.getcapacitor.plugin.http.MimeType.APPLICATION_VND_API_JSON;
+
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
@@ -22,11 +25,10 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import static com.getcapacitor.plugin.http.MimeType.APPLICATION_JSON;
-import static com.getcapacitor.plugin.http.MimeType.APPLICATION_VND_API_JSON;
 
 public class HttpRequestHandler {
 
@@ -81,12 +83,12 @@ public class HttpRequestHandler {
             return this;
         }
 
-        public HttpURLConnectionBuilder setUrlParams(JSObject params) throws MalformedURLException, URISyntaxException {
+        public HttpURLConnectionBuilder setUrlParams(JSObject params) throws MalformedURLException, URISyntaxException, JSONException {
             return this.setUrlParams(params, true);
         }
 
         public HttpURLConnectionBuilder setUrlParams(JSObject params, boolean shouldEncode)
-            throws URISyntaxException, MalformedURLException {
+            throws URISyntaxException, MalformedURLException, JSONException {
             String initialQuery = url.getQuery();
             String initialQueryBuilderStr = initialQuery == null ? "" : initialQuery;
 
@@ -96,11 +98,27 @@ public class HttpRequestHandler {
             // Build the new query string
             while (keys.hasNext()) {
                 String key = keys.next();
-                String value = params.getString(key);
-                if (urlQueryBuilder.length() > 0) {
-                    urlQueryBuilder.append("&");
+
+                // Attempt as JSONArray and fallback to string if it fails
+                try {
+                    StringBuilder value = new StringBuilder();
+                    JSONArray arr = params.getJSONArray(key);
+                    for (int x = 0; x < arr.length(); x++) {
+                        value.append(key).append("=").append(arr.getString(x));
+                        if (x != arr.length() - 1) {
+                            value.append("&");
+                        }
+                    }
+                    if (urlQueryBuilder.length() > 0) {
+                        urlQueryBuilder.append("&");
+                    }
+                    urlQueryBuilder.append(value);
+                } catch (JSONException e) {
+                    if (urlQueryBuilder.length() > 0) {
+                        urlQueryBuilder.append("&");
+                    }
+                    urlQueryBuilder.append(key).append("=").append(params.getString(key));
                 }
-                urlQueryBuilder.append(key).append("=").append(value);
             }
 
             String urlQuery = urlQueryBuilder.toString();
@@ -169,7 +187,7 @@ public class HttpRequestHandler {
         return output;
     }
 
-     static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType) throws IOException, JSONException {
+    static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType) throws IOException, JSONException {
         InputStream errorStream = connection.getErrorStream();
         String contentType = connection.getHeaderField("Content-Type");
 
@@ -179,21 +197,17 @@ public class HttpRequestHandler {
             } else {
                 return readStreamAsString(errorStream);
             }
-
         } else if (contentType != null && contentType.contains(APPLICATION_JSON.getValue())) {
             // backward compatibility
             return parseJSON(readStreamAsString(connection.getInputStream()));
-
         } else {
             InputStream stream = connection.getInputStream();
             switch (responseType) {
                 case ARRAY_BUFFER:
                 case BLOB:
                     return readStreamAsBase64(stream);
-
                 case JSON:
                     return parseJSON(readStreamAsString(stream));
-
                 case DOCUMENT:
                 case TEXT:
                 default:
@@ -318,7 +332,7 @@ public class HttpRequestHandler {
      * @throws IOException throws an IO request when a connection can't be made
      * @throws URISyntaxException thrown when the URI is malformed
      */
-    public static JSObject downloadFile(PluginCall call, Context context) throws IOException, URISyntaxException {
+    public static JSObject downloadFile(PluginCall call, Context context) throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url");
         String method = call.getString("method").toUpperCase();
         String filePath = call.getString("filePath");
