@@ -63,15 +63,25 @@ class HttpRequestHandler {
             return self
         }
         
-        public func setUrlParams(_ params: [String:String]) -> CapacitorHttpRequestBuilder {
+        public func setUrlParams(_ params: [String:Any]) -> CapacitorHttpRequestBuilder {
             if (params.count != 0) {
                 var cmps = URLComponents(url: url!, resolvingAgainstBaseURL: true)
                 if cmps?.queryItems == nil {
-                  cmps?.queryItems = []
+                    cmps?.queryItems = []
                 }
-                cmps!.queryItems?.append(contentsOf: params.map({ (key, value) -> URLQueryItem in
-                  return URLQueryItem(name: key, value: value)
-                }))
+                
+                var urlSafeParams: [URLQueryItem] = []
+                for (key, value) in params {
+                    if let arr = value as? [String] {
+                        arr.forEach { str in
+                            urlSafeParams.append(URLQueryItem(name: key, value: str))
+                        }
+                    } else {
+                        urlSafeParams.append(URLQueryItem(name: key, value: (value as! String)))
+                    }
+                }
+                
+                cmps!.queryItems?.append(contentsOf: urlSafeParams)
                 url = cmps!.url!
             }
             return self
@@ -145,7 +155,7 @@ class HttpRequestHandler {
         guard let method = call.getString("method") else { throw URLError(.dataNotAllowed) }
         
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
-        let params = (call.getObject("params") ?? [:]) as! [String: String]
+        let params = (call.getObject("params") ?? [:]) as! [String: Any]
         let responseType = call.getString("responseType") ?? "text";
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
@@ -192,7 +202,7 @@ class HttpRequestHandler {
         let method = call.getString("method") ?? "POST"
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
-        let params = (call.getObject("params") ?? [:]) as! [String: String]
+        let params = (call.getObject("params") ?? [:]) as! [String: Any]
         let body = (call.getObject("data") ?? [:]) as [String: Any]
         let responseType = call.getString("responseType") ?? "text";
         let connectTimeout = call.getDouble("connectTimeout");
@@ -238,7 +248,7 @@ class HttpRequestHandler {
         let method = call.getString("method") ?? "GET"
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
-        let params = (call.getObject("params") ?? [:]) as! [String: String]
+        let params = (call.getObject("params") ?? [:]) as! [String: Any]
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
         

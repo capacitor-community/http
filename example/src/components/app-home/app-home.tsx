@@ -29,7 +29,8 @@ export class AppHome {
           'X-Fake-Header': 'Max was here',
         },
         params: {
-          size: 'XL',
+          size: ['XL', 'L'],
+          music: 'cool',
         },
       });
       console.log('Got ret', ret);
@@ -49,14 +50,10 @@ export class AppHome {
   getHtml = () => this.get('/get-html');
 
   head = () => this.get('/head', 'HEAD');
-  delete = () =>
-    this.mutate('/delete', 'DELETE', { title: 'foo', body: 'bar', userId: 1 });
-  patch = () =>
-    this.mutate('/patch', 'PATCH', { title: 'foo', body: 'bar', userId: 1 });
-  post = () =>
-    this.mutate('/post', 'POST', { title: 'foo', body: 'bar', userId: 1 });
-  put = () =>
-    this.mutate('/put', 'PUT', { title: 'foo', body: 'bar', userId: 1 });
+  delete = () => this.mutate('/delete', 'DELETE', { title: 'foo', body: 'bar', userId: 1 });
+  patch = () => this.mutate('/patch', 'PATCH', { title: 'foo', body: 'bar', userId: 1 });
+  post = () => this.mutate('/post', 'POST', { title: 'foo', body: 'bar', userId: 1 });
+  put = () => this.mutate('/put', 'PUT', { title: 'foo', body: 'bar', userId: 1 });
 
   async mutate(path, method, data = {}) {
     this.output = '';
@@ -159,7 +156,7 @@ export class AppHome {
     const options = {
       url: this.apiUrl('/cookie'),
       key: 'language',
-    }
+    };
     const ret = await Http.deleteCookie(options);
     console.log(ret);
   };
@@ -257,9 +254,7 @@ export class AppHome {
         <ion-button onClick={this.testSetCookies}>Test Cookies Set</ion-button>
 
         <ion-button onClick={this.formPost}>Form Post</ion-button>
-        <ion-button onClick={this.formPostMultipart}>
-          Form Post Multipart
-        </ion-button>
+        <ion-button onClick={this.formPostMultipart}>Form Post Multipart</ion-button>
 
         <ion-button onClick={this.setCookie}>Set Cookie</ion-button>
         <ion-button onClick={this.getCookies}>Get Cookies</ion-button>
