@@ -33,8 +33,22 @@ const buildUrlParams = (
 
   const output = Object.entries(params).reduce((accumulator, entry) => {
     const [key, value] = entry;
-    const encodedValue = shouldEncode ? encodeURIComponent(value) : value;
-    const item = `${key}=${encodedValue}`;
+
+    let encodedValue: string;
+    let item: string;
+    if (Array.isArray(value)) {
+      item = '';
+      value.forEach(str => {
+        encodedValue = shouldEncode ? encodeURIComponent(str) : str;
+        item += `${key}=${encodedValue}&`;
+      });
+      // last character will always be "&" so slice it off
+      item.slice(0, -1);
+    } else {
+      encodedValue = shouldEncode ? encodeURIComponent(value) : value;
+      item = `${key}=${encodedValue}`;
+    }
+
     return `${accumulator}&${item}`;
   }, '');
 

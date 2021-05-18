@@ -55,7 +55,7 @@ export interface HttpOptions {
 }
 
 export interface HttpParams {
-  [key: string]: string;
+  [key: string]: string | string[];
 }
 
 export interface HttpHeaders {
