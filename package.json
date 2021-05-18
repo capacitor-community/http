@@ -22,6 +22,7 @@
     "@capacitor/android": "latest",
     "@capacitor/ios": "latest",
     "@ionic/prettier-config": "^1.0.0",
+    "all-contributors-cli": "^6.20.0",
     "body-parser": "^1.19.0",
     "compression": "^1.7.4",
     "cookie-parser": "^1.4.5",
