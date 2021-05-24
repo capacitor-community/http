@@ -121,7 +121,7 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     var expires = '';
     if (options.expires) {
       // remove "expires=" so you can pass with or without the prefix
-      expires = `; expires=${options.expires.replace('expires=', '')}`;
+      expires = `; expires=${options.expires.replace(/expires=/gi, '')}`;
     } else if (options.ageDays) {
       const date = new Date();
       date.setTime(date.getTime() + options.ageDays * 24 * 60 * 60 * 1000);
@@ -193,9 +193,9 @@ export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
     const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
 
     const ret = await fetch(options.url, fetchOptions);
-    
-    if(!ret.ok) {
-      return Promise.reject("Download file error: response not ok")
+
+    if (!ret.ok) {
+      return Promise.reject('Download file error: response not ok');
     }
 
     const blob = await ret.blob();
