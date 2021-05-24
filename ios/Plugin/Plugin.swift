@@ -161,13 +161,23 @@ public class CAPHttpPlugin: CAPPlugin {
     guard let urlString = call.getString("url") else {
       return call.reject("Must provide URL")
     }
+    let expires = call.getString("expires")
+    let ageDays = call.getInt("ageDays")
+    
+    var cookieExpiration = ""
+    if expires != nil {
+        cookieExpiration = "; Expires=" + expires!.replacingOccurrences(of: "Expires=", with: "", options:.caseInsensitive)
+    } else if ageDays != nil {
+        let maxAge = ageDays! * 24 * 60 * 60;
+        cookieExpiration = "; Max-Age=\(maxAge)"
+    }
     
     guard let url = URL(string: urlString) else {
       return call.reject("Invalid URL")
     }
     
     let jar = HTTPCookieStorage.shared
-    let field = ["Set-Cookie": "\(key)=\(value)"]
+    let field = ["Set-Cookie": "\(key)=\(value)\(cookieExpiration)"]
     let cookies = HTTPCookie.cookies(withResponseHeaderFields: field, for: url)
     jar.setCookies(cookies, for: url, mainDocumentURL: url)
     
