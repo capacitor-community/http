@@ -19,33 +19,16 @@
 
 ## Maintainers
 
-| Maintainer | GitHub                              | Social                                    |
-| ---------- | ----------------------------------- | ----------------------------------------- |
-| Max Lynch  | [mlynch](https://github.com/mlynch) | [@maxlynch](https://twitter.com/maxlynch) |
+| Maintainer   | GitHub                                        | Social                                          |
+| ------------ | --------------------------------------------- | ----------------------------------------------- |
+| Max Lynch    | [mlynch](https://github.com/mlynch)           | [@maxlynch](https://twitter.com/maxlynch)       |
+| Thomas Vidas | [thomasvidas](https://github.com/thomasvidas) | [@thomasvidas](https://twitter.com/thomasvidas) |
 
 ## Installation
 
 ```bash
 npm install @capacitor-community/http
 npx cap sync
-```
-
-On iOS, no further steps are needed.
-
-On Android, register the plugin in your main activity:
-
-```java
-import com.getcapacitor.plugin.http.Http;
-
-public class MainActivity extends BridgeActivity {
-
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    registerPlugin(Http.class);
-  }
-}
-
 ```
 
 ## Configuration
@@ -59,17 +42,16 @@ To use the plugin while fully supporting the web version, import and use it like
 ```typescript
 import { Http } from '@capacitor-community/http';
 
-
 // Example of a GET request
 const doGet = () => {
   const options = {
     url: 'https://example.com/my/api',
     headers: { 'X-Fake-Header': 'Max was here' },
     params: { size: 'XL' },
-  }
+  };
 
-  const response: HttpResponse = await Http.get(options)
-  
+  const response: HttpResponse = await Http.get(options);
+
   // or...
   // const response = await Http.request({ ...options, method: 'GET' })
 };
@@ -80,10 +62,10 @@ const doPost = () => {
   const options = {
     url: 'https://example.com/my/api',
     headers: { 'X-Fake-Header': 'Thomas was here' },
-    data: { foo: 'bar', cool: true, },
-  }
+    data: { foo: 'bar', cool: true },
+  };
 
-  const response: HttpResponse = await Http.post(options)
+  const response: HttpResponse = await Http.post(options);
 
   // or...
   // const response = await Http.request({ ...options, method: 'POST' })
@@ -113,7 +95,9 @@ const clearCookies = async () => {
 };
 
 const getCookies = async () => {
-  const cookies: HttpCookie[] = await Http.getCookies({ url: 'http://example.com' });
+  const cookies: HttpCookie[] = await Http.getCookies({
+    url: 'http://example.com',
+  });
 };
 
 const downloadFile = async () => {
@@ -121,7 +105,7 @@ const downloadFile = async () => {
     url: 'https://example.com/path/to/download.pdf',
     filePath: 'document.pdf',
     fileDirectory: FilesystemDirectory.Downloads,
-  }
+  };
 
   // Writes to local filesystem
   const response: HttpDownloadFileResult = await Http.downloadFile(options);
@@ -141,7 +125,7 @@ const uploadFile = async () => {
     name: 'myFile',
     filePath: 'document.pdf',
     fileDirectory: FilesystemDirectory.Downloads,
-  }
+  };
 
   const response: HttpUploadFileResult = await Http.uploadFile();
 };

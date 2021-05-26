@@ -2,12 +2,12 @@
   "name": "example",
   "private": true,
   "version": "0.0.1",
-  "description": "example",
+  "description": "Example server for @capacitor-community/http with express",
   "main": "server.mjs",
   "scripts": {
     "start": "node server.mjs"
   },
-  "author": "",
+  "author": "Thomas Vidas <hello@thomasvidas.com>",
   "license": "MIT",
   "dependencies": {
     "body-parser": "^1.19.0",

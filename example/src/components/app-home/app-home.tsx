@@ -7,7 +7,7 @@ import { Http } from '@capacitor-community/http';
   styleUrl: 'app-home.css',
 })
 export class AppHome {
-  @State() serverUrl = 'https://593a77b47934.ngrok.io';
+  @State() serverUrl = 'https://localhost:3455';
 
   @State() output: string = '';
 

@@ -2,7 +2,7 @@
   "name": "example",
   "private": true,
   "version": "0.0.1",
-  "description": "example",
+  "description": "Example frontend for @capacitor-community/http with Stencil",
   "license": "MIT",
   "files": [
     "dist/"
@@ -16,12 +16,12 @@
     "generate": "stencil generate"
   },
   "devDependencies": {
-    "@ionic/core": "^5.6.1",
-    "@stencil/core": "^2.4.0"
+    "@capacitor/cli": "^3.0.0",
+    "@ionic/core": "^5.6.7",
+    "@stencil/core": "^2.5.2"
   },
   "dependencies": {
     "@capacitor-community/http": "file:..",
-    "@capacitor/cli": "^3.0.0-rc.3",
-    "@capacitor/core": "^3.0.0-rc.3"
+    "@capacitor/core": "^3.0.0"
   }
 }
