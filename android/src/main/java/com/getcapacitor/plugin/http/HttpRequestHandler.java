@@ -275,9 +275,13 @@ public class HttpRequestHandler {
     private static String readStreamAsString(InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append(System.getProperty("line.separator"));
+            String line = reader.readLine();
+            while (line != null) {
+                builder.append(line);
+                line = reader.readLine();
+                if (line != null){
+                    builder.append(System.getProperty("line.separator"));
+                }
             }
             return builder.toString();
         }
