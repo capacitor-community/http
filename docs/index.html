@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html class="default no-js">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>@capacitor-community/http</title>
+    <meta
+      name="description"
+      content="Documentation for @capacitor-community/http"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="assets/css/main.css" />
+    <script async src="assets/js/search.js" id="search-script"></script>
+  </head>
+  <body>
+    <header>
+      <div class="tsd-page-toolbar">
+        <div class="container">
+          <div class="table-wrap">
+            <div
+              class="table-cell"
+              id="tsd-search"
+              data-index="assets/js/search.json"
+              data-base="."
+            >
+              <div class="field">
+                <label
+                  for="tsd-search-field"
+                  class="tsd-widget search no-caption"
+                  >Search</label
+                >
+                <input id="tsd-search-field" type="text" />
+              </div>
+              <ul class="results">
+                <li class="state loading">Preparing search index...</li>
+                <li class="state failure">The search index is not available</li>
+              </ul>
+              <a href="index.html" class="title">@capacitor-community/http</a>
+            </div>
+            <div class="table-cell" id="tsd-widgets">
+              <div id="tsd-filter">
+                <a
+                  href="#"
+                  class="tsd-widget options no-caption"
+                  data-toggle="options"
+                  >Options</a
+                >
+                <div class="tsd-filter-group">
+                  <div class="tsd-select" id="tsd-filter-visibility">
+                    <span class="tsd-select-label">All</span>
+                    <ul class="tsd-select-list">
+                      <li data-value="public">Public</li>
+                      <li data-value="protected">Public/Protected</li>
+                      <li data-value="private" class="selected">All</li>
+                    </ul>
+                  </div>
+                  <input type="checkbox" id="tsd-filter-inherited" checked />
+                  <label class="tsd-widget" for="tsd-filter-inherited"
+                    >Inherited</label
+                  >
+                  <input type="checkbox" id="tsd-filter-externals" checked />
+                  <label class="tsd-widget" for="tsd-filter-externals"
+                    >Externals</label
+                  >
+                </div>
+              </div>
+              <a href="#" class="tsd-widget menu no-caption" data-toggle="menu"
+                >Menu</a
+              >
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="tsd-page-title">
+        <div class="container">
+          <h1>@capacitor-community/http</h1>
+        </div>
+      </div>
+    </header>
+    <div class="container container-main">
+      <div class="row">
+        <div class="col-8 col-content">
+          <div class="tsd-panel tsd-typography">
+            <p align="center">
+              <br /><img
+                src="https://user-images.githubusercontent.com/236501/85893648-1c92e880-b7a8-11ea-926d-95355b8175c7.png"
+                width="128"
+                height="128"
+              />
+            </p>
+            <h3 align="center">HTTP</h3>
+            <p align="center">
+              <strong><code>@capacitor-community/http</code></strong>
+            </p>
+            <p align="center">
+              Capacitor community plugin for native HTTP requests, file
+              download/uploads, and cookie management.
+            </p>
+            <p align="center">
+              <img
+                src="https://img.shields.io/maintenance/yes/2021?style=flat-square"
+              />
+              <a
+                href="https://github.com/capacitor-community/http/actions?query=workflow%3A%22Test+and+Build+Plugin%22"
+                ><img
+                  src="https://img.shields.io/github/workflow/status/capacitor-community/http/Test%20and%20Build%20Plugin?style=flat-square"
+              /></a>
+              <a href="https://www.npmjs.com/package/@capacitor-community/http"
+                ><img
+                  src="https://img.shields.io/npm/l/@capacitor-community/http?style=flat-square"
+              /></a>
+              <br />
+              <a href="https://www.npmjs.com/package/@capacitor-community/http"
+                ><img
+                  src="https://img.shields.io/npm/dw/@capacitor-community/http?style=flat-square"
+              /></a>
+              <a href="https://www.npmjs.com/package/@capacitor-community/http"
+                ><img
+                  src="https://img.shields.io/npm/v/@capacitor-community/http?style=flat-square"
+              /></a>
+              <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+              <a href="#contributors-"
+                ><img
+                  src="https://img.shields.io/badge/all%20contributors-6-orange?style=flat-square"
+              /></a>
+              <!-- ALL-CONTRIBUTORS-BADGE:END -->
+            </p>
+            <a
+              href="#maintainers"
+              id="maintainers"
+              style="color: inherit; text-decoration: none"
+            >
+              <h2>Maintainers</h2>
+            </a>
+            <table>
+              <thead>
+                <tr>
+                  <th>Maintainer</th>
+                  <th>GitHub</th>
+                  <th>Social</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Max Lynch</td>
+                  <td><a href="https://github.com/mlynch">mlynch</a></td>
+                  <td><a href="https://twitter.com/maxlynch">@maxlynch</a></td>
+                </tr>
+                <tr>
+                  <td>Thomas Vidas</td>
+                  <td>
+                    <a href="https://github.com/thomasvidas">thomasvidas</a>
+                  </td>
+                  <td>
+                    <a href="https://twitter.com/thomasvidas">@thomasvidas</a>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <a
+              href="#installation"
+              id="installation"
+              style="color: inherit; text-decoration: none"
+            >
+              <h2>Installation</h2>
+            </a>
+            <pre><code class="language-bash"><span style="color: #000000">npm install @capacitor-community/http</span>
+<span style="color: #000000">npx cap sync</span>
+</code></pre>
+            <a
+              href="#configuration"
+              id="configuration"
+              style="color: inherit; text-decoration: none"
+            >
+              <h2>Configuration</h2>
+            </a>
+            <p>No configuration required for this plugin</p>
+            <a
+              href="#usage"
+              id="usage"
+              style="color: inherit; text-decoration: none"
+            >
+              <h2>Usage</h2>
+            </a>
+            <p>
+              To use the plugin while fully supporting the web version, import
+              and use it like this:
+            </p>
+            <pre><code class="language-typescript"><span style="color: #AF00DB">import</span><span style="color: #000000"> { </span><span style="color: #001080">Http</span><span style="color: #000000"> } </span><span style="color: #AF00DB">from</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;@capacitor-community/http&#039;</span><span style="color: #000000">;</span>
+
+<span style="color: #008000">// Example of a GET request</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">doGet</span><span style="color: #000000"> = () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">options</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;https://example.com/my/api&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">headers:</span><span style="color: #000000"> { </span><span style="color: #A31515">&#039;X-Fake-Header&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;Max was here&#039;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    </span><span style="color: #001080">params:</span><span style="color: #000000"> { </span><span style="color: #001080">size:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;XL&#039;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">  };</span>
+
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">response</span><span style="color: #000000">: </span><span style="color: #267F99">HttpResponse</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">Http</span><span style="color: #000000">.</span><span style="color: #795E26">get</span><span style="color: #000000">(</span><span style="color: #001080">options</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">  </span><span style="color: #008000">// or...</span>
+<span style="color: #000000">  </span><span style="color: #008000">// const response = await Http.request({ ...options, method: &#039;GET&#039; })</span>
+<span style="color: #000000">};</span>
+
+<span style="color: #008000">// Example of a POST request. Note: data</span>
+<span style="color: #008000">// can be passed as a raw JS Object (must be JSON serializable)</span>
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">doPost</span><span style="color: #000000"> = () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">options</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;https://example.com/my/api&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">headers:</span><span style="color: #000000"> { </span><span style="color: #A31515">&#039;X-Fake-Header&#039;</span><span style="color: #001080">:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;Thomas was here&#039;</span><span style="color: #000000"> },</span>
+<span style="color: #000000">    </span><span style="color: #001080">data:</span><span style="color: #000000"> { </span><span style="color: #001080">foo:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;bar&#039;</span><span style="color: #000000">, </span><span style="color: #001080">cool:</span><span style="color: #000000"> </span><span style="color: #0000FF">true</span><span style="color: #000000"> },</span>
+<span style="color: #000000">  };</span>
+
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">response</span><span style="color: #000000">: </span><span style="color: #267F99">HttpResponse</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">Http</span><span style="color: #000000">.</span><span style="color: #795E26">post</span><span style="color: #000000">(</span><span style="color: #001080">options</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">  </span><span style="color: #008000">// or...</span>
+<span style="color: #000000">  </span><span style="color: #008000">// const response = await Http.request({ ...options, method: &#039;POST&#039; })</span>
+<span style="color: #000000">};</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">setCookie</span><span style="color: #000000"> = </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">options</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;http://example.com&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">key:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;language&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">value:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;en&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  };</span>
+
+<span style="color: #000000">  </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">Http</span><span style="color: #000000">.</span><span style="color: #795E26">setCookie</span><span style="color: #000000">(</span><span style="color: #001080">options</span><span style="color: #000000">);</span>
+<span style="color: #000000">};</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">deleteCookie</span><span style="color: #000000"> = </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">options</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;http://example.com&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">key:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;language&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  };</span>
+
+<span style="color: #000000">  </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">Http</span><span style="color: #000000">.</span><span style="color: #795E26">deleteCookie</span><span style="color: #000000">(</span><span style="color: #001080">options</span><span style="color: #000000">);</span>
+<span style="color: #000000">};</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">clearCookies</span><span style="color: #000000"> = </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">Http</span><span style="color: #000000">.</span><span style="color: #795E26">clearCookies</span><span style="color: #000000">({ </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;http://example.com&#039;</span><span style="color: #000000"> });</span>
+<span style="color: #000000">};</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">getCookies</span><span style="color: #000000"> = </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">cookies</span><span style="color: #000000">: </span><span style="color: #267F99">HttpCookie</span><span style="color: #000000">[] = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">Http</span><span style="color: #000000">.</span><span style="color: #795E26">getCookies</span><span style="color: #000000">({</span>
+<span style="color: #000000">    </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;http://example.com&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  });</span>
+<span style="color: #000000">};</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">downloadFile</span><span style="color: #000000"> = </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">options</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;https://example.com/path/to/download.pdf&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">filePath:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;document.pdf&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">fileDirectory:</span><span style="color: #000000"> </span><span style="color: #001080">FilesystemDirectory</span><span style="color: #000000">.</span><span style="color: #001080">Downloads</span><span style="color: #000000">,</span>
+<span style="color: #000000">  };</span>
+
+<span style="color: #000000">  </span><span style="color: #008000">// Writes to local filesystem</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">response</span><span style="color: #000000">: </span><span style="color: #267F99">HttpDownloadFileResult</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">Http</span><span style="color: #000000">.</span><span style="color: #795E26">downloadFile</span><span style="color: #000000">(</span><span style="color: #001080">options</span><span style="color: #000000">);</span>
+
+<span style="color: #000000">  </span><span style="color: #008000">// Then read the file</span>
+<span style="color: #000000">  </span><span style="color: #AF00DB">if</span><span style="color: #000000"> (</span><span style="color: #001080">response</span><span style="color: #000000">.</span><span style="color: #001080">path</span><span style="color: #000000">) {</span>
+<span style="color: #000000">    </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">read</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">Filesystem</span><span style="color: #000000">.</span><span style="color: #795E26">readFile</span><span style="color: #000000">({</span>
+<span style="color: #000000">      </span><span style="color: #001080">path:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;download.pdf&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">      </span><span style="color: #001080">directory:</span><span style="color: #000000"> </span><span style="color: #001080">FilesystemDirectory</span><span style="color: #000000">.</span><span style="color: #001080">Downloads</span><span style="color: #000000">,</span>
+<span style="color: #000000">    });</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">};</span>
+
+<span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #795E26">uploadFile</span><span style="color: #000000"> = </span><span style="color: #0000FF">async</span><span style="color: #000000"> () </span><span style="color: #0000FF">=&gt;</span><span style="color: #000000"> {</span>
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">options</span><span style="color: #000000"> = {</span>
+<span style="color: #000000">    </span><span style="color: #001080">url:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;https://example.com/path/to/upload.pdf&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">name:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;myFile&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">filePath:</span><span style="color: #000000"> </span><span style="color: #A31515">&#039;document.pdf&#039;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    </span><span style="color: #001080">fileDirectory:</span><span style="color: #000000"> </span><span style="color: #001080">FilesystemDirectory</span><span style="color: #000000">.</span><span style="color: #001080">Downloads</span><span style="color: #000000">,</span>
+<span style="color: #000000">  };</span>
+
+<span style="color: #000000">  </span><span style="color: #0000FF">const</span><span style="color: #000000"> </span><span style="color: #0070C1">response</span><span style="color: #000000">: </span><span style="color: #267F99">HttpUploadFileResult</span><span style="color: #000000"> = </span><span style="color: #AF00DB">await</span><span style="color: #000000"> </span><span style="color: #001080">Http</span><span style="color: #000000">.</span><span style="color: #795E26">uploadFile</span><span style="color: #000000">();</span>
+<span style="color: #000000">};</span>
+</code></pre>
+            <a
+              href="#api-reference"
+              id="api-reference"
+              style="color: inherit; text-decoration: none"
+            >
+              <h2>API Reference</h2>
+            </a>
+            <p>Coming soon</p>
+            <a
+              href="#third-party-cookies-on-ios"
+              id="third-party-cookies-on-ios"
+              style="color: inherit; text-decoration: none"
+            >
+              <h3>Third Party Cookies on iOS</h3>
+            </a>
+            <p>
+              As of iOS 14, you cannot use 3rd party cookies by default. There
+              is an open issue on the Capacitor Core repo on properly patching
+              in cookies on iOS. For now, you must specify a domain of for the
+              cookie you are saving to properly save and send them via requests.
+              You can also add the following lines to your
+              <code>Info.plist</code> file to get better support for cookies on
+              iOS. You can add up to 10 domains.
+            </p>
+            <pre><code class="language-xml"><span style="color: #800000">&lt;key&gt;</span><span style="color: #000000">WKAppBoundDomains</span><span style="color: #800000">&lt;/key&gt;</span>
+<span style="color: #800000">&lt;array&gt;</span>
+<span style="color: #000000">    </span><span style="color: #800000">&lt;string&gt;</span><span style="color: #000000">www.mydomain.com</span><span style="color: #800000">&lt;/string&gt;</span>
+<span style="color: #000000">    </span><span style="color: #800000">&lt;string&gt;</span><span style="color: #000000">api.mydomain.com</span><span style="color: #800000">&lt;/string&gt;</span>
+<span style="color: #000000">    </span><span style="color: #800000">&lt;string&gt;</span><span style="color: #000000">www.myothercooldomain.com</span><span style="color: #800000">&lt;/string&gt;</span>
+<span style="color: #800000">&lt;/array&gt;</span>
+</code></pre>
+            <a
+              href="#contributors-✨"
+              id="contributors-✨"
+              style="color: inherit; text-decoration: none"
+            >
+              <h2>Contributors ✨</h2>
+            </a>
+            <p>
+              Thanks goes to these wonderful people (<a
+                href="https://allcontributors.org/docs/en/emoji-key"
+                >emoji key</a
+              >):
+            </p>
+            <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+            <!-- prettier-ignore-start -->
+            <!-- markdownlint-disable -->
+            <table>
+              <tr>
+                <td align="center">
+                  <a href="https://github.com/danielsogl"
+                    ><img
+                      src="https://avatars2.githubusercontent.com/u/15234844?v=4?s=100"
+                      width="100px;"
+                      alt=""
+                    /><br /><sub><b>Daniel Sogl</b></sub></a
+                  ><br /><a
+                    href="https://github.com/capacitor-community/http/commits?author=danielsogl"
+                    title="Documentation"
+                    >📖</a
+                  >
+                </td>
+                <td align="center">
+                  <a href="http://priyankpatel.io"
+                    ><img
+                      src="https://avatars3.githubusercontent.com/u/5585797?v=4?s=100"
+                      width="100px;"
+                      alt=""
+                    /><br /><sub><b>Priyank Patel</b></sub></a
+                  ><br /><a
+                    href="https://github.com/capacitor-community/http/commits?author=priyankpat"
+                    title="Code"
+                    >💻</a
+                  >
+                </td>
+                <td align="center">
+                  <a href="http://ionicframework.com/"
+                    ><img
+                      src="https://avatars3.githubusercontent.com/u/11214?v=4?s=100"
+                      width="100px;"
+                      alt=""
+                    /><br /><sub><b>Max Lynch</b></sub></a
+                  ><br /><a
+                    href="https://github.com/capacitor-community/http/commits?author=mlynch"
+                    title="Code"
+                    >💻</a
+                  >
+                </td>
+                <td align="center">
+                  <a href="https://github.com/pixelbucket-dev"
+                    ><img
+                      src="https://avatars3.githubusercontent.com/u/12937991?v=4?s=100"
+                      width="100px;"
+                      alt=""
+                    /><br /><sub><b>Falk Schieber</b></sub></a
+                  ><br /><a
+                    href="https://github.com/capacitor-community/http/pulls?q=is%3Apr+reviewed-by%3Apixelbucket-dev"
+                    title="Reviewed Pull Requests"
+                    >👀</a
+                  >
+                </td>
+                <td align="center">
+                  <a href="https://github.com/andysousa"
+                    ><img
+                      src="https://avatars0.githubusercontent.com/u/42151009?v=4?s=100"
+                      width="100px;"
+                      alt=""
+                    /><br /><sub><b>Andy Sousa</b></sub></a
+                  ><br /><a
+                    href="https://github.com/capacitor-community/http/commits?author=andysousa"
+                    title="Code"
+                    >💻</a
+                  >
+                </td>
+                <td align="center">
+                  <a href="https://github.com/thomasvidas"
+                    ><img
+                      src="https://avatars.githubusercontent.com/u/8182078?v=4?s=100"
+                      width="100px;"
+                      alt=""
+                    /><br /><sub><b>Thomas Vidas</b></sub></a
+                  ><br /><a
+                    href="https://github.com/capacitor-community/http/commits?author=thomasvidas"
+                    title="Code"
+                    >💻</a
+                  >
+                  <a href="#maintenance-thomasvidas" title="Maintenance">🚧</a>
+                </td>
+              </tr>
+            </table>
+            <!-- markdownlint-restore -->
+            <!-- prettier-ignore-end -->
+            <!-- ALL-CONTRIBUTORS-LIST:END -->
+            <p>
+              This project follows the
+              <a href="https://github.com/all-contributors/all-contributors"
+                >all-contributors</a
+              >
+              specification. Contributions of any kind welcome!
+            </p>
+          </div>
+        </div>
+        <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+          <nav class="tsd-navigation primary">
+            <ul>
+              <li class="">
+                <a href="modules.html">Modules</a>
+              </li>
+              <li class="tsd-kind-module">
+                <a href="modules/definitions.html">definitions</a>
+              </li>
+              <li class="tsd-kind-module">
+                <a href="modules/web.html">web</a>
+              </li>
+            </ul>
+          </nav>
+          <nav class="tsd-navigation secondary menu-sticky">
+            <ul class="before-current"></ul>
+          </nav>
+        </div>
+      </div>
+    </div>
+    <footer class="with-border-bottom">
+      <div class="container">
+        <h2>Legend</h2>
+        <div class="tsd-legend-group">
+          <ul class="tsd-legend">
+            <li class="tsd-kind-interface">
+              <span class="tsd-kind-icon">Interface</span>
+            </li>
+          </ul>
+          <ul class="tsd-legend">
+            <li class="tsd-kind-class">
+              <span class="tsd-kind-icon">Class</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </footer>
+    <div class="container tsd-generator">
+      <p>
+        Generated using
+        <a href="https://typedoc.org/" target="_blank">TypeDoc</a>
+      </p>
+    </div>
+    <div class="overlay"></div>
+    <script src="assets/js/main.js"></script>
+  </body>
+</html>
