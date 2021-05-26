@@ -17,6 +17,8 @@
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
+# This branch is for Capacitor 2.x. For Capacitor 3.x, see `https://github.com/capacitor-community/http/tree/master`
+
 ## Maintainers
 
 | Maintainer | GitHub | Social |
