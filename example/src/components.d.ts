@@ -18,9 +18,7 @@ declare global {
     prototype: HTMLAppHomeElement;
     new (): HTMLAppHomeElement;
   };
-  interface HTMLAppProfileElement
-    extends Components.AppProfile,
-      HTMLStencilElement {}
+  interface HTMLAppProfileElement extends Components.AppProfile, HTMLStencilElement {}
   var HTMLAppProfileElement: {
     prototype: HTMLAppProfileElement;
     new (): HTMLAppProfileElement;
@@ -53,8 +51,7 @@ declare module '@stencil/core' {
   export namespace JSX {
     interface IntrinsicElements {
       'app-home': LocalJSX.AppHome & JSXBase.HTMLAttributes<HTMLAppHomeElement>;
-      'app-profile': LocalJSX.AppProfile &
-        JSXBase.HTMLAttributes<HTMLAppProfileElement>;
+      'app-profile': LocalJSX.AppProfile & JSXBase.HTMLAttributes<HTMLAppProfileElement>;
       'app-root': LocalJSX.AppRoot & JSXBase.HTMLAttributes<HTMLAppRootElement>;
     }
   }

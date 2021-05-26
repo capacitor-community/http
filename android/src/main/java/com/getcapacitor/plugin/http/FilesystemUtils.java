@@ -6,6 +6,7 @@ import android.os.Environment;
 import java.io.File;
 
 public class FilesystemUtils {
+
     public static final String DIRECTORY_DOCUMENTS = "DOCUMENTS";
     public static final String DIRECTORY_APPLICATION = "APPLICATION";
     public static final String DIRECTORY_DOWNLOADS = "DOWNLOADS";
@@ -38,13 +39,12 @@ public class FilesystemUtils {
     public static File getDirectory(Context c, String directory) {
         switch (directory) {
             case DIRECTORY_APPLICATION:
+            case DIRECTORY_DATA:
                 return c.getFilesDir();
             case DIRECTORY_DOCUMENTS:
                 return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS);
             case DIRECTORY_DOWNLOADS:
                 return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-            case DIRECTORY_DATA:
-                return c.getFilesDir();
             case DIRECTORY_CACHE:
                 return c.getCacheDir();
             case DIRECTORY_EXTERNAL:

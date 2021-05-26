@@ -1,19 +1,21 @@
-var path = require('path'),
-  express = require('express'),
-  compression = require('compression'),
-  bodyParser = require('body-parser'),
-  cors = require('cors'),
-  cookieParser = require('cookie-parser'),
-  multer = require('multer'),
-  upload = multer({ dest: 'uploads/' });
+import express from 'express'
+import compression from 'compression'
+import bodyParser from 'body-parser'
+import cors from 'cors'
+import cookieParser from 'cookie-parser'
+import multer from 'multer'
+import path from 'path'
 
-var fs = require('fs');
+// __dirname workaround for .mjs file
+import { fileURLToPath } from 'url';
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-var app = express();
+const app = express();
+const upload = multer({ dest: 'uploads/' })
 
-var staticPath = path.join(__dirname, '/public');
+const staticPath = path.join(__dirname, '/public');
+
 app.use(express.static(staticPath));
-
 app.use(cors({ origin: true }));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -33,24 +35,17 @@ app.get('/get', (req, res) => {
   res.send();
 });
 
-app.get(
-  '/get-gzip',
-  compression({
-    filter: (req, res) => true,
-    threshold: 1,
-  }),
-  (req, res) => {
-    const headers = req.headers;
-    const params = req.query;
-    console.log('Got headers', headers);
-    console.log('Got params', params);
-    console.log(req.url);
-    res.status(200);
-    res.json({
-      data: 'compressed',
-    });
-  },
-);
+app.get('/get-gzip', compression({ filter: (req, res) => true, threshold: 1,}), (req, res) => {
+  const headers = req.headers;
+  const params = req.query;
+  console.log('Got headers', headers);
+  console.log('Got params', params);
+  console.log(req.url);
+  res.status(200);
+  res.json({
+    data: 'compressed',
+  });
+});
 
 app.get('/get-json', (req, res) => {
   res.status(200);
@@ -81,6 +76,7 @@ app.delete('/delete', (req, res) => {
   res.status(200);
   res.send();
 });
+
 app.patch('/patch', (req, res) => {
   const headers = req.headers;
   console.log('PATCH');
@@ -88,6 +84,7 @@ app.patch('/patch', (req, res) => {
   res.status(200);
   res.send();
 });
+
 app.post('/post', (req, res) => {
   const headers = req.headers;
   console.log('POST');
@@ -95,6 +92,7 @@ app.post('/post', (req, res) => {
   res.status(200);
   res.send();
 });
+
 app.put('/put', (req, res) => {
   const headers = req.headers;
   console.log('PUT');

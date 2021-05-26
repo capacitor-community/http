@@ -1,213 +1,164 @@
-import {
+import type {
   HttpPlugin,
   HttpOptions,
-  //HttpCookie,
-  HttpDeleteCookieOptions,
-  HttpHeaders,
   HttpResponse,
-  HttpSetCookieOptions,
-  HttpClearCookiesOptions,
-  HttpGetCookiesOptions,
-  HttpGetCookiesResult,
-  HttpParams,
   HttpDownloadFileOptions,
   HttpDownloadFileResult,
   HttpUploadFileOptions,
   HttpUploadFileResult,
+  HttpCookie,
+  HttpCookieMap,
+  HttpGetCookiesResult,
+  HttpSetCookieOptions,
+  HttpMultiCookiesOptions,
+  HttpSingleCookieOptions,
 } from './definitions';
-import { WebPlugin, registerWebPlugin } from '@capacitor/core';
+import { WebPlugin } from '@capacitor/core';
+import * as Cookie from './cookie';
+import * as Request from './request';
 
-export class HttpPluginWeb extends WebPlugin implements HttpPlugin {
+export class HttpWeb extends WebPlugin implements HttpPlugin {
   constructor() {
-    super({
-      name: 'Http',
-      platforms: ['web', 'electron'],
-    });
+    super();
   }
 
-  private getRequestHeader(headers: HttpHeaders, key: string): string {
-    const originalKeys = Object.keys(headers);
-    const keys = Object.keys(headers).map(k => k.toLocaleLowerCase());
-    const lowered = keys.reduce((newHeaders, key, index) => {
-      newHeaders[key] = headers[originalKeys[index]];
-      return newHeaders;
-    }, {} as HttpHeaders);
+  /**
+   * Perform an Http request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public request = async (options: HttpOptions): Promise<HttpResponse> =>
+    Request.request(options);
 
-    return lowered[key.toLocaleLowerCase()];
-  }
+  /**
+   * Perform an Http GET request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public get = async (options: HttpOptions): Promise<HttpResponse> =>
+    Request.get(options);
 
-  private nativeHeadersToObject(headers: Headers): HttpHeaders {
-    const h = {} as HttpHeaders;
+  /**
+   * Perform an Http POST request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public post = async (options: HttpOptions): Promise<HttpResponse> =>
+    Request.post(options);
 
-    headers.forEach((value: string, key: string) => {
-      h[key] = value;
-    });
+  /**
+   * Perform an Http PUT request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public put = async (options: HttpOptions): Promise<HttpResponse> =>
+    Request.put(options);
 
-    return h;
-  }
+  /**
+   * Perform an Http PATCH request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public patch = async (options: HttpOptions): Promise<HttpResponse> =>
+    Request.patch(options);
 
-  private makeFetchOptions(
-    options: HttpOptions,
-    fetchExtra: RequestInit,
-  ): RequestInit {
-    const req = {
-      method: options.method || 'GET',
-      headers: options.headers,
-      ...(fetchExtra || {}),
-    } as RequestInit;
+  /**
+   * Perform an Http DELETE request given a set of options
+   * @param options Options to build the HTTP request
+   */
+  public del = async (options: HttpOptions): Promise<HttpResponse> =>
+    Request.del(options);
 
-    const contentType =
-      this.getRequestHeader(options.headers || {}, 'content-type') || '';
+  /**
+   * Gets all HttpCookies as a Map
+   */
+  public getCookiesMap = async (): Promise<HttpCookieMap> => {
+    const cookies = Cookie.getCookies();
+    const output: HttpCookieMap = {};
 
-    if (contentType.indexOf('application/json') === 0) {
-      req['body'] = JSON.stringify(options.data);
-    } else if (contentType.indexOf('application/x-www-form-urlencoded') === 0) {
-      const urlSearchParams = new URLSearchParams();
-      for (let key of Object.keys(options.data)) {
-        urlSearchParams.set(key, options.data[key]);
-      }
-      req['body'] = urlSearchParams.toString();
-    } else if (
-      contentType.indexOf('multipart/form-data') === 0 ||
-      typeof options.data === 'object'
-    ) {
-      let formData = new FormData();
-      for (let key of Object.keys(options.data)) {
-        formData.append(key, options.data[key]);
-      }
-      req['body'] = formData;
+    for (const cookie of cookies) {
+      output[cookie.key] = cookie.value;
     }
 
-    return req;
-  }
+    return output;
+  };
 
-  private makeFetchParams(params: HttpParams): string | null {
-    if (!params) return null;
-    return Object.entries(params).reduce((prev, [key, value]) => {
-      const encodedValue = encodeURIComponent(value);
-      const keyValue = `${key}=${encodedValue}`;
-      return prev ? `${prev}&${keyValue}` : keyValue;
-    }, '');
-  }
+  /**
+   * Get all HttpCookies as an object with the values as an HttpCookie[]
+   */
+  public getCookies = async (
+    options: HttpMultiCookiesOptions,
+  ): Promise<HttpGetCookiesResult> => {
+    // @ts-ignore
+    const { url } = options;
 
-  async request(options: HttpOptions): Promise<HttpResponse> {
-    const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
+    const cookies = Cookie.getCookies();
+    return { cookies };
+  };
 
-    const fetchParams = this.makeFetchParams(options.params);
-    const fetchUrl = fetchParams
-      ? `${options.url}?${fetchParams}`
-      : options.url;
+  /**
+   * Set a cookie
+   * @param key The key to set
+   * @param value The value to set
+   * @param options Optional additional parameters
+   */
+  public setCookie = async (options: HttpSetCookieOptions): Promise<void> => {
+    const { key, value, expires = '', path = '' } = options;
+    Cookie.setCookie(key, value, { expires, path });
+  };
 
-    const ret = await fetch(fetchUrl, fetchOptions);
+  /**
+   * Gets all cookie values unless a key is specified, then return only that value
+   * @param key The key of the cookie value to get
+   */
+  public getCookie = async (
+    options: HttpSingleCookieOptions,
+  ): Promise<HttpCookie> => Cookie.getCookie(options.key);
 
-    const contentType = ret.headers.get('content-type');
+  /**
+   * Deletes a cookie given a key
+   * @param key The key of the cookie to delete
+   */
+  public deleteCookie = async (
+    options: HttpSingleCookieOptions,
+  ): Promise<void> => Cookie.deleteCookie(options.key);
 
-    let data;
-    if (contentType && contentType.indexOf('application/json') === 0) {
-      data = await ret.json();
-    } else {
-      data = await ret.text();
-    }
+  /**
+   * Clears out cookies by setting them to expire immediately
+   */
+  public clearCookies = async (
+    // @ts-ignore
+    options: HttpMultiCookiesOptions,
+  ): Promise<void> => Cookie.clearCookies();
 
-    return {
-      status: ret.status,
-      data,
-      headers: this.nativeHeadersToObject(ret.headers),
-      url: ret.url,
-    };
-  }
-
-  async setCookie(options: HttpSetCookieOptions) {
-    var expires = '';
-    if (options.expires) {
-      // remove "expires=" so you can pass with or without the prefix
-      expires = `; expires=${options.expires.replace(/expires=/gi, '')}`;
-    } else if (options.ageDays) {
-      const date = new Date();
-      date.setTime(date.getTime() + options.ageDays * 24 * 60 * 60 * 1000);
-      expires = '; expires=' + date.toUTCString();
-    }
-    document.cookie =
-      options.key + '=' + (options.value || '') + expires + '; path=/';
-  }
-
-  async getCookies(
-    _options: HttpGetCookiesOptions,
-  ): Promise<HttpGetCookiesResult> {
-    if (!document.cookie) {
-      return { value: [] };
-    }
-
-    var cookies = document.cookie.split(';');
-    return {
-      value: cookies.map(c => {
-        const cParts = c.split(';').map(cv => cv.trim());
-        const cNameValue = cParts[0];
-        const cValueParts = cNameValue.split('=');
-        const key = cValueParts[0];
-        const value = cValueParts[1];
-
-        return {
-          key,
-          value,
-        };
-      }),
-    };
-  }
-
-  async deleteCookie(options: HttpDeleteCookieOptions) {
-    document.cookie = options.key + `=; expires=${new Date().toUTCString()}`;
-  }
-
-  async clearCookies(_options: HttpClearCookiesOptions) {
-    document.cookie
-      .split(';')
-      .forEach(
-        c =>
-          (document.cookie = c
-            .replace(/^ +/, '')
-            .replace(/=.*/, `=;expires=${new Date().toUTCString()};path=/`)),
-      );
-  }
-
-  async uploadFile(
+  /**
+   * Uploads a file through a POST request
+   * @param options TODO
+   */
+  public uploadFile = async (
     options: HttpUploadFileOptions,
-  ): Promise<HttpUploadFileResult> {
-    const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
-
+  ): Promise<HttpUploadFileResult> => {
     const formData = new FormData();
-    formData.append(options.name, options.blob);
-
-    await fetch(options.url, {
-      ...fetchOptions,
+    formData.append(options.name, options.blob || 'undefined');
+    const fetchOptions = {
+      ...options,
       body: formData,
       method: 'POST',
-    });
+    };
 
-    return {};
-  }
+    return this.post(fetchOptions);
+  };
 
-  async downloadFile(
+  /**
+   * Downloads a file
+   * @param options TODO
+   */
+  public downloadFile = async (
     options: HttpDownloadFileOptions,
-  ): Promise<HttpDownloadFileResult> {
-    const fetchOptions = this.makeFetchOptions(options, options.webFetchExtra);
-
-    const ret = await fetch(options.url, fetchOptions);
-
-    if (!ret.ok) {
-      return Promise.reject('Download file error: response not ok');
-    }
-
-    const blob = await ret.blob();
-
+  ): Promise<HttpDownloadFileResult> => {
+    const requestInit = Request.buildRequestInit(
+      options,
+      options.webFetchExtra,
+    );
+    const response = await fetch(options.url, requestInit);
+    const blob = await response.blob();
     return {
       blob,
     };
-  }
+  };
 }
-
-const Http = new HttpPluginWeb();
-
-export { Http };
-
-registerWebPlugin(Http);

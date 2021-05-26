@@ -19,9 +19,9 @@
 
 ## Maintainers
 
-| Maintainer | GitHub | Social |
-| -----------| -------| -------|
-| Max Lynch | [mlynch](https://github.com/mlynch) | [@maxlynch](https://twitter.com/maxlynch) |
+| Maintainer   | GitHub                                        | Social                                          |
+| ------------ | --------------------------------------------- | ----------------------------------------------- |
+| Max Lynch    | [mlynch](https://github.com/mlynch)           | [@maxlynch](https://twitter.com/maxlynch)       |
 | Thomas Vidas | [thomasvidas](https://github.com/thomasvidas) | [@thomasvidas](https://twitter.com/thomasvidas) |
 
 ## Installation
@@ -29,28 +29,6 @@
 ```bash
 npm install @capacitor-community/http
 npx cap sync
-```
-
-On iOS, no further steps are needed.
-
-On Android, register the plugin in your main activity:
-
-```java
-import com.getcapacitor.plugin.http.Http;
-
-public class MainActivity extends BridgeActivity {
-  @Override
-  public void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-
-    // Initializes the Bridge
-    this.init(savedInstanceState, new ArrayList<Class<? extends Plugin>>() {{
-      // Additional plugins you've installed go here
-      // Ex: add(TotallyAwesomePlugin.class);
-      add(Http.class);
-    }});
-  }
-}
 ```
 
 ## Configuration
@@ -62,115 +40,113 @@ No configuration required for this plugin
 To use the plugin while fully supporting the web version, import and use it like this:
 
 ```typescript
-// Must import the package once to make sure the web support initializes
-import '@capacitor-community/http';
-
-import { Plugins } from '@capacitor/core';
+import { Http } from '@capacitor-community/http';
 
 // Example of a GET request
 const doGet = () => {
-  // Destructure as close to usage as possible for web plugin to work correctly
-  // when running in the browser
-  const { Http } = Plugins;
-
-  const ret = await Http.request({
-    method: 'GET',
+  const options = {
     url: 'https://example.com/my/api',
-    headers: {
-      'X-Fake-Header': 'Max was here'
-    },
-    params: {
-      'size': 'XL'
-    }
-  });
+    headers: { 'X-Fake-Header': 'Max was here' },
+    params: { size: 'XL' },
+  };
+
+  const response: HttpResponse = await Http.get(options);
+
+  // or...
+  // const response = await Http.request({ ...options, method: 'GET' })
 };
 
 // Example of a POST request. Note: data
 // can be passed as a raw JS Object (must be JSON serializable)
 const doPost = () => {
-  const { Http } = Plugins;
-
-  const ret = await Http.request({
-    method: 'POST',
+  const options = {
     url: 'https://example.com/my/api',
-    headers: {
-      'X-Fake-Header': 'Max was here',
-      'Content-Type': 'application/json'
-    },
-    data: {
-      foo: 'bar',
-      cool: true
-    }
-  });
-}
+    headers: { 'X-Fake-Header': 'Thomas was here' },
+    data: { foo: 'bar', cool: true },
+  };
+
+  const response: HttpResponse = await Http.post(options);
+
+  // or...
+  // const response = await Http.request({ ...options, method: 'POST' })
+};
 
 const setCookie = async () => {
-  const { Http } = Plugins;
-
-  const ret = await Http.setCookie({
-    url: this.apiUrl('/cookie'),
+  const options = {
+    url: 'http://example.com',
     key: 'language',
-    value: 'en'
-  });
-}
+    value: 'en',
+  };
+
+  await Http.setCookie(options);
+};
 
 const deleteCookie = async () => {
-  const { Http } = Plugins;
-
-  const ret = await Http.deleteCookie({
-    url: this.apiUrl('/cookie'),
+  const options = {
+    url: 'http://example.com',
     key: 'language',
-  });
-}
+  };
+
+  await Http.deleteCookie(options);
+};
 
 const clearCookies = async () => {
-  const { Http } = Plugins;
-
-  const ret = await Http.clearCookies({
-    url: this.apiUrl('/cookie'),
-  });
-}
+  await Http.clearCookies({ url: 'http://example.com' });
+};
 
 const getCookies = async () => {
-  const { Http } = Plugins;
-
-  const ret = await Http.getCookies({
-    url: this.apiUrl('/cookie')
+  const cookies: HttpCookie[] = await Http.getCookies({
+    url: 'http://example.com',
   });
-  console.log('Got cookies', ret);
-  this.output = JSON.stringify(ret.value);
 };
 
 const downloadFile = async () => {
-  const { Http } = Plugins;
-  const ret = await Http.downloadFile({
+  const options = {
     url: 'https://example.com/path/to/download.pdf',
     filePath: 'document.pdf',
-    fileDirectory: FilesystemDirectory.Downloads
-  });
-  if (ret.path) {
+    fileDirectory: FilesystemDirectory.Downloads,
+  };
+
+  // Writes to local filesystem
+  const response: HttpDownloadFileResult = await Http.downloadFile(options);
+
+  // Then read the file
+  if (response.path) {
     const read = await Filesystem.readFile({
       path: 'download.pdf',
-      directory: FilesystemDirectory.Downloads
+      directory: FilesystemDirectory.Downloads,
     });
-    // Data is here
   }
-}
+};
 
 const uploadFile = async () => {
-  const { Http } = Plugins;
-  const ret = await Http.uploadFile({
+  const options = {
     url: 'https://example.com/path/to/upload.pdf',
     name: 'myFile',
     filePath: 'document.pdf',
-    fileDirectory: FilesystemDirectory.Downloads
-  });
-}
+    fileDirectory: FilesystemDirectory.Downloads,
+  };
+
+  const response: HttpUploadFileResult = await Http.uploadFile();
+};
 ```
 
 ## API Reference
 
 Coming soon
+
+### Third Party Cookies on iOS
+
+As of iOS 14, you cannot use 3rd party cookies by default. There is an open issue on the Capacitor Core repo on properly patching in cookies on iOS. For now, you must specify a domain of for the cookie you are saving to properly save and send them via requests. You can also add the following lines to your `Info.plist` file to get better support for cookies on iOS. You can add up to 10 domains.
+
+```xml
+<key>WKAppBoundDomains</key>
+<array>
+    <string>www.mydomain.com</string>
+    <string>api.mydomain.com</string>
+    <string>www.myothercooldomain.com</string>
+</array>
+```
 
 ## Contributors ✨
 

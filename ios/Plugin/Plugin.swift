@@ -1,426 +1,129 @@
-import Foundation
-import AudioToolbox
 import Capacitor
+import Foundation
 
-@objc(CAPHttpPlugin)
-public class CAPHttpPlugin: CAPPlugin {
-
-  @objc public func request(_ call: CAPPluginCall) {
-    guard let urlValue = call.getString("url") else {
-      return call.reject("Must provide a URL")
-    }
-    guard let method = call.getString("method") else {
-      return call.reject("Must provide a method. One of GET, DELETE, HEAD PATCH, POST, or PUT")
-    }
+@objc(HttpPlugin) public class HttpPlugin: CAPPlugin {
+    var cookieManager: CapacitorCookieManager? = nil
+    var capConfig: InstanceConfiguration? = nil
     
-    let headers = (call.getObject("headers") ?? [:]) as [String:String]
-    
-    let params = (call.getObject("params") ?? [:]) as [String:String]
-    
-    guard var url = URL(string: urlValue) else {
-      return call.reject("Invalid URL")
-    }
-    
-    
-    switch method {
-    case "GET", "HEAD":
-      get(call, &url, method, headers, params)
-    case "DELETE", "PATCH", "POST", "PUT":
-      mutate(call, url, method, headers)
-    default:
-      call.reject("Unknown method")
-    }
-  }
-
-  
-  @objc public func downloadFile(_ call: CAPPluginCall) {
-    guard let urlValue = call.getString("url") else {
-      return call.reject("Must provide a URL")
-    }
-    guard let filePath = call.getString("filePath") else {
-      return call.reject("Must provide a file path to download the file to")
-    }
-    
-    let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
-    
-    guard let url = URL(string: urlValue) else {
-      return call.reject("Invalid URL")
-    }
-    
-    let task = URLSession.shared.downloadTask(with: url) { (downloadLocation, response, error) in
-      guard let httpResponse = response as? HTTPURLResponse, (200...299).contains(httpResponse.statusCode) else {
-        call.reject("Invalid HTTP response code")
-        return
-      }
-
-      if error != nil {
-        CAPLog.print("Error on download file", downloadLocation, response, error)
-        call.reject("Error", "DOWNLOAD", error, [:])
-        return
-      }
-      
-      guard let location = downloadLocation else {
-        call.reject("Unable to get file after downloading")
-        return
-      }
-      
-      // TODO: Move to abstracted FS operations
-      let fileManager = FileManager.default
-      
-      let foundDir = FilesystemUtils.getDirectory(directory: fileDirectory)
-      let dir = fileManager.urls(for: foundDir, in: .userDomainMask).first
-      
-      do {
-        let dest = dir!.appendingPathComponent(filePath)
-        print("File Dest", dest.absoluteString)
-        
-        try FilesystemUtils.createDirectoryForFile(dest, true)
-        
-        try fileManager.moveItem(at: location, to: dest)
-        call.resolve([
-          "path": dest.absoluteString
-        ])
-      } catch let e {
-        call.reject("Unable to download file", "DOWNLOAD", e)
-        return
-      }
-      
-      
-      CAPLog.print("Downloaded file", location)
-      call.resolve()
-    }
-    
-    task.resume()
-  }
-  
-  @objc public func uploadFile(_ call: CAPPluginCall) {
-    guard let urlValue = call.getString("url") else {
-      return call.reject("Must provide a URL")
-    }
-    guard let filePath = call.getString("filePath") else {
-      return call.reject("Must provide a file path to download the file to")
-    }
-    let name = call.getString("name") ?? "file"
-    
-    let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
-    
-    guard let url = URL(string: urlValue) else {
-      return call.reject("Invalid URL")
-    }
-    
-    guard let fileUrl = FilesystemUtils.getFileUrl(filePath, fileDirectory) else {
-      return call.reject("Unable to get file URL")
-    }
-   
-    var request = URLRequest.init(url: url)
-    request.httpMethod = "POST"
-    
-    let boundary = UUID().uuidString
-    
-    let data: [String: Any] = call.getObject("data") ?? [:]
-    let strings: [String: String] = data.compactMapValues { any in
-        any as? String
-    }
-    
-    var fullFormData: Data?
-    do {
-      fullFormData = try generateFullMultipartRequestBody(fileUrl, name, boundary, strings)
-    } catch let e {
-      return call.reject("Unable to read file to upload", "UPLOAD", e)
-    }
-
-
-    request.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
-    
-    let task = URLSession.shared.uploadTask(with: request, from: fullFormData) { (data, response, error) in
-      if error != nil {
-        CAPLog.print("Error on upload file", data, response, error)
-        call.reject("Error", "UPLOAD", error, [:])
-        return
-      }
-      
-      // let res = response as! HTTPURLResponse
-      
-      //CAPLog.print("Uploaded file", location)
-        let res = response as! HTTPURLResponse
-       
-        call.resolve(self.buildResponse(data, res))
-    }
-    
-    task.resume()
-  }
-  
-  @objc public func setCookie(_ call: CAPPluginCall) {
-  
-    guard let key = call.getString("key") else {
-      return call.reject("Must provide key")
-    }
-    guard let value = call.getString("value") else {
-      return call.reject("Must provide value")
-    }
-    guard let urlString = call.getString("url") else {
-      return call.reject("Must provide URL")
-    }
-    let expires = call.getString("expires")
-    let ageDays = call.getInt("ageDays")
-    
-    var cookieExpiration = ""
-    if expires != nil {
-        cookieExpiration = "; Expires=" + expires!.replacingOccurrences(of: "Expires=", with: "", options:.caseInsensitive)
-    } else if ageDays != nil {
-        let maxAge = ageDays! * 24 * 60 * 60;
-        cookieExpiration = "; Max-Age=\(maxAge)"
-    }
-    
-    guard let url = URL(string: urlString) else {
-      return call.reject("Invalid URL")
-    }
-    
-    let jar = HTTPCookieStorage.shared
-    let field = ["Set-Cookie": "\(key)=\(value)\(cookieExpiration)"]
-    let cookies = HTTPCookie.cookies(withResponseHeaderFields: field, for: url)
-    jar.setCookies(cookies, for: url, mainDocumentURL: url)
-    
-    call.resolve()
-  }
-  
-  @objc public func getCookies(_ call: CAPPluginCall) {
-    guard let urlString = call.getString("url") else {
-      return call.reject("Must provide URL")
-    }
-    
-    guard let url = URL(string: urlString) else {
-      return call.reject("Invalid URL")
-    }
-    
-    let jar = HTTPCookieStorage.shared
-    guard let cookies = jar.cookies(for: url) else {
-      return call.resolve([
-        "value": []
-      ])
-    }
-    
-    let c = cookies.map { (cookie: HTTPCookie) -> [String:String] in
-      return [
-        "key": cookie.name,
-        "value": cookie.value
-      ]
-    }
-    
-    call.resolve([
-      "value": c
-    ])
-  }
-  
-  @objc public func deleteCookie(_ call: CAPPluginCall) {
-    guard let urlString = call.getString("url") else {
-      return call.reject("Must provide URL")
-    }
-    guard let key = call.getString("key") else {
-      return call.reject("Must provide key")
-    }
-    guard let url = URL(string: urlString) else {
-      return call.reject("Invalid URL")
-    }
-    
-    let jar = HTTPCookieStorage.shared
-    
-    let cookie = jar.cookies(for: url)?.first(where: { (cookie) -> Bool in
-      return cookie.name == key
-    })
-    if cookie != nil {
-      jar.deleteCookie(cookie!)
-    }
-    
-    call.resolve()
-  }
-  
-  @objc public func clearCookies(_ call: CAPPluginCall) {
-    guard let urlString = call.getString("url") else {
-      return call.reject("Must provide URL")
-    }
-    guard let url = URL(string: urlString) else {
-      return call.reject("Invalid URL")
-    }
-    let jar = HTTPCookieStorage.shared
-    jar.cookies(for: url)?.forEach({ (cookie) in
-      jar.deleteCookie(cookie)
-    })
-    call.resolve()
-  }
-
-  
-  /* PRIVATE */
-  
-  // Handle GET operations
-  func get(_ call: CAPPluginCall, _ url: inout URL, _ method: String, _ headers: [String:String], _ params: [String:String]) {
-    setUrlQuery(&url, params)
-    
-    var request = URLRequest(url: url)
-    
-    request.httpMethod = method
-    
-    setRequestHeaders(&request, headers)
-
-    let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-      if error != nil {
-        call.reject("Error", "GET", error, [:])
-        return
-      }
-      
-      let res = response as! HTTPURLResponse
-     
-      call.resolve(self.buildResponse(data, res))
-    }
-    
-    task.resume()
-  }
-  
-  func setUrlQuery(_ url: inout URL, _ params: [String:String]) {
-    if (params.count != 0) {
-        var cmps = URLComponents(url: url, resolvingAgainstBaseURL: true)
-        if cmps?.queryItems == nil {
-          cmps?.queryItems = []
+    private func getServerUrl(_ call: CAPPluginCall) -> URL? {
+        guard let urlString = call.getString("url") else {
+            call.reject("Invalid URL. Check that \"url\" is passed in correctly")
+            return nil
         }
-        cmps!.queryItems?.append(contentsOf: params.map({ (key, value) -> URLQueryItem in
-          return URLQueryItem(name: key, value: value)
-        }))
-        url = cmps!.url!
+        
+        let url = URL(string: urlString)
+        return url;
     }
-  }
-  
-  func setRequestHeaders(_ request: inout URLRequest, _ headers: [String:String]) {
-    headers.keys.forEach { (key) in
-      guard let value = headers[key] else {
-        return
-      }
-      request.addValue(value, forHTTPHeaderField: key)
+    
+    @objc override public func load() {
+        cookieManager = CapacitorCookieManager()
+        capConfig = bridge?.config
     }
-  }
-  
-  // Handle mutation operations: DELETE, PATCH, POST, and PUT
-  func mutate(_ call: CAPPluginCall, _ url: URL, _ method: String, _ headers: [String:String]) {
-    let data = call.getObject("data")
     
-    var request = URLRequest(url: url)
-    request.httpMethod = method
-  
-    setRequestHeaders(&request, headers)
+    @objc func request(_ call: CAPPluginCall) {
+        // Protect against bad values from JS before calling request
+        guard let u = call.getString("url") else { return call.reject("Must provide a URL"); }
+        guard let _ = call.getString("method") else { return call.reject("Must provide an HTTP Method"); }
+        guard var _ = URL(string: u) else { return call.reject("Invalid URL"); }
     
-    let contentType = getRequestHeader(headers, "Content-Type") as? String
-    
-    if data != nil && contentType != nil {
-      do {
-        request.httpBody = try getRequestData(request, data!, contentType!)
-      } catch let e {
-        call.reject("Unable to set request data", "MUTATE", e)
-        return
-      }
+        do {
+            try HttpRequestHandler.request(call)
+        } catch let e {
+            call.reject(e.localizedDescription)
+        }
     }
 
-    let task = URLSession.shared.dataTask(with: request) { (data, response, error) in
-      if error != nil {
-        call.reject("Error", "MUTATE", error, [:])
-        return
-      }
-      
-      let res = response as! HTTPURLResponse
-     
-      call.resolve(self.buildResponse(data, res))
-    }
-    
-    task.resume()
-  }
+    @objc func downloadFile(_ call: CAPPluginCall) {
+        // Protect against bad values from JS before calling request
+        guard let u = call.getString("url") else { return call.reject("Must provide a URL") }
+        guard let _ = call.getString("filePath") else { return call.reject("Must provide a file path to download the file to") }
+        guard let _ = URL(string: u) else { return call.reject("Invalid URL") }
 
-  func buildResponse(_ data: Data?, _ response: HTTPURLResponse) -> [String:Any] {
-    
-    var ret = [:] as [String:Any]
-    
-    ret["status"] = response.statusCode
-    ret["headers"] = response.allHeaderFields
-    ret["url"] = response.url?.absoluteString
-    
-    let contentType = response.allHeaderFields["Content-Type"] as? String
+        do {
+            try HttpRequestHandler.download(call)
+        } catch let e {
+            call.reject(e.localizedDescription)
+        }
+    }
 
-    if data != nil && contentType != nil && contentType!.contains("application/json") {
-      if let json = try? JSONSerialization.jsonObject(with: data!, options: .mutableContainers) {
-        ret["data"] = json
-      }
-    } else {
-      if (data != nil) {
-        ret["data"] = String(data: data!, encoding: .utf8);
-      } else {
-        ret["data"] = ""
-      }
-    }
+    @objc func uploadFile(_ call: CAPPluginCall) {
+        // Protect against bad values from JS before calling request
+        let fd = call.getString("fileDirectory") ?? "DOCUMENTS"
+        guard let u = call.getString("url") else { return call.reject("Must provide a URL") }
+        guard let fp = call.getString("filePath") else { return call.reject("Must provide a file path to download the file to") }
+        guard let _ = URL(string: u) else { return call.reject("Invalid URL") }
+        guard let _ = FilesystemUtils.getFileUrl(fp, fd) else { return call.reject("Unable to get file URL") }
     
-    return ret
-  }
-  
-  func getRequestHeader(_ headers: [String:Any], _ header: String) -> Any? {
-    var normalizedHeaders = [:] as [String:Any]
-    headers.keys.forEach { (key) in
-      normalizedHeaders[key.lowercased()] = headers[key]
+        do {
+            try HttpRequestHandler.upload(call)
+        } catch let e {
+            call.reject(e.localizedDescription)
+        }
     }
-    return normalizedHeaders[header.lowercased()]
-  }
-  
-  func getRequestData(_ request: URLRequest, _ data: [String:Any], _ contentType: String) throws -> Data? {
-    if contentType.contains("application/json") {
-      return try setRequestDataJson(request, data)
-    } else if contentType.contains("application/x-www-form-urlencoded") {
-      return setRequestDataFormUrlEncoded(request, data)
-    } else if contentType.contains("multipart/form-data") {
-      return setRequestDataMultipartFormData(request, data)
-    }
-    return nil
-  }
-  
-  func setRequestDataJson(_ request: URLRequest, _ data: [String:Any]) throws -> Data? {
-    let jsonData = try JSONSerialization.data(withJSONObject: data)
-    return jsonData
-  }
-  
-  func setRequestDataFormUrlEncoded(_ request: URLRequest, _ data: [String:Any]) -> Data? {
-    guard var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false) else {
-      return nil
-    }
-    components.queryItems = []
-    data.keys.forEach { (key) in
-      components.queryItems?.append(URLQueryItem(name: key, value: "\(data[key] ?? "")"))
-    }
-    
-    if components.query != nil {
-      return Data(components.query!.utf8)
-    }
-    
-    return nil
-  }
-  
-  func setRequestDataMultipartFormData(_ request: URLRequest, _ data: [String:Any]) -> Data? {
-    return nil
-  }
-  
-  
-    func generateFullMultipartRequestBody(_ url: URL, _ name: String, _ boundary: String, _ strings: [String:String]) throws -> Data {
-    var data = Data()
-    
-    let fileData = try Data(contentsOf: url)
 
+    @objc func setCookie(_ call: CAPPluginCall) {
+        guard let key = call.getString("key") else { return call.reject("Must provide key") }
+        guard let value = call.getString("value") else { return call.reject("Must provide value") }
     
-    let fname = url.lastPathComponent
-    let mimeType = FilesystemUtils.mimeTypeForPath(path: fname)
-    data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
-    data.append("Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(fname)\"\r\n".data(using: .utf8)!)
-    data.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
-    data.append(fileData)
-    strings.forEach { key, value in
-        data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
-        data.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
-        data.append(value.data(using: .utf8)!)
+        let url = getServerUrl(call)
+        if url != nil {
+            cookieManager!.setCookie(url!, key, cookieManager!.encode(value))
+            call.resolve()
+        }
     }
-    data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+
+    @objc func getCookies(_ call: CAPPluginCall) {
+        let url = getServerUrl(call)
+        if url != nil {
+            let cookies = cookieManager!.getCookies(url!)
+            let output = cookies.map { (cookie: HTTPCookie) -> [String: String] in
+                return [
+                    "key": cookie.name,
+                    "value": cookie.value,
+                ]
+            }
+            call.resolve([
+                "cookies": output
+            ])
+        }
+    }
     
-    return data
-  }
+    @objc func getCookie(_ call: CAPPluginCall) {
+        guard let key = call.getString("key") else { return call.reject("Must provide key") }
+        let url = getServerUrl(call)
+        if url != nil {
+            let cookie = cookieManager!.getCookie(url!, key)
+            call.resolve([
+                "key": cookie.name,
+                "value": cookieManager!.decode(cookie.value)
+            ])
+        }
+    }
+
+    @objc func deleteCookie(_ call: CAPPluginCall) {
+        guard let key = call.getString("key") else { return call.reject("Must provide key") }
+        let url = getServerUrl(call)
+        if url != nil {
+            let jar = HTTPCookieStorage.shared
+
+            let cookie = jar.cookies(for: url!)?.first(where: { (cookie) -> Bool in
+                return cookie.name == key
+            })
+
+            if cookie != nil {
+                jar.deleteCookie(cookie!)
+            }
+
+            call.resolve()
+        }
+    }
+
+    @objc func clearCookies(_ call: CAPPluginCall) {
+        let url = getServerUrl(call)
+        if url != nil {
+            let jar = HTTPCookieStorage.shared
+            jar.cookies(for: url!)?.forEach({ (cookie) in jar.deleteCookie(cookie) })
+            call.resolve()
+        }
+    }
 }
