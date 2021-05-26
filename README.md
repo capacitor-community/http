@@ -31,6 +31,14 @@ npm install @capacitor-community/http
 npx cap sync
 ```
 
+### Capacitor 2.x
+
+For Capacitor 2.x projects, you will need to install a version less than 1.0.0. You can do that by specifying the version in your `package.json` or installing like this. The latest 2.x compatible version is `0.3.1`.
+
+```bash
+npm install @capacitor-community/http@0.x
+```
+
 ## Configuration
 
 No configuration required for this plugin
