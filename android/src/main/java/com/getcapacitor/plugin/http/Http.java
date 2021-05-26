@@ -305,6 +305,8 @@ public class Http extends Plugin {
         String url = call.getString("url");
         String key = call.getString("key");
         String value = call.getString("value");
+        String expires = call.getString("expires");
+        Integer ageDays = call.getInt("ageDays");
 
         URI uri = getUri(url);
         if (uri == null) {
@@ -312,7 +314,15 @@ public class Http extends Plugin {
             return;
         }
 
-        String cookieValue = key + "=" + value;
+        String cookieExpiration = "";
+        if (expires != null) {
+            cookieExpiration = "; Expires=" + expires.replaceAll("(?i)Expires=", "");
+        } else if (ageDays != null) {
+            int maxAgeSec = ageDays * 24 * 60 * 60;
+            cookieExpiration = "; Max-Age=" + maxAgeSec;
+        }
+
+        String cookieValue = key + "=" + value + cookieExpiration;
 
         cookieManager.setCookie(url, cookieValue);
 
