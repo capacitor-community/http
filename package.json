@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/http",
-  "version": "1.0.0-alpha.5",
+  "version": "1.0.0",
   "description": "A native HTTP plugin for CORS-free requests and file transfers",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -14,7 +14,7 @@
     "prepublishOnly": "npm run build",
     "prepare": "husky install"
   },
-  "author": "Max Lynch <max@ionic.io>",
+  "author": "Max Lynch <max@ionic.io>, Thomas Vidas <thomas@ionic.io>",
   "license": "MIT",
   "dependencies": {
     "@capacitor/android": "^3.0.0",
