@@ -1,6 +1,9 @@
 package com.getcapacitor.plugin.http;
 
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
+import com.getcapacitor.PluginCall;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -150,18 +153,31 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
 
     /**
      *
-     * @param body
+     * @param call
      * @throws JSONException
      * @throws IOException
      */
-    public void setRequestBody(JSObject body) throws JSONException, IOException {
+    public void setRequestBody(PluginCall call) throws JSONException, IOException {
         String contentType = connection.getRequestProperty("Content-Type");
+
+        JSObject body = call.getObject("data", null);
 
         if (contentType == null || contentType.isEmpty()) return;
 
         String dataString = "";
         if (contentType.contains("application/json")) {
-            dataString = body.toString();
+            JSArray jsArray = null;
+            if (body != null) {
+                dataString = body.toString();
+            } else {
+                jsArray = call.getArray("data", null);
+            }
+            if (jsArray != null) {
+                dataString = jsArray.toString();
+            } else if(body == null) {
+                String anything = call.getString("data");
+                dataString = anything;
+            }
         } else if (contentType.contains("application/x-www-form-urlencoded")) {
             StringBuilder builder = new StringBuilder();
             Iterator<String> keys = body.keys();

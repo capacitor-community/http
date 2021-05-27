@@ -319,9 +319,8 @@ public class HttpRequestHandler {
 
         // Set HTTP body on a non GET or HEAD request
         if (isHttpMutate) {
-            JSObject data = call.getObject("data");
             connection.setDoOutput(true);
-            connection.setRequestBody(data);
+            connection.setRequestBody(call);
         }
 
         connection.connect();
