@@ -10,12 +10,13 @@ public class CapacitorUrlRequest {
         request.httpMethod = method
         headers = [:]
     }
-    
+
     private func getRequestDataAsJson(_ data: [String: Any]) throws -> Data? {
-      let jsonData = try JSONSerialization.data(withJSONObject: data)
+      let arrayRequest = data["arrayRequest"];
+      let jsonData = try JSONSerialization.data(withJSONObject: arrayRequest ?? data)
       return jsonData
     }
-    
+
     private func getRequestDataAsFormUrlEncoded(_ data: [String: Any]) -> Data? {
         guard var components = URLComponents(url: request.url!, resolvingAgainstBaseURL: false) else { return nil }
         components.queryItems = []
@@ -29,20 +30,20 @@ public class CapacitorUrlRequest {
 
         return nil
     }
-    
+
     private func getRequestDataAsMultipartFormData(_ data: [String: Any]) -> Data? {
         return nil
     }
-    
+
     func getRequestHeader(_ index: String) -> Any? {
         var normalized = [:] as [String:Any]
         self.headers.keys.forEach { (key: String) in
             normalized[key.lowercased()] = self.headers[key]
         }
-        
+
         return normalized[index.lowercased()]
     }
-    
+
     func getRequestData(_ body: [String: Any], _ contentType: String) throws -> Data? {
         if contentType.contains("application/json") {
             return try getRequestDataAsJson(body)
@@ -53,16 +54,16 @@ public class CapacitorUrlRequest {
         }
         return nil
     }
-    
+
     public func setRequestHeaders(_ headers: [String: String]) {
         headers.keys.forEach { (key: String) in
             let value = headers[key]
             request.addValue(value!, forHTTPHeaderField: key)
         }
-        
+
         self.headers = headers;
     }
-    
+
     public func setRequestBody(_ body: [String: Any]) {
         let contentType = self.getRequestHeader("Content-Type") as? String
 
@@ -70,15 +71,15 @@ public class CapacitorUrlRequest {
             request.httpBody = try? getRequestData(body, contentType!)
         }
     }
-    
+
     public func setContentType(_ data: String?) {
         request.setValue(data, forHTTPHeaderField: "Content-Type")
     }
-    
+
     public func setTimeout(_ timeout: TimeInterval) {
         request.timeoutInterval = timeout;
     }
-    
+
     public func getUrlRequest() -> URLRequest {
         return request;
     }
