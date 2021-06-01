@@ -2,7 +2,7 @@
   "name": "example",
   "private": true,
   "version": "0.0.1",
-  "description": "Example server for @capacitor-community/http with express",
+  "description": "Example server for @capacitor-mobi/http with express",
   "main": "server.mjs",
   "scripts": {
     "start": "node server.mjs"

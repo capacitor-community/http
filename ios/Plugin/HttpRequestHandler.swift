@@ -38,6 +38,85 @@ func tryParseJson(_ data: Data) -> Any {
   }
 }
 
+class UploadOperation : Operation {
+    
+    private var task : URLSessionDataTask!
+    
+    enum OperationState : Int {
+        case ready
+        case executing
+        case finished
+    }
+    
+    // default state is ready (when the operation is created)
+    private var state : OperationState = .ready {
+        willSet {
+            self.willChangeValue(forKey: "isExecuting")
+            self.willChangeValue(forKey: "isFinished")
+        }
+        
+        didSet {
+            self.didChangeValue(forKey: "isExecuting")
+            self.didChangeValue(forKey: "isFinished")
+        }
+    }
+    
+    override var isReady: Bool { return state == .ready }
+    override var isExecuting: Bool { return state == .executing }
+    override var isFinished: Bool { return state == .finished }
+  
+    init(session: URLSession, uploadTaskURL: URLRequest, completionHandler: ((Data?, URLResponse?, Error?) -> Void)?) {
+        super.init()
+        
+        // use weak self to prevent retain cycle
+        task = session.dataTask(with: uploadTaskURL, completionHandler: { [weak self] (data, response, error) in
+            
+            /*
+            if there is a custom completionHandler defined,
+            pass the result gotten in uploadTask's completionHandler to the
+            custom completionHandler
+            */
+            if let completionHandler = completionHandler {
+                // localURL is the temporary URL the uploaded file is located
+                completionHandler(data, response, error)
+            }
+            
+           /*
+             set the operation state to finished once
+             the upload task is completed or have error
+           */
+            self?.state = .finished
+        })
+    }
+
+    override func start() {
+      /*
+      if the operation or queue got cancelled even
+      before the operation has started, set the
+      operation state to finished and return
+      */
+      if(self.isCancelled) {
+          state = .finished
+          return
+      }
+      
+      // set the state to executing
+      state = .executing
+      
+      print("uploading \(self.task.originalRequest?.url?.absoluteString ?? "")")
+            
+      // start the uploading
+      self.task.resume()
+  }
+
+  override func cancel() {
+      super.cancel()
+    
+      // cancel the uploading
+      self.task.cancel()
+  }
+}
+
 class HttpRequestHandler {
     private class CapacitorHttpRequestBuilder {
         private var url: URL?
@@ -148,6 +227,70 @@ class HttpRequestHandler {
 
         return data
     }
+    
+    private static func generateMultipartFormForChunk(_ blob: Data, _ url: URL, _ name: String, _ boundary: String, _ body: [String:Any]) -> Data {
+        let strings: [String: String] = body.compactMapValues { any in
+            any as? String
+        }
+        
+        var data = Data()
+        
+        let fname = url.lastPathComponent
+        let mimeType = FilesystemUtils.mimeTypeForPath(path: fname)
+        let customTagKey = "tags"
+        
+        strings.forEach { key, value in
+            data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
+            if let range = key.range(of: "tag") {
+                data.append("Content-Disposition: form-data; name=\"\(customTagKey)\"\r\n\r\n".data(using: .utf8)!)
+            } else {
+                data.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+            }
+            
+            data.append(value.data(using: .utf8)!)
+        }
+        data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
+        data.append(
+            "Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(fname)\"\r\n".data(
+                using: .utf8)!)
+        data.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
+        data.append(blob)
+        
+        data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        return data
+    }
+    
+    private static func getFileData(_ url: URL) throws -> Data {
+        
+        let fileData = try Data(contentsOf: url)
+        return fileData
+    }
+    
+    private static func getChunksFromFileData(_ data: Data) throws -> [Data] {
+        let dataLen = data.count
+        let chunkSize = 4000000 // MB
+        let fullChunks = Int(dataLen / chunkSize)
+        let totalChunks = fullChunks + (dataLen - (fullChunks * chunkSize) > 0 ? 1 : 0)
+        
+        var chunks:[Data] = [Data]()
+        for chunkCounter in 0..<totalChunks {
+            var chunk:Data
+            let chunkBase = chunkCounter * chunkSize
+            var diff = chunkSize
+            if(chunkCounter == totalChunks - 1) {
+                diff = dataLen - chunkBase
+            }
+            
+            let range:Range<Data.Index> = chunkBase..<(chunkBase + diff)
+            chunk = data.subdata(in: range)
+            
+            chunks.append(chunk)
+        }
+        
+        return chunks
+        
+    }
 
 
     public static func request(_ call: CAPPluginCall) throws {
@@ -242,6 +385,113 @@ class HttpRequestHandler {
         }
 
         task.resume()
+    }
+    
+    public static func chunkUpload(_ call: CAPPluginCall) throws {
+        let name = call.getString("name") ?? "file"
+        let method = call.getString("method") ?? "POST"
+        let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
+        let headers = (call.getObject("headers") ?? [:]) as! [String: String]
+        var params = (call.getObject("params") ?? [:]) as! [String: Any]
+        var body = (call.getObject("data") ?? [:]) as [String: Any]
+        let responseType = call.getString("responseType") ?? "text";
+        let connectTimeout = call.getDouble("connectTimeout");
+        let readTimeout = call.getDouble("readTimeout");
+        
+        guard let urlString = call.getString("url") else { throw URLError(.badURL) }
+        guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
+        guard let fileUrl = FilesystemUtils.getFileUrl(filePath, fileDirectory) else { throw URLError(.badURL) }
+        
+        
+        guard let fileData = try? getFileData(fileUrl) else {throw URLError(.cannotOpenFile)}
+        guard let chunks = try? getChunksFromFileData(fileData) else {throw URLError(.cannotCreateFile)}
+        
+        
+        
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 1
+        
+        let a = Int64((Date().timeIntervalSince1970 * 1000.0).rounded())
+        let timestamp = String(a)
+        let flowIdentifier = "\(timestamp)_\(fileData.count)_\(fileUrl.lastPathComponent)"
+        let flowChunkSize = 4000000
+        let flowTotalChunks = chunks.count
+        let flowTotalSize = fileData.count
+        
+        for (index, chunk) in chunks.enumerated() {
+            let flowChunkNumber = index + 1
+            let currentChunkSize = chunk.count
+            
+            params["flowIdentifier"] = "\(flowIdentifier)"
+            params["flowChunkSize"] = "\(flowChunkSize)"
+            params["flowTotalChunks"] = "\(flowTotalChunks)"
+            params["flowTotalSize"] = "\(flowTotalSize)"
+            params["flowChunkNumber"] = "\(flowChunkNumber)"
+            params["flowCurrentChunkSize"] = "\(currentChunkSize)"
+            params["flowFilename"] = fileUrl.lastPathComponent
+            params["flowRelativePath"] = fileUrl.lastPathComponent
+            
+            let request = try! CapacitorHttpRequestBuilder()
+                .setUrl(urlString)
+                .setMethod(method)
+                .setUrlParams(params)
+                .openConnection()
+                .build();
+            
+            
+            let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+            let boundary = "WebKitFormBoundary\(UUID().uuidString)"
+            
+            request.setTimeout(timeout)
+            request.setRequestHeaders(headers)
+            request.setContentType("multipart/form-data; boundary=\(boundary)");
+           
+            body["flowIdentifier"] = "\(flowIdentifier)"
+            body["flowChunkSize"] = "\(flowChunkSize)"
+            body["flowTotalChunks"] = "\(flowTotalChunks)"
+            body["flowTotalSize"] = "\(flowTotalSize)"
+            body["flowChunkNumber"] = "\(flowChunkNumber)"
+            body["flowCurrentChunkSize"] = "\(currentChunkSize)"
+            body["flowFilename"] = fileUrl.lastPathComponent
+            body["flowRelativePath"] = fileUrl.lastPathComponent
+            
+            
+            let form = generateMultipartFormForChunk(chunk, fileUrl, name, boundary, body)
+            
+            var urlRequest = request.getUrlRequest();
+            
+            urlRequest.setValue("multipart/form-data; boundary=\(boundary)", forHTTPHeaderField: "Content-Type")
+            urlRequest.setValue(String(form.count), forHTTPHeaderField: "Content-Length")
+            urlRequest.httpBody = form
+            urlRequest.cachePolicy = .reloadIgnoringLocalAndRemoteCacheData
+            
+            let operation = UploadOperation(session: URLSession.shared, uploadTaskURL: urlRequest, completionHandler: { (data, response, error) in
+                if error != nil {
+                    CAPLog.print("Error on upload file", String(describing: data), String(describing: response), String(describing: error))
+                    call.reject("Error", "UPLOAD", error, [:])
+                    return
+                }
+                
+                if (index == chunks.count - 1) {
+                    let type = ResponseType(rawValue: responseType) ?? .default
+                    let response = response as! HTTPURLResponse
+                    let status = response.statusCode
+                    let responseData: [String:Any] = self.buildResponse(data, response, responseType: type)
+                    
+                    guard (200...299).contains(status) else {
+                        call.reject("UPLOAD_FAILED")
+                        return
+                    }
+                    
+                    call.resolve(responseData)
+                    
+                }
+             })
+            
+            queue.addOperation(operation)
+
+        }
+        
     }
     
     public static func download(_ call: CAPPluginCall) throws {

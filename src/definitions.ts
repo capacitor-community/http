@@ -18,6 +18,7 @@ export interface HttpPlugin {
   deleteCookie(options: HttpSingleCookieOptions): Promise<void>;
 
   uploadFile(options: HttpUploadFileOptions): Promise<HttpUploadFileResult>;
+  chunkUpload(options: HttpUploadFileOptions): Promise<HttpUploadFileResult>;
   downloadFile(
     options: HttpDownloadFileOptions,
   ): Promise<HttpDownloadFileResult>;

@@ -1,6 +1,6 @@
 import { Component, h, State } from '@stencil/core';
 import { loadingController } from '@ionic/core';
-import { Http } from '@capacitor-community/http';
+import { Http } from '@capacitor-mobi/http';
 
 @Component({
   tag: 'app-home',

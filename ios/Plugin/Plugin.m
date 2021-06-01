@@ -9,4 +9,5 @@ CAP_PLUGIN(HttpPlugin, "Http",
   CAP_PLUGIN_METHOD(clearCookies, CAPPluginReturnPromise);
   CAP_PLUGIN_METHOD(downloadFile, CAPPluginReturnPromise);
   CAP_PLUGIN_METHOD(uploadFile, CAPPluginReturnPromise);
+  CAP_PLUGIN_METHOD(chunkUploadFile, CAPPluginReturnPromise);
 )

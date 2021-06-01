@@ -60,6 +60,21 @@ import Foundation
             call.reject(e.localizedDescription)
         }
     }
+    
+    @objc func chunkUploadFile(_ call: CAPPluginCall) {
+        // Protect against bad values from JS before calling request
+        let fd = call.getString("fileDirectory") ?? "DOCUMENTS"
+        guard let u = call.getString("url") else { return call.reject("Must provide a URL") }
+        guard let fp = call.getString("filePath") else { return call.reject("Must provide a file path to download the file to") }
+        guard let _ = URL(string: u) else { return call.reject("Invalid URL") }
+        guard let _ = FilesystemUtils.getFileUrl(fp, fd) else { return call.reject("Unable to get file URL") }
+    
+        do {
+            try HttpRequestHandler.chunkUpload(call)
+        } catch let e {
+            call.reject(e.localizedDescription)
+        }
+    }
 
     @objc func setCookie(_ call: CAPPluginCall) {
         guard let key = call.getString("key") else { return call.reject("Must provide key") }

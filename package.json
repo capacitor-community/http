@@ -1,6 +1,6 @@
 {
-  "name": "@capacitor-community/http",
-  "version": "1.0.0",
+  "name": "@capacitor-mobi/http",
+  "version": "1.0.1",
   "description": "A native HTTP plugin for CORS-free requests and file transfers",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
@@ -42,7 +42,7 @@
     "dist/",
     "ios/",
     "android/",
-    "CapacitorCommunityHttp.podspec"
+    "CapacitorMobiHttp.podspec"
   ],
   "keywords": [
     "capacitor",
@@ -60,9 +60,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/capacitor-community/http"
+    "url": "https://github.com/capacitor-mobi/http"
   },
   "bugs": {
-    "url": "https://github.com/capacitor-community/http/issues"
+    "url": "https://github.com/capacitor-mobi/http/issues"
   }
 }

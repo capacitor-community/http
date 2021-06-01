@@ -3,7 +3,7 @@ export default {
   output: {
     file: 'dist/plugin.js',
     format: 'iife',
-    name: 'capacitorCommunityHttp',
+    name: 'CapacitorMobiHttp',
     globals: {
       '@capacitor/core': 'capacitorExports',
     },

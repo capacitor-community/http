@@ -2,7 +2,7 @@
   "name": "example",
   "private": true,
   "version": "0.0.1",
-  "description": "Example frontend for @capacitor-community/http with Stencil",
+  "description": "Example frontend for @capacitor-mobi/http with Stencil",
   "license": "MIT",
   "files": [
     "dist/"
@@ -21,7 +21,7 @@
     "@stencil/core": "^2.5.2"
   },
   "dependencies": {
-    "@capacitor-community/http": "file:..",
+    "@capacitor-mobi/http": "file:..",
     "@capacitor/core": "^3.0.0"
   }
 }

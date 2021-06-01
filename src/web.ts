@@ -161,4 +161,8 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
       blob,
     };
   };
+
+  chunkUpload(_options: HttpUploadFileOptions): Promise<HttpUploadFileResult> {
+    return Promise.resolve({} as HttpUploadFileResult);
+  }
 }
