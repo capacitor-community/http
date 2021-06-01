@@ -61,7 +61,7 @@ import Foundation
         }
     }
     
-    @objc func chunkUploadFile(_ call: CAPPluginCall) {
+    @objc func chunkUpload(_ call: CAPPluginCall) {
         // Protect against bad values from JS before calling request
         let fd = call.getString("fileDirectory") ?? "DOCUMENTS"
         guard let u = call.getString("url") else { return call.reject("Must provide a URL") }
