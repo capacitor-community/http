@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-mobi/http",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A native HTTP plugin for CORS-free requests and file transfers",
   "main": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
