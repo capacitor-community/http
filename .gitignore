@@ -37,3 +37,4 @@ android-template/app/app.iml
 build/
 capacitor-cordova-ios-plugins
 example/ios/App/public
+/.vs

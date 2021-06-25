@@ -8,20 +8,20 @@ fileprivate enum ResponseType: String {
     case document = "document"
     case json = "json"
     case text = "text"
-    
+
     static let `default`: ResponseType = .text
-    
+
     init(string: String?) {
         guard let string = string else {
             self = .default
             return
         }
-        
+
         guard let responseType = ResponseType(rawValue: string.lowercased()) else {
             self = .default
             return
         }
-        
+
         self = responseType
     }
 }
@@ -44,7 +44,7 @@ class HttpRequestHandler {
         private var method: String?
         private var params: [String:String]?
         private var request: CapacitorUrlRequest?
-        
+
         /// Set the URL of the HttpRequest
         /// - Throws: an error of URLError if the urlString cannot be parsed
         /// - Parameters:
@@ -62,14 +62,14 @@ class HttpRequestHandler {
             self.method = method;
             return self
         }
-        
+
         public func setUrlParams(_ params: [String:Any]) -> CapacitorHttpRequestBuilder {
             if (params.count != 0) {
                 var cmps = URLComponents(url: url!, resolvingAgainstBaseURL: true)
                 if cmps?.queryItems == nil {
                     cmps?.queryItems = []
                 }
-                
+
                 var urlSafeParams: [URLQueryItem] = []
                 for (key, value) in params {
                     if let arr = value as? [String] {
@@ -80,37 +80,37 @@ class HttpRequestHandler {
                         urlSafeParams.append(URLQueryItem(name: key, value: (value as! String)))
                     }
                 }
-                
+
                 cmps!.queryItems?.append(contentsOf: urlSafeParams)
                 url = cmps!.url!
             }
             return self
         }
-        
+
         public func openConnection() -> CapacitorHttpRequestBuilder {
             request = CapacitorUrlRequest(url!, method: method!)
             return self
         }
-        
+
         public func build() -> CapacitorUrlRequest {
             return request!
         }
     }
-    
+
     private static func buildResponse(_ data: Data?, _ response: HTTPURLResponse, responseType: ResponseType = .default) -> [String:Any] {
         var output = [:] as [String:Any]
-      
+
         output["status"] = response.statusCode
         output["headers"] = response.allHeaderFields
         output["url"] = response.url?.absoluteString
-      
+
         guard let data = data else {
             output["data"] = ""
             return output
         }
-      
+
         let contentType = (response.allHeaderFields["Content-Type"] as? String ?? "application/default").lowercased();
-        
+
         if (contentType.contains("application/json") || responseType == .json) {
             output["data"] = tryParseJson(data);
         } else if (responseType == .arrayBuffer || responseType == .blob) {
@@ -121,12 +121,12 @@ class HttpRequestHandler {
 
         return output
     }
-    
+
     private static func generateMultipartForm(_ url: URL, _ name: String, _ boundary: String, _ body: [String:Any]) throws -> Data {
         let strings: [String: String] = body.compactMapValues { any in
             any as? String
         }
-        
+
         var data = Data()
 
         let fileData = try Data(contentsOf: url)
@@ -153,36 +153,44 @@ class HttpRequestHandler {
     public static func request(_ call: CAPPluginCall) throws {
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let method = call.getString("method") else { throw URLError(.dataNotAllowed) }
-        
+
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as! [String: Any]
         let responseType = call.getString("responseType") ?? "text";
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
-        
+
         let isHttpMutate = method == "DELETE" ||
             method == "PATCH" ||
             method == "POST" ||
             method == "PUT";
-        
+
         let request = try! CapacitorHttpRequestBuilder()
             .setUrl(urlString)
             .setMethod(method)
             .setUrlParams(params)
             .openConnection()
             .build();
-        
+
         request.setRequestHeaders(headers)
-        
+
         // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
         let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
         request.setTimeout(timeout)
-        
+
         if isHttpMutate {
-            let data = call.getObject("data") ?? [:]
+            var data = call.getObject("data") ?? [:]
+
+            if (data.isEmpty) {
+                let jArray = call.getArray("data", (Any).self)
+                if(jArray != nil) {
+                    data["arrayRequest"] = jArray
+                }
+            }
+
             request.setRequestBody(data)
         }
-        
+
         let urlRequest = request.getUrlRequest();
         let task = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
             if error != nil {
@@ -193,10 +201,10 @@ class HttpRequestHandler {
             let type = ResponseType(rawValue: responseType) ?? .default
             call.resolve(self.buildResponse(data, response as! HTTPURLResponse, responseType: type))
         }
-        
+
         task.resume();
     }
-    
+
     public static func upload(_ call: CAPPluginCall) throws {
         let name = call.getString("name") ?? "file"
         let method = call.getString("method") ?? "POST"
@@ -207,29 +215,29 @@ class HttpRequestHandler {
         let responseType = call.getString("responseType") ?? "text";
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
-        
+
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
         guard let fileUrl = FilesystemUtils.getFileUrl(filePath, fileDirectory) else { throw URLError(.badURL) }
-        
+
         let request = try! CapacitorHttpRequestBuilder()
             .setUrl(urlString)
             .setMethod(method)
             .setUrlParams(params)
             .openConnection()
             .build();
-        
+
         request.setRequestHeaders(headers)
-        
+
         // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
         let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
         request.setTimeout(timeout)
-        
+
         let boundary = UUID().uuidString
         request.setContentType("multipart/form-data; boundary=\(boundary)");
 
         guard let form = try? generateMultipartForm(fileUrl, name, boundary, body) else { throw URLError(.cannotCreateFile) }
-        
+
         let urlRequest = request.getUrlRequest();
         let task = URLSession.shared.uploadTask(with: urlRequest, from: form) { (data, response, error) in
             if error != nil {
@@ -243,7 +251,7 @@ class HttpRequestHandler {
 
         task.resume()
     }
-    
+
     public static func download(_ call: CAPPluginCall) throws {
         let method = call.getString("method") ?? "GET"
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
@@ -251,7 +259,7 @@ class HttpRequestHandler {
         let params = (call.getObject("params") ?? [:]) as! [String: Any]
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
-        
+
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
 
@@ -261,9 +269,9 @@ class HttpRequestHandler {
             .setUrlParams(params)
             .openConnection()
             .build();
-        
+
         request.setRequestHeaders(headers)
-        
+
         // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
         let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
         request.setTimeout(timeout)

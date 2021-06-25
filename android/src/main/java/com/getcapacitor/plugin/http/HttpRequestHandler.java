@@ -7,6 +7,8 @@ import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.util.MutableBoolean;
+
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
@@ -174,24 +176,30 @@ public class HttpRequestHandler {
 
     private static JSObject buildResponse(CapacitorHttpUrlConnection connection, ResponseType responseType)
         throws IOException, JSONException {
+        MutableBoolean isError = new MutableBoolean(false);
         int statusCode = connection.getResponseCode();
 
         JSObject output = new JSObject();
         output.put("status", statusCode);
         output.put("headers", buildResponseHeaders(connection));
         output.put("url", connection.getURL());
-        output.put("data", readData(connection, responseType));
+        output.put("data", readData(connection, responseType, isError));
+
+        if(isError.value){
+            output.put("error", true);
+        }
 
         // Log.d(getLogTag(), "Request completed, got data");
 
         return output;
     }
 
-    static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType) throws IOException, JSONException {
+    static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType, MutableBoolean isError) throws IOException, JSONException {
         InputStream errorStream = connection.getErrorStream();
         String contentType = connection.getHeaderField("Content-Type");
 
         if (errorStream != null) {
+            isError.value = true;
             if (isOneOf(contentType, APPLICATION_JSON, APPLICATION_VND_API_JSON)) {
                 return parseJSON(readStreamAsString(errorStream));
             } else {
@@ -275,9 +283,13 @@ public class HttpRequestHandler {
     private static String readStreamAsString(InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append(System.getProperty("line.separator"));
+            String line = reader.readLine();
+            while (line != null) {
+                builder.append(line);
+                line = reader.readLine();
+                if (line != null){
+                    builder.append(System.getProperty("line.separator"));
+                }
             }
             return builder.toString();
         }
@@ -315,9 +327,8 @@ public class HttpRequestHandler {
 
         // Set HTTP body on a non GET or HEAD request
         if (isHttpMutate) {
-            JSObject data = call.getObject("data");
             connection.setDoOutput(true);
-            connection.setRequestBody(data);
+            connection.setRequestBody(call);
         }
 
         connection.connect();
