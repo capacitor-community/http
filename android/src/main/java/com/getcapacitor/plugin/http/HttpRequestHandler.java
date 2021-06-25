@@ -334,7 +334,7 @@ public class HttpRequestHandler {
      */
     public static JSObject downloadFile(PluginCall call, Context context) throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url");
-        String method = call.getString("method").toUpperCase();
+        String method = call.getString("method", "GET").toUpperCase();
         String filePath = call.getString("filePath");
         String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
         JSObject headers = call.getObject("headers");
