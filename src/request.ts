@@ -89,8 +89,14 @@ export const buildRequestInit = (
     typeof options.data === 'object'
   ) {
     const form = new FormData();
-    for (const [key, value] of Object.entries(options.data || {})) {
-      form.append(key, value as any);
+    if (options.data instanceof FormData) {
+      options.data.forEach((value, key) => {
+        form.append(key, value);
+      });
+    } else {
+      for (let key of Object.keys(options.data)) {
+        form.append(key, options.data[key]);
+      }
     }
     output.body = form;
   }
