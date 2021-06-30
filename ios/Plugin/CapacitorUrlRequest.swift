@@ -31,7 +31,24 @@ public class CapacitorUrlRequest {
     }
     
     private func getRequestDataAsMultipartFormData(_ data: [String: Any]) -> Data? {
-        return nil
+        let strings: [String: String] = data.compactMapValues { any in
+            any as? String
+        }
+        
+        var data = Data()
+        let boundary = UUID().uuidString
+        let contentType = "multipart/form-data; boundary=\(boundary)"
+        request.setValue(contentType, forHTTPHeaderField: "Content-Type")
+        headers["Content-Type"] = contentType
+        
+        strings.forEach { key, value in
+            data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
+            data.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+            data.append(value.data(using: .utf8)!)
+        }
+        data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
+        
+        return data
     }
     
     func getRequestHeader(_ index: String) -> Any? {
