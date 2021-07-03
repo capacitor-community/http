@@ -41,7 +41,7 @@ public class CapacitorUrlRequest {
         return nil
     }
     
-    private func getRequestDataAsMultipartFormData(_ data: JSValue) throws -> Data? {
+    private func getRequestDataAsMultipartFormData(_ data: JSValue) throws -> Data {
         guard let obj = data as? JSObject else {
             // Throw, other data types explicitly not supported.
             throw CapacitorUrlRequestError.serializationError("[ data ] argument for request with content-type [ application/x-www-form-urlencoded ] may only be a plain javascript object")
@@ -67,6 +67,13 @@ public class CapacitorUrlRequest {
         return data
     }
     
+    private func getRequestDataAsString(_ data: JSValue) throws -> Data {
+        guard let stringData = data as? String else {
+            throw CapacitorUrlRequestError.serializationError("[ data ] argument could not be parsed as string")
+        }
+        return Data(stringData.utf8)
+    }
+    
     func getRequestHeader(_ index: String) -> Any? {
         var normalized = [:] as [String:Any]
         self.headers.keys.forEach { (key: String) in
@@ -83,8 +90,9 @@ public class CapacitorUrlRequest {
             return try getRequestDataAsFormUrlEncoded(body)
         } else if contentType.contains("multipart/form-data") {
             return try getRequestDataAsMultipartFormData(body)
+        } else {
+            return try getRequestDataAsString(body)
         }
-        return nil
     }
     
     public func setRequestHeaders(_ headers: [String: String]) {
