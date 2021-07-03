@@ -179,8 +179,19 @@ class HttpRequestHandler {
         request.setTimeout(timeout)
         
         if isHttpMutate {
-            let data = call.getObject("data") ?? [:]
-            request.setRequestBody(data)
+            do {
+                guard let data = call.jsObjectRepresentation["data"]
+                else {
+                    throw CapacitorUrlRequest.CapacitorUrlRequestError.serializationError("Invalid [ data ] argument")
+                }
+                
+                try request.setRequestBody(data)
+            } catch {
+                // Explicitly reject if the http request body was not set successfully,
+                // so as to not send a known malformed request, and to provide the developer with additional context.
+                call.reject("Error", "REQUEST", error, [:])
+                return;
+            }
         }
         
         let urlRequest = request.getUrlRequest();
