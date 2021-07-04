@@ -4,6 +4,7 @@ import static com.getcapacitor.plugin.http.MimeType.APPLICATION_JSON;
 import static com.getcapacitor.plugin.http.MimeType.APPLICATION_VND_API_JSON;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -17,6 +18,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.NotSerializableException;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -315,9 +318,11 @@ public class HttpRequestHandler {
 
         // Set HTTP body on a non GET or HEAD request
         if (isHttpMutate) {
-            JSObject data = call.getObject("data");
-            connection.setDoOutput(true);
-            connection.setRequestBody(data);
+            JSValue data = new JSValue(call, "data");
+            if (data.getValue() != null) {
+                connection.setDoOutput(true);
+                connection.setRequestBody(data);
+            }
         }
 
         connection.connect();

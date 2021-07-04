@@ -154,7 +154,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
      * @throws JSONException
      * @throws IOException
      */
-    public void setRequestBody(JSObject body) throws JSONException, IOException {
+    public void setRequestBody(JSValue body) throws JSONException, IOException {
         String contentType = connection.getRequestProperty("Content-Type");
 
         if (contentType == null || contentType.isEmpty()) return;
@@ -164,10 +164,12 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
             dataString = body.toString();
         } else if (contentType.contains("application/x-www-form-urlencoded")) {
             StringBuilder builder = new StringBuilder();
-            Iterator<String> keys = body.keys();
+
+            JSObject obj = body.toJSObject();
+            Iterator<String> keys = obj.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
-                Object d = body.get(key);
+                Object d = obj.get(key);
                 builder.append(key).append("=").append(URLEncoder.encode(d.toString(), "UTF-8"));
 
                 if (keys.hasNext()) {
@@ -178,14 +180,17 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
         } else if (contentType.contains("multipart/form-data")) {
             FormUploader uploader = new FormUploader(connection);
 
-            Iterator<String> keys = body.keys();
+            JSObject obj = body.toJSObject();
+            Iterator<String> keys = obj.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
 
-                String d = body.get(key).toString();
+                String d = obj.get(key).toString();
                 uploader.addFormField(key, d);
             }
             uploader.finish();
+            dataString = body.toString();
+        } else {
             dataString = body.toString();
         }
 
