@@ -159,9 +159,8 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
 
         if (contentType == null || contentType.isEmpty()) return;
 
-        String dataString = "";
         if (contentType.contains("application/json")) {
-            dataString = body.toString();
+            this.writeRequestBody(body.toString());
         } else if (contentType.contains("application/x-www-form-urlencoded")) {
             StringBuilder builder = new StringBuilder();
 
@@ -176,7 +175,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
                     builder.append("&");
                 }
             }
-            dataString = builder.toString();
+            this.writeRequestBody(builder.toString());
         } else if (contentType.contains("multipart/form-data")) {
             FormUploader uploader = new FormUploader(connection);
 
@@ -189,13 +188,19 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
                 uploader.addFormField(key, d);
             }
             uploader.finish();
-            dataString = body.toString();
         } else {
-            dataString = body.toString();
+            this.writeRequestBody(body.toString());
         }
+    }
 
+    /**
+     * Writes the provided string to the HTTP connection managed by this instance.
+     *
+     * @param body The string value to write to the connection stream.
+     */
+    private void writeRequestBody(String body) throws IOException {
         try (DataOutputStream os = new DataOutputStream(connection.getOutputStream())) {
-            os.write(dataString.getBytes(StandardCharsets.UTF_8));
+            os.write(body.getBytes(StandardCharsets.UTF_8));
             os.flush();
         }
     }
