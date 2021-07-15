@@ -73,6 +73,13 @@ public class CapacitorUrlRequest {
         }
         return Data(stringData.utf8)
     }
+    
+    private func getRequestDataAsString(_ data: JSValue) throws -> Data {
+        guard let stringData = data as? String else {
+            throw CapacitorUrlRequestError.serializationError("[ data ] argument could not be parsed as string")
+        }
+        return Data(stringData.utf8)
+    }
 
     func getRequestHeader(_ index: String) -> Any? {
         var normalized = [:] as [String:Any]

@@ -109,15 +109,9 @@ public class Http extends Plugin {
                     try {
                         JSObject response = HttpRequestHandler.request(call);
                         call.resolve(response);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         System.out.println(e.toString());
-                        call.reject("IO Exception");
-                    } catch (URISyntaxException e) {
-                        System.out.println(e.toString());
-                        call.reject("URI Syntax Exception");
-                    } catch (JSONException e) {
-                        System.out.println(e.toString());
-                        call.reject("JSON Exception");
+                        call.reject(e.getClass().getSimpleName(), e);
                     }
                 }
             }
