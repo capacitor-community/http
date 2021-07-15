@@ -8,6 +8,8 @@ import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
+import android.util.MutableBoolean;
+
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
@@ -177,24 +179,30 @@ public class HttpRequestHandler {
 
     private static JSObject buildResponse(CapacitorHttpUrlConnection connection, ResponseType responseType)
         throws IOException, JSONException {
+        MutableBoolean isError = new MutableBoolean(false);
         int statusCode = connection.getResponseCode();
 
         JSObject output = new JSObject();
         output.put("status", statusCode);
         output.put("headers", buildResponseHeaders(connection));
         output.put("url", connection.getURL());
-        output.put("data", readData(connection, responseType));
+        output.put("data", readData(connection, responseType, isError));
+
+        if(isError.value){
+            output.put("error", true);
+        }
 
         // Log.d(getLogTag(), "Request completed, got data");
 
         return output;
     }
 
-    static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType) throws IOException, JSONException {
+    static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType, MutableBoolean isError) throws IOException, JSONException {
         InputStream errorStream = connection.getErrorStream();
         String contentType = connection.getHeaderField("Content-Type");
 
         if (errorStream != null) {
+            isError.value = true;
             if (isOneOf(contentType, APPLICATION_JSON, APPLICATION_VND_API_JSON)) {
                 return parseJSON(readStreamAsString(errorStream));
             } else {
@@ -247,21 +255,26 @@ public class HttpRequestHandler {
      * @return A JSObject or JSArray
      * @throws JSONException thrown if the JSON is malformed
      */
-    private static Object parseJSON(String input) throws JSONException {
-        try {
-            if ("null".equals(input.trim())) {
-                return JSONObject.NULL;
-            } else {
-                try {
-                    return new JSObject(input);
-                } catch (JSONException e) {
-                    return new JSArray(input);
+     private static Object parseJSON(String input) throws JSONException {
+            JSONObject json = new JSONObject();
+            try {
+                if ("null".equals(input.trim())) {
+                    return JSONObject.NULL;
+                } else if ("true".equals(input.trim())){
+                    return new JSONObject().put("flag", "true");
+                }else if ("false".equals(input.trim())){
+                    return new JSONObject().put("flag", "false");
+                }else {
+                    try {
+                        return new JSObject(input);
+                    } catch (JSONException e) {
+                        return new JSArray(input);
+                    }
                 }
+            } catch (JSONException e) {
+                return new JSArray(input);
             }
-        } catch (JSONException e) {
-            return new JSArray(input);
         }
-    }
 
     private static String readStreamAsBase64(InputStream in) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -278,9 +291,13 @@ public class HttpRequestHandler {
     private static String readStreamAsString(InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append(System.getProperty("line.separator"));
+            String line = reader.readLine();
+            while (line != null) {
+                builder.append(line);
+                line = reader.readLine();
+                if (line != null){
+                    builder.append(System.getProperty("line.separator"));
+                }
             }
             return builder.toString();
         }
@@ -339,7 +356,7 @@ public class HttpRequestHandler {
      */
     public static JSObject downloadFile(PluginCall call, Context context) throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url");
-        String method = call.getString("method").toUpperCase();
+        String method = call.getString("method", "GET").toUpperCase();
         String filePath = call.getString("filePath");
         String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
         JSObject headers = call.getObject("headers");
