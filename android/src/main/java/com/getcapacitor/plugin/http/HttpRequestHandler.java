@@ -252,21 +252,26 @@ public class HttpRequestHandler {
      * @return A JSObject or JSArray
      * @throws JSONException thrown if the JSON is malformed
      */
-    private static Object parseJSON(String input) throws JSONException {
-        try {
-            if ("null".equals(input.trim())) {
-                return JSONObject.NULL;
-            } else {
-                try {
-                    return new JSObject(input);
-                } catch (JSONException e) {
-                    return new JSArray(input);
+     private static Object parseJSON(String input) throws JSONException {
+            JSONObject json = new JSONObject();
+            try {
+                if ("null".equals(input.trim())) {
+                    return JSONObject.NULL;
+                } else if ("true".equals(input.trim())){
+                    return new JSONObject().put("flag", "true");
+                }else if ("false".equals(input.trim())){
+                    return new JSONObject().put("flag", "false");
+                }else {
+                    try {
+                        return new JSObject(input);
+                    } catch (JSONException e) {
+                        return new JSArray(input);
+                    }
                 }
+            } catch (JSONException e) {
+                return new JSArray(input);
             }
-        } catch (JSONException e) {
-            return new JSArray(input);
         }
-    }
 
     private static String readStreamAsBase64(InputStream in) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
