@@ -156,10 +156,9 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
      * @throws JSONException
      * @throws IOException
      */
-    public void setRequestBody(JSValue body) throws JSONException, IOException {
+    public void setRequestBody(PluginCall call, JSValue body) throws JSONException, IOException {
         String contentType = connection.getRequestProperty("Content-Type");
-
-        JSObject body = call.getObject("data", null);
+        String dataString = "";
 
         if (contentType == null || contentType.isEmpty()) return;
 
@@ -173,8 +172,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
             if (jsArray != null) {
                 dataString = jsArray.toString();
             } else if (body == null) {
-                String anything = call.getString("data");
-                dataString = anything;
+                dataString = call.getString("data");
             }
             this.writeRequestBody(dataString.toString());
         } else if (contentType.contains("application/x-www-form-urlencoded")) {

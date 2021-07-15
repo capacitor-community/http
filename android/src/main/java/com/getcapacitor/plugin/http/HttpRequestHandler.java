@@ -4,10 +4,8 @@ import static com.getcapacitor.plugin.http.MimeType.APPLICATION_JSON;
 import static com.getcapacitor.plugin.http.MimeType.APPLICATION_VND_API_JSON;
 
 import android.content.Context;
-import android.os.Build;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
 import android.util.MutableBoolean;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
@@ -19,8 +17,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.NotSerializableException;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -29,7 +25,6 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -191,8 +186,6 @@ public class HttpRequestHandler {
             output.put("error", true);
         }
 
-        // Log.d(getLogTag(), "Request completed, got data");
-
         return output;
     }
 
@@ -340,7 +333,7 @@ public class HttpRequestHandler {
             JSValue data = new JSValue(call, "data");
             if (data.getValue() != null) {
                 connection.setDoOutput(true);
-                connection.setRequestBody(data);
+                connection.setRequestBody(call, data);
             }
         }
 
