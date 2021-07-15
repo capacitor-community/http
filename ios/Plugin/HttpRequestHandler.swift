@@ -179,16 +179,19 @@ class HttpRequestHandler {
         request.setTimeout(timeout)
 
         if isHttpMutate {
-            var data = call.getObject("data") ?? [:]
-
-            if (data.isEmpty) {
-                let jArray = call.getArray("data", (Any).self)
-                if(jArray != nil) {
-                    data["arrayRequest"] = jArray
+            do {
+                guard let data = call.jsObjectRepresentation["data"]
+                else {
+                    throw CapacitorUrlRequest.CapacitorUrlRequestError.serializationError("Invalid [ data ] argument")
                 }
+                
+                try request.setRequestBody(data)
+            } catch {
+                // Explicitly reject if the http request body was not set successfully,
+                // so as to not send a known malformed request, and to provide the developer with additional context.
+                call.reject("Error", "REQUEST", error, [:])
+                return;
             }
-
-            request.setRequestBody(data)
         }
 
         let urlRequest = request.getUrlRequest();
