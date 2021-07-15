@@ -6,7 +6,7 @@ import static com.getcapacitor.plugin.http.MimeType.APPLICATION_VND_API_JSON;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.Base64;
-import android.util.Log;
+import android.util.MutableBoolean;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
@@ -25,7 +25,6 @@ import java.net.URL;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -174,24 +173,29 @@ public class HttpRequestHandler {
 
     private static JSObject buildResponse(CapacitorHttpUrlConnection connection, ResponseType responseType)
         throws IOException, JSONException {
+        MutableBoolean isError = new MutableBoolean(false);
         int statusCode = connection.getResponseCode();
 
         JSObject output = new JSObject();
         output.put("status", statusCode);
         output.put("headers", buildResponseHeaders(connection));
         output.put("url", connection.getURL());
-        output.put("data", readData(connection, responseType));
+        output.put("data", readData(connection, responseType, isError));
 
-        // Log.d(getLogTag(), "Request completed, got data");
+        if (isError.value) {
+            output.put("error", true);
+        }
 
         return output;
     }
 
-    static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType) throws IOException, JSONException {
+    static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType, MutableBoolean isError)
+        throws IOException, JSONException {
         InputStream errorStream = connection.getErrorStream();
         String contentType = connection.getHeaderField("Content-Type");
 
         if (errorStream != null) {
+            isError.value = true;
             if (isOneOf(contentType, APPLICATION_JSON, APPLICATION_VND_API_JSON)) {
                 return parseJSON(readStreamAsString(errorStream));
             } else {
@@ -245,9 +249,14 @@ public class HttpRequestHandler {
      * @throws JSONException thrown if the JSON is malformed
      */
     private static Object parseJSON(String input) throws JSONException {
+        JSONObject json = new JSONObject();
         try {
             if ("null".equals(input.trim())) {
                 return JSONObject.NULL;
+            } else if ("true".equals(input.trim())) {
+                return new JSONObject().put("flag", "true");
+            } else if ("false".equals(input.trim())) {
+                return new JSONObject().put("flag", "false");
             } else {
                 try {
                     return new JSObject(input);
@@ -275,9 +284,13 @@ public class HttpRequestHandler {
     private static String readStreamAsString(InputStream in) throws IOException {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(in))) {
             StringBuilder builder = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                builder.append(line).append(System.getProperty("line.separator"));
+            String line = reader.readLine();
+            while (line != null) {
+                builder.append(line);
+                line = reader.readLine();
+                if (line != null) {
+                    builder.append(System.getProperty("line.separator"));
+                }
             }
             return builder.toString();
         }
@@ -286,18 +299,20 @@ public class HttpRequestHandler {
     /**
      * Makes an Http Request based on the PluginCall parameters
      * @param call The Capacitor PluginCall that contains the options need for an Http request
+     * @param httpMethod The HTTP method that overrides the PluginCall HTTP method
      * @throws IOException throws an IO request when a connection can't be made
      * @throws URISyntaxException thrown when the URI is malformed
      * @throws JSONException thrown when the incoming JSON is malformed
      */
-    public static JSObject request(PluginCall call) throws IOException, URISyntaxException, JSONException {
+    public static JSObject request(PluginCall call, String httpMethod) throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url", "");
-        String method = call.getString("method", "").toUpperCase();
         JSObject headers = call.getObject("headers");
         JSObject params = call.getObject("params");
         Integer connectTimeout = call.getInt("connectTimeout");
         Integer readTimeout = call.getInt("readTimeout");
         ResponseType responseType = ResponseType.parse(call.getString("responseType"));
+
+        String method = httpMethod != null ? httpMethod.toUpperCase() : call.getString("method", "").toUpperCase();
 
         boolean isHttpMutate = method.equals("DELETE") || method.equals("PATCH") || method.equals("POST") || method.equals("PUT");
 
@@ -315,9 +330,11 @@ public class HttpRequestHandler {
 
         // Set HTTP body on a non GET or HEAD request
         if (isHttpMutate) {
-            JSObject data = call.getObject("data");
-            connection.setDoOutput(true);
-            connection.setRequestBody(data);
+            JSValue data = new JSValue(call, "data");
+            if (data.getValue() != null) {
+                connection.setDoOutput(true);
+                connection.setRequestBody(call, data);
+            }
         }
 
         connection.connect();
@@ -334,7 +351,7 @@ public class HttpRequestHandler {
      */
     public static JSObject downloadFile(PluginCall call, Context context) throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url");
-        String method = call.getString("method").toUpperCase();
+        String method = call.getString("method", "GET").toUpperCase();
         String filePath = call.getString("filePath");
         String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
         JSObject headers = call.getObject("headers");

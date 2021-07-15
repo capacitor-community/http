@@ -94,6 +94,23 @@ public class Http extends Plugin {
         }
     }
 
+    private void http(final PluginCall call, final String httpMethod) {
+        new Thread(
+            new Runnable() {
+                public void run() {
+                    try {
+                        JSObject response = HttpRequestHandler.request(call, httpMethod);
+                        call.resolve(response);
+                    } catch (Exception e) {
+                        System.out.println(e.toString());
+                        call.reject(e.getClass().getSimpleName(), e);
+                    }
+                }
+            }
+        )
+            .start();
+    }
+
     @Override
     public void load() {
         this.cookieManager = new CapacitorCookieManager(null, java.net.CookiePolicy.ACCEPT_ALL);
@@ -103,26 +120,32 @@ public class Http extends Plugin {
 
     @PluginMethod
     public void request(final PluginCall call) {
-        new Thread(
-            new Runnable() {
-                public void run() {
-                    try {
-                        JSObject response = HttpRequestHandler.request(call);
-                        call.resolve(response);
-                    } catch (IOException e) {
-                        System.out.println(e.toString());
-                        call.reject("IO Exception");
-                    } catch (URISyntaxException e) {
-                        System.out.println(e.toString());
-                        call.reject("URI Syntax Exception");
-                    } catch (JSONException e) {
-                        System.out.println(e.toString());
-                        call.reject("JSON Exception");
-                    }
-                }
-            }
-        )
-            .start();
+        this.http(call, null);
+    }
+
+    @PluginMethod
+    public void get(final PluginCall call) {
+        this.http(call, "GET");
+    }
+
+    @PluginMethod
+    public void post(final PluginCall call) {
+        this.http(call, "POST");
+    }
+
+    @PluginMethod
+    public void put(final PluginCall call) {
+        this.http(call, "PUT");
+    }
+
+    @PluginMethod
+    public void patch(final PluginCall call) {
+        this.http(call, "PATCH");
+    }
+
+    @PluginMethod
+    public void del(final PluginCall call) {
+        this.http(call, "DELETE");
     }
 
     @PluginMethod
