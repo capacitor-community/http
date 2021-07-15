@@ -73,13 +73,13 @@ public class CapacitorUrlRequest {
         }
         return Data(stringData.utf8)
     }
-    
+
     func getRequestHeader(_ index: String) -> Any? {
         var normalized = [:] as [String:Any]
         self.headers.keys.forEach { (key: String) in
             normalized[key.lowercased()] = self.headers[key]
         }
-        
+
         return normalized[index.lowercased()]
     }
     
@@ -94,13 +94,13 @@ public class CapacitorUrlRequest {
             return try getRequestDataAsString(body)
         }
     }
-    
+
     public func setRequestHeaders(_ headers: [String: String]) {
         headers.keys.forEach { (key: String) in
             let value = headers[key]
             request.addValue(value!, forHTTPHeaderField: key)
         }
-        
+
         self.headers = headers;
     }
     
@@ -111,15 +111,15 @@ public class CapacitorUrlRequest {
             request.httpBody = try getRequestData(body, contentType!)
         }
     }
-    
+
     public func setContentType(_ data: String?) {
         request.setValue(data, forHTTPHeaderField: "Content-Type")
     }
-    
+
     public func setTimeout(_ timeout: TimeInterval) {
         request.timeoutInterval = timeout;
     }
-    
+
     public func getUrlRequest() -> URLRequest {
         return request;
     }

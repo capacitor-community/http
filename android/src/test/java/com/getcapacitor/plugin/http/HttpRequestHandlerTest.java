@@ -1,5 +1,7 @@
 package com.getcapacitor.plugin.http;
 
+import android.util.MutableBoolean;
+
 import com.getcapacitor.JSObject;
 
 import org.json.JSONException;
@@ -20,33 +22,42 @@ public class HttpRequestHandlerTest {
 
     @Test
     public void readData_error_with_HTML_message() throws IOException, JSONException {
+        MutableBoolean isError = new MutableBoolean(false);
         String result = (String) HttpRequestHandler.readData(
                 errorWithHtmlMessage("html-error"),
-                JSON);
+                JSON,
+                isError);
 
-        assertEquals("html-error\n", result);
+        assertEquals("html-error", result);
+        assertEquals(isError.value, true);
     }
 
     @Test
     public void readData_error_with_JSON() throws IOException, JSONException {
+        MutableBoolean isError = new MutableBoolean(false);
         JSObject jsonObject = new JSObject("{ 'message' : 'Hello world!' }");
 
         JSObject result = (JSObject) HttpRequestHandler.readData(
                 errorWithJson(jsonObject),
-                JSON);
+                JSON,
+                isError);
 
         assertEquals(jsonObject.toString(), result.toString());
+        assertEquals(isError.value, true);
     }
 
     @Test
     public void readData_success_with_JSON() throws IOException, JSONException {
+        MutableBoolean isError = new MutableBoolean(false);
         JSObject jsonObject = new JSObject("{ 'message' : 'Hello world!' }");
 
         JSObject result = (JSObject) HttpRequestHandler.readData(
                 successWithJson(jsonObject),
-                JSON);
+                JSON,
+                isError);
 
         assertEquals(jsonObject.toString(), result.toString());
+        assertEquals(isError.value, false);
     }
 
     @SuppressWarnings("SameParameterValue")
