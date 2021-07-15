@@ -3,7 +3,6 @@ package com.getcapacitor.plugin.http;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -173,7 +172,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
             }
             if (jsArray != null) {
                 dataString = jsArray.toString();
-            } else if(body == null) {
+            } else if (body == null) {
                 String anything = call.getString("data");
                 dataString = anything;
             }

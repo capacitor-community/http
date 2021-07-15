@@ -9,7 +9,6 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.util.MutableBoolean;
-
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
@@ -188,7 +187,7 @@ public class HttpRequestHandler {
         output.put("url", connection.getURL());
         output.put("data", readData(connection, responseType, isError));
 
-        if(isError.value){
+        if (isError.value) {
             output.put("error", true);
         }
 
@@ -197,7 +196,8 @@ public class HttpRequestHandler {
         return output;
     }
 
-    static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType, MutableBoolean isError) throws IOException, JSONException {
+    static Object readData(ICapacitorHttpUrlConnection connection, ResponseType responseType, MutableBoolean isError)
+        throws IOException, JSONException {
         InputStream errorStream = connection.getErrorStream();
         String contentType = connection.getHeaderField("Content-Type");
 
@@ -255,26 +255,26 @@ public class HttpRequestHandler {
      * @return A JSObject or JSArray
      * @throws JSONException thrown if the JSON is malformed
      */
-     private static Object parseJSON(String input) throws JSONException {
-            JSONObject json = new JSONObject();
-            try {
-                if ("null".equals(input.trim())) {
-                    return JSONObject.NULL;
-                } else if ("true".equals(input.trim())){
-                    return new JSONObject().put("flag", "true");
-                }else if ("false".equals(input.trim())){
-                    return new JSONObject().put("flag", "false");
-                }else {
-                    try {
-                        return new JSObject(input);
-                    } catch (JSONException e) {
-                        return new JSArray(input);
-                    }
+    private static Object parseJSON(String input) throws JSONException {
+        JSONObject json = new JSONObject();
+        try {
+            if ("null".equals(input.trim())) {
+                return JSONObject.NULL;
+            } else if ("true".equals(input.trim())) {
+                return new JSONObject().put("flag", "true");
+            } else if ("false".equals(input.trim())) {
+                return new JSONObject().put("flag", "false");
+            } else {
+                try {
+                    return new JSObject(input);
+                } catch (JSONException e) {
+                    return new JSArray(input);
                 }
-            } catch (JSONException e) {
-                return new JSArray(input);
             }
+        } catch (JSONException e) {
+            return new JSArray(input);
         }
+    }
 
     private static String readStreamAsBase64(InputStream in) throws IOException {
         try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
@@ -295,7 +295,7 @@ public class HttpRequestHandler {
             while (line != null) {
                 builder.append(line);
                 line = reader.readLine();
-                if (line != null){
+                if (line != null) {
                     builder.append(System.getProperty("line.separator"));
                 }
             }
@@ -306,18 +306,20 @@ public class HttpRequestHandler {
     /**
      * Makes an Http Request based on the PluginCall parameters
      * @param call The Capacitor PluginCall that contains the options need for an Http request
+     * @param httpMethod The HTTP method that overrides the PluginCall HTTP method
      * @throws IOException throws an IO request when a connection can't be made
      * @throws URISyntaxException thrown when the URI is malformed
      * @throws JSONException thrown when the incoming JSON is malformed
      */
-    public static JSObject request(PluginCall call) throws IOException, URISyntaxException, JSONException {
+    public static JSObject request(PluginCall call, String httpMethod) throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url", "");
-        String method = call.getString("method", "").toUpperCase();
         JSObject headers = call.getObject("headers");
         JSObject params = call.getObject("params");
         Integer connectTimeout = call.getInt("connectTimeout");
         Integer readTimeout = call.getInt("readTimeout");
         ResponseType responseType = ResponseType.parse(call.getString("responseType"));
+
+        String method = httpMethod != null ? httpMethod.toUpperCase() : call.getString("method", "").toUpperCase();
 
         boolean isHttpMutate = method.equals("DELETE") || method.equals("PATCH") || method.equals("POST") || method.equals("PUT");
 
