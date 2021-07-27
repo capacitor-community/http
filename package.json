@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/http",
-  "version": "1.1.0",
+  "version": "1.1.0-ergon-1",
   "description": "A native HTTP plugin for CORS-free requests and file transfers",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -65,5 +65,8 @@
   },
   "bugs": {
     "url": "https://github.com/capacitor-community/http/issues"
+  },
+  "publishConfig": {
+    "registry": "https://npm.ergon.ch"
   }
 }
