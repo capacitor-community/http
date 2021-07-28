@@ -7,6 +7,8 @@
   "types": "dist/esm/index.d.ts",
   "scripts": {
     "build": "npm run clean && tsc && rollup -c rollup.config.js",
+    "ios:build": "cd ios && pod install && cd ..",
+    "postbuild": "npm run ios:build",
     "docs": "typedoc src/web.ts src/definitions.ts",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
