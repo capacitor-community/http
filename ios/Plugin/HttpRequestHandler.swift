@@ -62,7 +62,7 @@ class HttpRequestHandler {
         }
 
         public func setMethod(_ method: String) -> CapacitorHttpRequestBuilder {
-            self.method = method;
+            self.method = method
             return self
         }
 
@@ -112,12 +112,12 @@ class HttpRequestHandler {
             return output
         }
 
-        let contentType = (response.allHeaderFields["Content-Type"] as? String ?? "application/default").lowercased();
+        let contentType = (response.allHeaderFields["Content-Type"] as? String ?? "application/default").lowercased()
 
         if (contentType.contains("application/json") || responseType == .json) {
-            output["data"] = tryParseJson(data);
+            output["data"] = tryParseJson(data)
         } else if (responseType == .arrayBuffer || responseType == .blob) {
-            output["data"] = data.base64EncodedString();
+            output["data"] = data.base64EncodedString()
         } else if (responseType == .document || responseType == .text || responseType == .default) {
             output["data"] = String(data: data, encoding: .utf8)
         }
@@ -159,21 +159,21 @@ class HttpRequestHandler {
 
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as [String: Any]
-        let responseType = call.getString("responseType") ?? "text";
-        let connectTimeout = call.getDouble("connectTimeout");
-        let readTimeout = call.getDouble("readTimeout");
+        let responseType = call.getString("responseType") ?? "text"
+        let connectTimeout = call.getDouble("connectTimeout")
+        let readTimeout = call.getDouble("readTimeout")
 
         let request = try! CapacitorHttpRequestBuilder()
             .setUrl(urlString)
             .setMethod(method)
             .setUrlParams(params)
             .openConnection()
-            .build();
+            .build()
 
         request.setRequestHeaders(headers)
 
         // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
-        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0
         request.setTimeout(timeout)
 
         if let data = call.jsObjectRepresentation["data"] {
@@ -181,25 +181,25 @@ class HttpRequestHandler {
                 try request.setRequestBody(data)
             } catch {
                 call.reject("Error", "REQUEST", error, [:])
-                return;
+                return
             }
         }
 
-        let urlRequest = request.getUrlRequest();
+        let urlRequest = request.getUrlRequest()
         
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: allowAllDelegate, delegateQueue: nil)
         
         let task = session.dataTask(with: urlRequest) { (data, response, error) in
             if error != nil {
                 call.reject("Error", "REQUEST", error, [:])
-                return;
+                return
             }
 
             let type = ResponseType(rawValue: responseType) ?? .default
             call.resolve(self.buildResponse(data, response as! HTTPURLResponse, responseType: type))
         }
 
-        task.resume();
+        task.resume()
     }
 
     public static func upload(_ call: CAPPluginCall) throws {
@@ -209,9 +209,9 @@ class HttpRequestHandler {
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as [String: Any]
         let body = (call.getObject("data") ?? [:]) as [String: Any]
-        let responseType = call.getString("responseType") ?? "text";
-        let connectTimeout = call.getDouble("connectTimeout");
-        let readTimeout = call.getDouble("readTimeout");
+        let responseType = call.getString("responseType") ?? "text"
+        let connectTimeout = call.getDouble("connectTimeout")
+        let readTimeout = call.getDouble("readTimeout")
 
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
@@ -222,20 +222,20 @@ class HttpRequestHandler {
             .setMethod(method)
             .setUrlParams(params)
             .openConnection()
-            .build();
+            .build()
 
         request.setRequestHeaders(headers)
 
         // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
-        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0
         request.setTimeout(timeout)
 
         let boundary = UUID().uuidString
-        request.setContentType("multipart/form-data; boundary=\(boundary)");
+        request.setContentType("multipart/form-data; boundary=\(boundary)")
 
         guard let form = try? generateMultipartForm(fileUrl, name, boundary, body) else { throw URLError(.cannotCreateFile) }
 
-        let urlRequest = request.getUrlRequest();
+        let urlRequest = request.getUrlRequest()
         
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: allowAllDelegate, delegateQueue: nil)
         
@@ -257,8 +257,8 @@ class HttpRequestHandler {
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as [String: Any]
-        let connectTimeout = call.getDouble("connectTimeout");
-        let readTimeout = call.getDouble("readTimeout");
+        let connectTimeout = call.getDouble("connectTimeout")
+        let readTimeout = call.getDouble("readTimeout")
 
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
@@ -268,12 +268,12 @@ class HttpRequestHandler {
             .setMethod(method)
             .setUrlParams(params)
             .openConnection()
-            .build();
+            .build()
 
         request.setRequestHeaders(headers)
 
         // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
-        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0
         request.setTimeout(timeout)
 
         let urlRequest = request.getUrlRequest()
