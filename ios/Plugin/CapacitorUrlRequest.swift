@@ -2,8 +2,8 @@ import Foundation
 import Capacitor
 
 public class CapacitorUrlRequest {
-    private var request: URLRequest;
-    private var headers: [String:String];
+    private var request: URLRequest
+    private var headers: [String:String]
     
     enum CapacitorUrlRequestError: Error {
         case serializationError(String?)
@@ -101,7 +101,7 @@ public class CapacitorUrlRequest {
             request.addValue(value!, forHTTPHeaderField: key)
         }
 
-        self.headers = headers;
+        self.headers = headers
     }
     
     public func setRequestBody(_ body: JSValue) throws {
@@ -117,10 +117,10 @@ public class CapacitorUrlRequest {
     }
 
     public func setTimeout(_ timeout: TimeInterval) {
-        request.timeoutInterval = timeout;
+        request.timeoutInterval = timeout
     }
 
     public func getUrlRequest() -> URLRequest {
-        return request;
+        return request
     }
 }

@@ -2,7 +2,7 @@ import Capacitor
 import Foundation
 
 /// See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
-fileprivate enum ResponseType: String {
+private enum ResponseType: String {
     case arrayBuffer = "arraybuffer"
     case blob = "blob"
     case document = "document"
@@ -31,11 +31,11 @@ fileprivate enum ResponseType: String {
 ///     - data: The JSON Data to parse
 /// - Returns: The parsed value or an error
 func tryParseJson(_ data: Data) -> Any {
-  do {
-    return try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-  } catch {
-    return error.localizedDescription
-  }
+    do {
+        return try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+    } catch {
+        return error.localizedDescription
+    }
 }
 
 class HttpRequestHandler {
@@ -53,7 +53,7 @@ class HttpRequestHandler {
         /// - Parameters:
         ///     - urlString: The URL value to parse
         /// - Returns: self to continue chaining functions
-        public func setUrl(_ urlString: String) throws -> CapacitorHttpRequestBuilder {
+        public func setUrl(_ urlString: String) throws -> Self {
             guard let u = URL(string: urlString) else {
                 throw URLError(.badURL)
             }
@@ -61,36 +61,41 @@ class HttpRequestHandler {
             return self
         }
 
-        public func setMethod(_ method: String) -> CapacitorHttpRequestBuilder {
-            self.method = method;
+        public func setMethod(_ method: String) -> Self {
+            self.method = method
             return self
         }
 
-        public func setUrlParams(_ params: [String:Any]) -> CapacitorHttpRequestBuilder {
-            if (params.count != 0) {
-                var cmps = URLComponents(url: url!, resolvingAgainstBaseURL: true)
-                if cmps?.queryItems == nil {
-                    cmps?.queryItems = []
-                }
-
-                var urlSafeParams: [URLQueryItem] = []
-                for (key, value) in params {
-                    if let arr = value as? [String] {
-                        arr.forEach { str in
-                            urlSafeParams.append(URLQueryItem(name: key, value: str))
-                        }
-                    } else {
-                        urlSafeParams.append(URLQueryItem(name: key, value: (value as! String)))
-                    }
-                }
-
-                cmps!.queryItems?.append(contentsOf: urlSafeParams)
-                url = cmps!.url!
+        public func setUrlParams(_ params: [String:Any]) -> Self {
+            guard params.count > 0 else { return self }
+            guard var cmps = URLComponents(url: url!, resolvingAgainstBaseURL: true) else {
+                // TODO: skip all params or fail?
+                return self
             }
+
+            if cmps.queryItems == nil {
+                cmps.queryItems = []
+            }
+
+            var urlSafeParams: [URLQueryItem] = []
+            for (key, value) in params {
+                if let arr = value as? [String] {
+                    arr.forEach { str in
+                        urlSafeParams.append(URLQueryItem(name: key, value: str))
+                    }
+                } else if let valueString = value as? String {
+                    urlSafeParams.append(URLQueryItem(name: key, value: valueString))
+                } else {
+                    // TODO: skip param or fail?
+                }
+            }
+
+            cmps.queryItems?.append(contentsOf: urlSafeParams)
+            url = cmps.url!
             return self
         }
 
-        public func openConnection() -> CapacitorHttpRequestBuilder {
+        public func openConnection() -> Self {
             request = CapacitorUrlRequest(url!, method: method!)
             return self
         }
@@ -101,7 +106,7 @@ class HttpRequestHandler {
     }
 
     private static func buildResponse(_ data: Data?, _ response: HTTPURLResponse, responseType: ResponseType = .default) -> [String:Any] {
-        var output = [:] as [String:Any]
+        var output: [String:Any] = [:]
 
         output["status"] = response.statusCode
         output["headers"] = response.allHeaderFields
@@ -112,12 +117,12 @@ class HttpRequestHandler {
             return output
         }
 
-        let contentType = (response.allHeaderFields["Content-Type"] as? String ?? "application/default").lowercased();
+        let contentType = (response.allHeaderFields["Content-Type"] as? String ?? "application/default").lowercased()
 
         if (contentType.contains("application/json") || responseType == .json) {
-            output["data"] = tryParseJson(data);
+            output["data"] = tryParseJson(data)
         } else if (responseType == .arrayBuffer || responseType == .blob) {
-            output["data"] = data.base64EncodedString();
+            output["data"] = data.base64EncodedString()
         } else if (responseType == .document || responseType == .text || responseType == .default) {
             output["data"] = String(data: data, encoding: .utf8)
         }
@@ -152,28 +157,27 @@ class HttpRequestHandler {
         return data
     }
 
-
     public static func request(_ call: CAPPluginCall) throws {
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let method = call.getString("method") else { throw URLError(.dataNotAllowed) }
 
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
-        let params = (call.getObject("params") ?? [:]) as! [String: Any]
-        let responseType = call.getString("responseType") ?? "text";
-        let connectTimeout = call.getDouble("connectTimeout");
-        let readTimeout = call.getDouble("readTimeout");
+        let params = (call.getObject("params") ?? [:]) as [String: Any]
+        let responseType = call.getString("responseType") ?? "text"
+        let connectTimeout = call.getDouble("connectTimeout")
+        let readTimeout = call.getDouble("readTimeout")
 
         let request = try! CapacitorHttpRequestBuilder()
             .setUrl(urlString)
             .setMethod(method)
             .setUrlParams(params)
             .openConnection()
-            .build();
+            .build()
 
         request.setRequestHeaders(headers)
 
         // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
-        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0
         request.setTimeout(timeout)
 
         if let data = call.jsObjectRepresentation["data"] {
@@ -181,25 +185,25 @@ class HttpRequestHandler {
                 try request.setRequestBody(data)
             } catch {
                 call.reject("Error", "REQUEST", error, [:])
-                return;
+                return
             }
         }
 
-        let urlRequest = request.getUrlRequest();
+        let urlRequest = request.getUrlRequest()
         
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: allowAllDelegate, delegateQueue: nil)
         
         let task = session.dataTask(with: urlRequest) { (data, response, error) in
             if error != nil {
                 call.reject("Error", "REQUEST", error, [:])
-                return;
+                return
             }
 
             let type = ResponseType(rawValue: responseType) ?? .default
             call.resolve(self.buildResponse(data, response as! HTTPURLResponse, responseType: type))
         }
 
-        task.resume();
+        task.resume()
     }
 
     public static func upload(_ call: CAPPluginCall) throws {
@@ -207,11 +211,11 @@ class HttpRequestHandler {
         let method = call.getString("method") ?? "POST"
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
-        let params = (call.getObject("params") ?? [:]) as! [String: Any]
+        let params = (call.getObject("params") ?? [:]) as [String: Any]
         let body = (call.getObject("data") ?? [:]) as [String: Any]
-        let responseType = call.getString("responseType") ?? "text";
-        let connectTimeout = call.getDouble("connectTimeout");
-        let readTimeout = call.getDouble("readTimeout");
+        let responseType = call.getString("responseType") ?? "text"
+        let connectTimeout = call.getDouble("connectTimeout")
+        let readTimeout = call.getDouble("readTimeout")
 
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
@@ -222,20 +226,20 @@ class HttpRequestHandler {
             .setMethod(method)
             .setUrlParams(params)
             .openConnection()
-            .build();
+            .build()
 
         request.setRequestHeaders(headers)
 
         // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
-        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0
         request.setTimeout(timeout)
 
         let boundary = UUID().uuidString
-        request.setContentType("multipart/form-data; boundary=\(boundary)");
+        request.setContentType("multipart/form-data; boundary=\(boundary)")
 
         guard let form = try? generateMultipartForm(fileUrl, name, boundary, body) else { throw URLError(.cannotCreateFile) }
 
-        let urlRequest = request.getUrlRequest();
+        let urlRequest = request.getUrlRequest()
         
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: allowAllDelegate, delegateQueue: nil)
         
@@ -256,9 +260,9 @@ class HttpRequestHandler {
         let method = call.getString("method") ?? "GET"
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
-        let params = (call.getObject("params") ?? [:]) as! [String: Any]
-        let connectTimeout = call.getDouble("connectTimeout");
-        let readTimeout = call.getDouble("readTimeout");
+        let params = (call.getObject("params") ?? [:]) as [String: Any]
+        let connectTimeout = call.getDouble("connectTimeout")
+        let readTimeout = call.getDouble("readTimeout")
 
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
@@ -268,12 +272,12 @@ class HttpRequestHandler {
             .setMethod(method)
             .setUrlParams(params)
             .openConnection()
-            .build();
+            .build()
 
         request.setRequestHeaders(headers)
 
         // Timeouts in iOS are in seconds. So read the value in millis and divide by 1000
-        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
+        let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0
         request.setTimeout(timeout)
 
         let urlRequest = request.getUrlRequest()
