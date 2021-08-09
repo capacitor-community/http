@@ -5,16 +5,6 @@ import Foundation
     var cookieManager: CapacitorCookieManager? = nil
     var capConfig: InstanceConfiguration? = nil
     
-    private func getServerUrl(_ call: CAPPluginCall) -> URL? {
-        guard let urlString = call.getString("url") else {
-            call.reject("Invalid URL. Check that \"url\" is passed in correctly")
-            return nil
-        }
-        
-        let url = URL(string: urlString)
-        return url;
-    }
-    
     @objc override public func load() {
         cookieManager = CapacitorCookieManager()
         capConfig = bridge?.config
@@ -89,7 +79,7 @@ import Foundation
         guard let key = call.getString("key") else { return call.reject("Must provide key") }
         guard let value = call.getString("value") else { return call.reject("Must provide value") }
     
-        let url = getServerUrl(call)
+        let url = call.getServerURLOrReject()
         if url != nil {
             cookieManager!.setCookie(url!, key, cookieManager!.encode(value))
             call.resolve()
@@ -97,7 +87,7 @@ import Foundation
     }
 
     @objc func getCookies(_ call: CAPPluginCall) {
-        let url = getServerUrl(call)
+        let url = call.getServerURLOrReject()
         if url != nil {
             let cookies = cookieManager!.getCookies(url!)
             let output = cookies.map { (cookie: HTTPCookie) -> [String: String] in
@@ -114,7 +104,7 @@ import Foundation
     
     @objc func getCookie(_ call: CAPPluginCall) {
         guard let key = call.getString("key") else { return call.reject("Must provide key") }
-        let url = getServerUrl(call)
+        let url = call.getServerURLOrReject()
         if url != nil {
             let cookie = cookieManager!.getCookie(url!, key)
             call.resolve([
@@ -126,7 +116,7 @@ import Foundation
 
     @objc func deleteCookie(_ call: CAPPluginCall) {
         guard let key = call.getString("key") else { return call.reject("Must provide key") }
-        let url = getServerUrl(call)
+        let url = call.getServerURLOrReject()
         if url != nil {
             let jar = HTTPCookieStorage.shared
 
@@ -143,11 +133,29 @@ import Foundation
     }
 
     @objc func clearCookies(_ call: CAPPluginCall) {
-        let url = getServerUrl(call)
+        let url = call.getServerURLOrReject()
         if url != nil {
             let jar = HTTPCookieStorage.shared
             jar.cookies(for: url!)?.forEach({ (cookie) in jar.deleteCookie(cookie) })
             call.resolve()
         }
+    }
+}
+
+private extension CAPPluginCall {
+    func getServerURLOrReject() -> URL? {
+        return getURLOrReject("url")
+    }
+    
+    func getURLOrReject(_ key: String) -> URL? {
+        guard let urlString = getString(key) else {
+            reject("Invalid URL. Check that \(key) is passed in correctly")
+            return nil
+        }
+        guard let url = URL(string: urlString) else {
+            reject("Could not parse URL. Check that \(key) has valid format")
+            return nil
+        }
+        return url
     }
 }
