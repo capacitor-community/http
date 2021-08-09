@@ -158,7 +158,7 @@ class HttpRequestHandler {
         guard let method = call.getString("method") else { throw URLError(.dataNotAllowed) }
 
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
-        let params = (call.getObject("params") ?? [:]) as! [String: Any]
+        let params = (call.getObject("params") ?? [:]) as [String: Any]
         let responseType = call.getString("responseType") ?? "text";
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
@@ -207,7 +207,7 @@ class HttpRequestHandler {
         let method = call.getString("method") ?? "POST"
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
-        let params = (call.getObject("params") ?? [:]) as! [String: Any]
+        let params = (call.getObject("params") ?? [:]) as [String: Any]
         let body = (call.getObject("data") ?? [:]) as [String: Any]
         let responseType = call.getString("responseType") ?? "text";
         let connectTimeout = call.getDouble("connectTimeout");
@@ -256,7 +256,7 @@ class HttpRequestHandler {
         let method = call.getString("method") ?? "GET"
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
-        let params = (call.getObject("params") ?? [:]) as! [String: Any]
+        let params = (call.getObject("params") ?? [:]) as [String: Any]
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
 
