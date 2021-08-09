@@ -2,7 +2,7 @@ import Capacitor
 import Foundation
 
 /// See https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/responseType
-fileprivate enum ResponseType: String {
+private enum ResponseType: String {
     case arrayBuffer = "arraybuffer"
     case blob = "blob"
     case document = "document"
@@ -31,11 +31,11 @@ fileprivate enum ResponseType: String {
 ///     - data: The JSON Data to parse
 /// - Returns: The parsed value or an error
 func tryParseJson(_ data: Data) -> Any {
-  do {
-    return try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-  } catch {
-    return error.localizedDescription
-  }
+    do {
+        return try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+    } catch {
+        return error.localizedDescription
+    }
 }
 
 class HttpRequestHandler {
@@ -53,7 +53,7 @@ class HttpRequestHandler {
         /// - Parameters:
         ///     - urlString: The URL value to parse
         /// - Returns: self to continue chaining functions
-        public func setUrl(_ urlString: String) throws -> CapacitorHttpRequestBuilder {
+        public func setUrl(_ urlString: String) throws -> Self {
             guard let u = URL(string: urlString) else {
                 throw URLError(.badURL)
             }
@@ -61,36 +61,41 @@ class HttpRequestHandler {
             return self
         }
 
-        public func setMethod(_ method: String) -> CapacitorHttpRequestBuilder {
+        public func setMethod(_ method: String) -> Self {
             self.method = method
             return self
         }
 
-        public func setUrlParams(_ params: [String:Any]) -> CapacitorHttpRequestBuilder {
-            if (params.count != 0) {
-                var cmps = URLComponents(url: url!, resolvingAgainstBaseURL: true)
-                if cmps?.queryItems == nil {
-                    cmps?.queryItems = []
-                }
-
-                var urlSafeParams: [URLQueryItem] = []
-                for (key, value) in params {
-                    if let arr = value as? [String] {
-                        arr.forEach { str in
-                            urlSafeParams.append(URLQueryItem(name: key, value: str))
-                        }
-                    } else {
-                        urlSafeParams.append(URLQueryItem(name: key, value: (value as! String)))
-                    }
-                }
-
-                cmps!.queryItems?.append(contentsOf: urlSafeParams)
-                url = cmps!.url!
+        public func setUrlParams(_ params: [String:Any]) -> Self {
+            guard params.count > 0 else { return self }
+            guard var cmps = URLComponents(url: url!, resolvingAgainstBaseURL: true) else {
+                // TODO: skip all params or fail?
+                return self
             }
+
+            if cmps.queryItems == nil {
+                cmps.queryItems = []
+            }
+
+            var urlSafeParams: [URLQueryItem] = []
+            for (key, value) in params {
+                if let arr = value as? [String] {
+                    arr.forEach { str in
+                        urlSafeParams.append(URLQueryItem(name: key, value: str))
+                    }
+                } else if let valueString = value as? String {
+                    urlSafeParams.append(URLQueryItem(name: key, value: valueString))
+                } else {
+                    // TODO: skip param or fail?
+                }
+            }
+
+            cmps.queryItems?.append(contentsOf: urlSafeParams)
+            url = cmps.url!
             return self
         }
 
-        public func openConnection() -> CapacitorHttpRequestBuilder {
+        public func openConnection() -> Self {
             request = CapacitorUrlRequest(url!, method: method!)
             return self
         }
@@ -101,7 +106,7 @@ class HttpRequestHandler {
     }
 
     private static func buildResponse(_ data: Data?, _ response: HTTPURLResponse, responseType: ResponseType = .default) -> [String:Any] {
-        var output = [:] as [String:Any]
+        var output: [String:Any] = [:]
 
         output["status"] = response.statusCode
         output["headers"] = response.allHeaderFields
@@ -151,7 +156,6 @@ class HttpRequestHandler {
 
         return data
     }
-
 
     public static func request(_ call: CAPPluginCall) throws {
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
