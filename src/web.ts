@@ -156,7 +156,44 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
       options.webFetchExtra,
     );
     const response = await fetch(options.url, requestInit);
-    const blob = await response.blob();
+    let blob;
+
+    if (!options?.progress) blob = await response.blob();
+    else if (!response?.body) blob = new Blob();
+    else {
+      const reader = response.body.getReader();
+
+      let receivedLength = 0;
+      let chunks = [];
+
+      while (true) {
+        const { done, value } = await reader.read();
+
+        if (done) break;
+
+        chunks.push(value);
+        receivedLength += value?.length || 0;
+
+        this.notifyListeners('progress', {
+          type: 'DOWNLOAD',
+          url: options.url,
+          bytes: receivedLength,
+          contentLength: response.headers.get('content-length') || 0,
+        });
+      }
+
+      let chunksAll = new Uint8Array(receivedLength);
+      let position = 0;
+      for (const chunk of chunks) {
+        if (typeof chunk === 'undefined') continue;
+
+        chunksAll.set(chunk, position);
+        position += chunk.length;
+      }
+
+      blob = new Blob([chunksAll.buffer]);
+    }
+
     return {
       blob,
     };
