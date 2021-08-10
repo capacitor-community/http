@@ -27,6 +27,8 @@ export interface HttpPlugin {
     eventName: 'progress',
     listenerFunc: HttpProgressListener,
   ): Promise<PluginListenerHandle> & PluginListenerHandle;
+
+  removeAllListeners(): Promise<void>;
 }
 
 export interface HttpOptions {
