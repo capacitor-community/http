@@ -140,8 +140,23 @@ public class Http extends Plugin {
                 isStoragePermissionGranted(call, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             ) {
                 call.release(bridge);
-                JSObject response = HttpRequestHandler.downloadFile(call, getContext());
 
+                HttpRequestHandler.ProgressEmitter emitter = (bytes, contentLength) -> {};
+                Boolean progress = call.getBoolean("progress", false);
+                if (progress) {
+                    emitter =
+                        (bytes, contentLength) -> {
+                            JSObject ret = new JSObject();
+                            ret.put("type", "DOWNLOAD");
+                            ret.put("url", call.getString("url"));
+                            ret.put("bytes", bytes);
+                            ret.put("contentLength", contentLength);
+
+                            notifyListeners("progress", ret);
+                        };
+                }
+
+                JSObject response = HttpRequestHandler.downloadFile(call, getContext(), emitter);
                 call.resolve(response);
             }
         } catch (MalformedURLException ex) {
