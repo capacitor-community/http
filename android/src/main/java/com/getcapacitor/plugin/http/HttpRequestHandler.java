@@ -66,6 +66,7 @@ public class HttpRequestHandler {
 
         private Integer connectTimeout;
         private Integer readTimeout;
+        private Boolean disableRedirects;
         private JSObject headers;
         private String method;
         private URL url;
@@ -79,6 +80,11 @@ public class HttpRequestHandler {
 
         public HttpURLConnectionBuilder setReadTimeout(Integer readTimeout) {
             this.readTimeout = readTimeout;
+            return this;
+        }
+
+        public HttpURLConnectionBuilder setDisableRedirects(Boolean disableRedirects) {
+            this.disableRedirects = disableRedirects;
             return this;
         }
 
@@ -105,6 +111,7 @@ public class HttpRequestHandler {
 
             if (connectTimeout != null) connection.setConnectTimeout(connectTimeout);
             if (readTimeout != null) connection.setReadTimeout(readTimeout);
+            if (disableRedirects != null) connection.setDisableRedirects(disableRedirects);
 
             connection.setRequestHeaders(headers);
             return this;
@@ -354,6 +361,7 @@ public class HttpRequestHandler {
         JSObject params = call.getObject("params");
         Integer connectTimeout = call.getInt("connectTimeout");
         Integer readTimeout = call.getInt("readTimeout");
+        Boolean disableRedirects = call.getBoolean("disableRedirects");
         ResponseType responseType = ResponseType.parse(call.getString("responseType"));
 
         String method = httpMethod != null ? httpMethod.toUpperCase() : call.getString("method", "").toUpperCase();
@@ -368,6 +376,7 @@ public class HttpRequestHandler {
             .setUrlParams(params)
             .setConnectTimeout(connectTimeout)
             .setReadTimeout(readTimeout)
+            .setDisableRedirects(disableRedirects)
             .openConnection();
 
         CapacitorHttpUrlConnection connection = connectionBuilder.build();

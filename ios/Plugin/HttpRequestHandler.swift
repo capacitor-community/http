@@ -189,7 +189,9 @@ class HttpRequestHandler {
         }
 
         let urlRequest = request.getUrlRequest();
-        let task = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
+        let urlSession = request.getUrlSession(call);
+        let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
+            urlSession.invalidateAndCancel();
             if error != nil {
                 return
             }
