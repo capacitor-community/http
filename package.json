@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/http",
-  "version": "1.1.0-ergon-1",
+  "version": "1.1.1-ergon-1",
   "description": "A native HTTP plugin for CORS-free requests and file transfers",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
@@ -61,10 +61,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/capacitor-community/http"
+    "url": "git+https://stash.ergon.ch/projects/LLBNOVUS/repos/llb.novus.client.viridi.mobile/browse/capacitor/plugins.git"
   },
   "bugs": {
-    "url": "https://github.com/capacitor-community/http/issues"
+    "url": "https://stash.ergon.ch/projects/LLBNOVUS/repos/llb.novus.client.viridi.mobile/browse/capacitor/plugins/issues"
   },
   "publishConfig": {
     "registry": "https://npm.ergon.ch"
