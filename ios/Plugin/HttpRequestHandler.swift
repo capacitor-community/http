@@ -264,6 +264,7 @@ class HttpRequestHandler {
         let params = (call.getObject("params") ?? [:]) as! [String: Any]
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
+        let overwrite = call.getBool("overwrite") ?? false
 
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
@@ -306,10 +307,14 @@ class HttpRequestHandler {
 
                 try FilesystemUtils.createDirectoryForFile(dest, true)
 
+                if (overwrite) {
+                    try? fileManager.removeItem(at: dest)
+                }
+
                 try fileManager.moveItem(at: location, to: dest)
                 call.resolve(["path": dest.absoluteString])
             } catch let e {
-                call.reject("Unable to download file", "DOWNLOAD", e)
+                call.reject("Unable to write file at destination", "DOWNLOAD", e)
                 return
             }
 

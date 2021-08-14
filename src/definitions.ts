@@ -84,6 +84,12 @@ export interface HttpDownloadFileOptions extends HttpOptions {
    * If this option is used, filePath can be a relative path rather than absolute
    */
   fileDirectory?: Directory;
+  /**
+   * Optionally, the switch to enable overwriting destination file (iOS only)
+   *
+   * This does not affect Android since it overwrites by default
+   */
+  overwrite?: boolean;
 }
 
 export interface HttpUploadFileOptions extends HttpOptions {
