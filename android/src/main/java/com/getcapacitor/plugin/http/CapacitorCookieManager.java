@@ -1,6 +1,5 @@
 package com.getcapacitor.plugin.http;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
@@ -12,8 +11,10 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 public class CapacitorCookieManager extends CookieManager {
 
@@ -147,7 +148,7 @@ public class CapacitorCookieManager extends CookieManager {
     }
 
     @Override
-    public void put(URI uri, Map<String, List<String>> responseHeaders) throws IOException {
+    public void put(URI uri, Map<String, List<String>> responseHeaders) {
         // make sure our args are valid
         if ((uri == null) || (responseHeaders == null)) return;
 
@@ -160,14 +161,14 @@ public class CapacitorCookieManager extends CookieManager {
             if ((headerKey == null) || !(headerKey.equalsIgnoreCase("Set-Cookie2") || headerKey.equalsIgnoreCase("Set-Cookie"))) continue;
 
             // process each of the headers
-            for (String headerValue : responseHeaders.get(headerKey)) {
+            for (String headerValue : Objects.requireNonNull(responseHeaders.get(headerKey))) {
                 setCookie(url, headerValue);
             }
         }
     }
 
     @Override
-    public Map<String, List<String>> get(URI uri, Map<String, List<String>> requestHeaders) throws IOException {
+    public Map<String, List<String>> get(URI uri, Map<String, List<String>> requestHeaders) {
         // make sure our args are valid
         if ((uri == null) || (requestHeaders == null)) throw new IllegalArgumentException("Argument is null");
 
@@ -175,7 +176,7 @@ public class CapacitorCookieManager extends CookieManager {
         String url = uri.toString();
 
         // prepare our response
-        Map<String, List<String>> res = new java.util.HashMap<String, List<String>>();
+        Map<String, List<String>> res = new HashMap<>();
 
         // get the cookie
         String cookie = getCookieString(url);
