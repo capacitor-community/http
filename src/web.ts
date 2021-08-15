@@ -12,6 +12,7 @@ import type {
   HttpSetCookieOptions,
   HttpMultiCookiesOptions,
   HttpSingleCookieOptions,
+  ProgressStatus,
 } from './definitions';
 import { WebPlugin } from '@capacitor/core';
 import * as Cookie from './cookie';
@@ -156,15 +157,21 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
       options.webFetchExtra,
     );
     const response = await fetch(options.url, requestInit);
-    let blob;
+    let blob: Blob;
 
     if (!options?.progress) blob = await response.blob();
     else if (!response?.body) blob = new Blob();
     else {
       const reader = response.body.getReader();
 
-      let receivedLength = 0;
-      let chunks = [];
+      let bytes: number = 0;
+      let chunks: Array<Uint8Array | undefined> = [];
+
+      const contentType: string | null = response.headers.get('content-type');
+      const contentLength: number = parseInt(
+        response.headers.get('content-length') || '0',
+        10,
+      );
 
       while (true) {
         const { done, value } = await reader.read();
@@ -172,26 +179,28 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
         if (done) break;
 
         chunks.push(value);
-        receivedLength += value?.length || 0;
+        bytes += value?.length || 0;
 
-        this.notifyListeners('progress', {
+        const status: ProgressStatus = {
           type: 'DOWNLOAD',
           url: options.url,
-          bytes: receivedLength,
-          contentLength: response.headers.get('content-length') || 0,
-        });
+          bytes,
+          contentLength,
+        };
+
+        this.notifyListeners('progress', status);
       }
 
-      let chunksAll = new Uint8Array(receivedLength);
-      let position = 0;
+      let allChunks = new Uint8Array(bytes);
+      let position: number = 0;
       for (const chunk of chunks) {
         if (typeof chunk === 'undefined') continue;
 
-        chunksAll.set(chunk, position);
+        allChunks.set(chunk, position);
         position += chunk.length;
       }
 
-      blob = new Blob([chunksAll.buffer]);
+      blob = new Blob([allChunks.buffer], { type: contentType || undefined });
     }
 
     return {
