@@ -16,7 +16,7 @@ import Foundation
         guard let _ = httpMethod ?? call.getString("method") else { return call.reject("Must provide an HTTP Method") }
     
         do {
-            try HttpRequestHandler.request(call)
+            try HttpRequestHandler.request(call, httpMethod)
         } catch let e {
             call.reject(e.localizedDescription)
         }
