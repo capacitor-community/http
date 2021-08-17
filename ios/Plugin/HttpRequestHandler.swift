@@ -39,9 +39,9 @@ func tryParseJson(_ data: Data) -> Any {
 }
 
 class HttpRequestHandler {
-    
+
     public static var allowAllDelegate = AllowAllUrlSessionDelegate()
-    
+
     private class CapacitorHttpRequestBuilder {
         private var url: URL?
         private var method: String?
@@ -157,9 +157,9 @@ class HttpRequestHandler {
         return data
     }
 
-    public static func request(_ call: CAPPluginCall) throws {
+    public static func request(_ call: CAPPluginCall, _ httpMethod: String?) throws {
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
-        guard let method = call.getString("method") else { throw URLError(.dataNotAllowed) }
+        guard let method = httpMethod ?? call.getString("method") else { throw URLError(.dataNotAllowed) }
 
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as [String: Any]
@@ -190,10 +190,9 @@ class HttpRequestHandler {
         }
 
         let urlRequest = request.getUrlRequest()
-        
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: allowAllDelegate, delegateQueue: nil)
-        
         let task = session.dataTask(with: urlRequest) { (data, response, error) in
+            session.finishTasksAndInvalidate()
             if error != nil {
                 call.reject("Error", "REQUEST", error, [:])
                 return
@@ -240,9 +239,9 @@ class HttpRequestHandler {
         guard let form = try? generateMultipartForm(fileUrl, name, boundary, body) else { throw URLError(.cannotCreateFile) }
 
         let urlRequest = request.getUrlRequest()
-        
+
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: allowAllDelegate, delegateQueue: nil)
-        
+
         let task = session.uploadTask(with: urlRequest, from: form) { (data, response, error) in
             if error != nil {
                 CAPLog.print("Error on upload file", String(describing: data), String(describing: response), String(describing: error))
@@ -281,9 +280,9 @@ class HttpRequestHandler {
         request.setTimeout(timeout)
 
         let urlRequest = request.getUrlRequest()
-        
+
         let session = URLSession(configuration: URLSessionConfiguration.default, delegate: allowAllDelegate, delegateQueue: nil)
-        
+
         let task = session.downloadTask(with: urlRequest) { (downloadLocation, response, error) in
             if error != nil {
                 CAPLog.print("Error on download file", String(describing: downloadLocation), String(describing: response), String(describing: error))
@@ -325,7 +324,7 @@ class HttpRequestHandler {
 /// Temporary helper class, to allow connections to all URLs, even with selfsigned certificates.
 /// This class must later on be replaced with a config sensitive one, which respects the settings in the plist files.
 class AllowAllUrlSessionDelegate: NSObject, URLSessionDelegate {
-    
+
     public func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge, completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
            //Trust the certificate even if not valid
            let urlCredential = URLCredential(trust: challenge.protectionSpace.serverTrust!)
