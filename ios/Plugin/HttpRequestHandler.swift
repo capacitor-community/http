@@ -188,18 +188,6 @@ class HttpRequestHandler {
             }
         }
 
-
-        if let data = call.jsObjectRepresentation["data"] {
-            do {
-                try request.setRequestBody(data)
-            } catch {
-                // Explicitly reject if the http request body was not set successfully,
-                // so as to not send a known malformed request, and to provide the developer with additional context.
-                call.reject("Error", "REQUEST", error, [:])
-                return
-            }
-        }
-
         let urlRequest = request.getUrlRequest();
         let task = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
             if error != nil {
