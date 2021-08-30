@@ -115,6 +115,8 @@ const downloadFile = async () => {
     url: 'https://example.com/path/to/download.pdf',
     filePath: 'document.pdf',
     fileDirectory: FilesystemDirectory.Downloads,
+    // Optional
+    method: 'GET',
   };
 
   // Writes to local filesystem

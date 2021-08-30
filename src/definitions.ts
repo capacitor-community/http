@@ -40,6 +40,10 @@ export interface HttpOptions {
    */
   connectTimeout?: number;
   /**
+   * Sets whether automatic HTTP redirects should be disabled
+   */
+  disableRedirects?: boolean;
+  /**
    * Extra arguments for fetch when running on the web
    */
   webFetchExtra?: RequestInit;

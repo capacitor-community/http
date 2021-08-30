@@ -1,17 +1,19 @@
 {
   "name": "@capacitor-mobi/http",
-  "version": "1.0.2",
+  "version": "1.2.0",
   "description": "A native HTTP plugin for CORS-free requests and file transfers",
-  "main": "dist/esm/index.js",
+  "main": "dist/plugin.cjs.js",
+  "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "scripts": {
     "build": "npm run clean && tsc && rollup -c rollup.config.js",
+    "ios:build": "cd ios && pod install && cd ..",
     "docs": "typedoc src/web.ts src/definitions.ts",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
     "fmt": "npm run prettier -- --write",
     "prettier": "prettier \"**/*.{css,html,ts,js,java}\"",
-    "prepublishOnly": "npm run build",
+    "prepublishOnly": "npm run build && npm run ios:build",
     "prepare": "husky install"
   },
   "author": "Max Lynch <max@ionic.io>, Thomas Vidas <thomas@ionic.io>",

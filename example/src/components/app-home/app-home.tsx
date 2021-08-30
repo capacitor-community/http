@@ -7,7 +7,7 @@ import { Http } from '@capacitor-mobi/http';
   styleUrl: 'app-home.css',
 })
 export class AppHome {
-  @State() serverUrl = 'https://localhost:3455';
+  @State() serverUrl = 'http://localhost:3455';
 
   @State() output: string = '';
 
@@ -62,7 +62,7 @@ export class AppHome {
     });
     this.loading.present();
     try {
-      const ret = await Http.request({
+      const ret = await Http[method.toLowerCase()]({
         url: this.apiUrl(path),
         method: method,
         headers: {

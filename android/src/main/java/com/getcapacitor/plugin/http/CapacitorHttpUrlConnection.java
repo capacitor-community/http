@@ -1,6 +1,8 @@
 package com.getcapacitor.plugin.http;
 
+import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
+import com.getcapacitor.PluginCall;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -121,6 +123,14 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
     }
 
     /**
+     * Sets whether automatic HTTP redirects should be disabled
+     * @param disableRedirects the flag to determine if redirects should be followed
+     */
+    public void setDisableRedirects(boolean disableRedirects) {
+        connection.setInstanceFollowRedirects(!disableRedirects);
+    }
+
+    /**
      * Sets the request headers given a JSObject of key-value pairs
      * @param headers the JSObject values to map to the HttpUrlConnection request headers
      */
@@ -150,47 +160,69 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
 
     /**
      *
-     * @param body
+     * @param call
      * @throws JSONException
      * @throws IOException
      */
-    public void setRequestBody(JSObject body) throws JSONException, IOException {
+    public void setRequestBody(PluginCall call, JSValue body) throws JSONException, IOException {
         String contentType = connection.getRequestProperty("Content-Type");
+        String dataString = "";
 
         if (contentType == null || contentType.isEmpty()) return;
 
-        String dataString = "";
         if (contentType.contains("application/json")) {
-            dataString = body.toString();
+            JSArray jsArray = null;
+            if (body != null) {
+                dataString = body.toString();
+            } else {
+                jsArray = call.getArray("data", null);
+            }
+            if (jsArray != null) {
+                dataString = jsArray.toString();
+            } else if (body == null) {
+                dataString = call.getString("data");
+            }
+            this.writeRequestBody(dataString.toString());
         } else if (contentType.contains("application/x-www-form-urlencoded")) {
             StringBuilder builder = new StringBuilder();
-            Iterator<String> keys = body.keys();
+
+            JSObject obj = body.toJSObject();
+            Iterator<String> keys = obj.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
-                Object d = body.get(key);
+                Object d = obj.get(key);
                 builder.append(key).append("=").append(URLEncoder.encode(d.toString(), "UTF-8"));
 
                 if (keys.hasNext()) {
                     builder.append("&");
                 }
             }
-            dataString = builder.toString();
+            this.writeRequestBody(builder.toString());
         } else if (contentType.contains("multipart/form-data")) {
             FormUploader uploader = new FormUploader(connection);
 
-            Iterator<String> keys = body.keys();
+            JSObject obj = body.toJSObject();
+            Iterator<String> keys = obj.keys();
             while (keys.hasNext()) {
                 String key = keys.next();
 
-                String d = body.get(key).toString();
+                String d = obj.get(key).toString();
                 uploader.addFormField(key, d);
             }
             uploader.finish();
-            dataString = body.toString();
+        } else {
+            this.writeRequestBody(body.toString());
         }
+    }
 
+    /**
+     * Writes the provided string to the HTTP connection managed by this instance.
+     *
+     * @param body The string value to write to the connection stream.
+     */
+    private void writeRequestBody(String body) throws IOException {
         try (DataOutputStream os = new DataOutputStream(connection.getOutputStream())) {
-            os.write(dataString.getBytes(StandardCharsets.UTF_8));
+            os.write(body.getBytes(StandardCharsets.UTF_8));
             os.flush();
         }
     }

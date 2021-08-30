@@ -76,23 +76,32 @@ export const buildRequestInit = (
   const type = headers['content-type'] || '';
 
   // Build request initializers based off of content-type
-  if (type.includes('application/json')) {
-    output.body = JSON.stringify(options.data);
-  } else if (type.includes('application/x-www-form-urlencoded')) {
+  if (type.includes('application/x-www-form-urlencoded')) {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(options.data || {})) {
       params.set(key, value as any);
     }
     output.body = params.toString();
-  } else if (
-    type.includes('multipart/form-data') ||
-    typeof options.data === 'object'
-  ) {
+  } else if (type.includes('multipart/form-data')) {
     const form = new FormData();
-    for (const [key, value] of Object.entries(options.data || {})) {
-      form.append(key, value as any);
+    if (options.data instanceof FormData) {
+      options.data.forEach((value, key) => {
+        form.append(key, value);
+      });
+    } else {
+      for (let key of Object.keys(options.data)) {
+        form.append(key, options.data[key]);
+      }
     }
     output.body = form;
+    const headers = new Headers(output.headers);
+    headers.delete('content-type'); // content-type will be set by `window.fetch` to includy boundary
+    output.headers = headers;
+  } else if (
+    type.includes('application/json') ||
+    typeof options.data === 'object'
+  ) {
+    output.body = JSON.stringify(options.data);
   }
 
   return output;
