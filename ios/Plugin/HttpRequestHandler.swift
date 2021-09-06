@@ -154,9 +154,9 @@ class HttpRequestHandler {
         return data
     }
 
-    public static func request(_ call: CAPPluginCall) throws {
+    public static func request(_ call: CAPPluginCall, _ httpMethod: String?) throws {
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
-        guard let method = call.getString("method") else { throw URLError(.dataNotAllowed) }
+        guard let method = httpMethod ?? call.getString("method") else { throw URLError(.dataNotAllowed) }
 
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as [String: Any]
@@ -187,7 +187,10 @@ class HttpRequestHandler {
         }
 
         let urlRequest = request.getUrlRequest()
-        let task = URLSession.shared.dataTask(with: urlRequest) { (data, response, error) in
+        let urlSession = request.getUrlSession(call);
+        let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
+            urlSession.finishTasksAndInvalidate()
+
             if error != nil {
                 call.reject("Error", "REQUEST", error, [:])
                 return
