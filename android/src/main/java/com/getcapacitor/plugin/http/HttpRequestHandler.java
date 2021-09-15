@@ -399,10 +399,12 @@ public class HttpRequestHandler {
      * Makes an Http Request to download a file based on the PluginCall parameters
      * @param call The Capacitor PluginCall that contains the options need for an Http request
      * @param context The Android Context required for writing to the filesystem
+     * @param progress The emitter which notifies listeners on downloading progression
      * @throws IOException throws an IO request when a connection can't be made
      * @throws URISyntaxException thrown when the URI is malformed
      */
-    public static JSObject downloadFile(PluginCall call, Context context) throws IOException, URISyntaxException, JSONException {
+    public static JSObject downloadFile(PluginCall call, Context context, ProgressEmitter progress)
+        throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url");
         String method = call.getString("method", "GET").toUpperCase();
         String filePath = call.getString("filePath");
@@ -429,11 +431,24 @@ public class HttpRequestHandler {
 
         FileOutputStream fileOutputStream = new FileOutputStream(file, false);
 
+        String contentLength = connection.getHeaderField("content-length");
+        int bytes = 0;
+        int maxBytes = 0;
+
+        try {
+            maxBytes = contentLength != null ? Integer.parseInt(contentLength) : 0;
+        } catch (NumberFormatException e) {
+            maxBytes = 0;
+        }
+
         byte[] buffer = new byte[1024];
         int len;
 
         while ((len = connectionInputStream.read(buffer)) > 0) {
             fileOutputStream.write(buffer, 0, len);
+
+            bytes += len;
+            progress.emit(bytes, maxBytes);
         }
 
         connectionInputStream.close();
@@ -488,5 +503,10 @@ public class HttpRequestHandler {
         builder.finish();
 
         return buildResponse(connection, responseType);
+    }
+
+    @FunctionalInterface
+    public interface ProgressEmitter {
+        void emit(Integer bytes, Integer contentLength);
     }
 }
