@@ -112,7 +112,7 @@ const downloadFile = async () => {
   const options = {
     url: 'https://example.com/path/to/download.pdf',
     filePath: 'document.pdf',
-    fileDirectory: FilesystemDirectory.Downloads,
+    fileDirectory: Directory.Downloads,
     // Optional
     method: 'GET',
   };
@@ -124,7 +124,7 @@ const downloadFile = async () => {
   if (response.path) {
     const read = await Filesystem.readFile({
       path: 'download.pdf',
-      directory: FilesystemDirectory.Downloads,
+      directory: Directory.Downloads,
     });
   }
 };
