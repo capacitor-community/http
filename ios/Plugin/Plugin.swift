@@ -154,9 +154,13 @@ import Foundation
     @objc func clearCookies(_ call: CAPPluginCall) {
         let url = getServerUrl(call)
         if url != nil {
-            let jar = HTTPCookieStorage.shared
-            jar.cookies(for: url!)?.forEach({ (cookie) in jar.deleteCookie(cookie) })
+            cookieManager!.clearCookies(url!)
             call.resolve()
         }
+    }
+    
+    @objc func clearAllCookies(_ call: CAPPluginCall) {
+        cookieManager!.clearAllCookies()
+        call.resolve()
     }
 }
