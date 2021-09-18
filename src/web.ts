@@ -68,7 +68,10 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
   /**
    * Gets all HttpCookies as a Map
    */
-  public getCookiesMap = async (): Promise<HttpCookieMap> => {
+  public getCookiesMap = async (
+    // @ts-ignore
+    options: HttpMultiCookiesOptions,
+  ): Promise<HttpCookieMap> => {
     const cookies = Cookie.getCookies();
     const output: HttpCookieMap = {};
 
