@@ -104,6 +104,18 @@ import Foundation
             call.resolve()
         }
     }
+    
+    @objc func getCookiesMap(_ call: CAPPluginCall) {
+        let url = getServerUrl(call)
+        if url != nil {
+            let cookies = cookieManager!.getCookies(url!)
+            var cookiesMap: [String: String] = [:]
+            for cookie in cookies {
+                cookiesMap[cookie.name] = cookie.value
+            }
+            call.resolve(cookiesMap)
+        }
+    }
 
     @objc func getCookies(_ call: CAPPluginCall) {
         let url = getServerUrl(call)
