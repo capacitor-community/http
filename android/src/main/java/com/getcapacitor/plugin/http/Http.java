@@ -259,6 +259,18 @@ public class Http extends Plugin {
 
     @PluginMethod
     public void clearCookies(PluginCall call) {
+        String url = getServerUrl(call);
+        if (!url.isEmpty()) {
+            HttpCookie[] cookies = cookieManager.getCookies(url);
+            for (HttpCookie cookie : cookies) {
+                cookieManager.setCookie(url, cookie.getName() + "=; Expires=Wed, 31 Dec 2000 23:59:59 GMT");
+            }
+            call.resolve();
+        }
+    }
+
+    @PluginMethod
+    public void clearAllCookies(PluginCall call) {
         cookieManager.removeAllCookies();
         call.resolve();
     }
