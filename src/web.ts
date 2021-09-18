@@ -128,6 +128,11 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
   ): Promise<void> => Cookie.clearCookies();
 
   /**
+   * Clears out cookies by setting them to expire immediately
+   */
+  public clearAllCookies = async (): Promise<void> => Cookie.clearCookies();
+
+  /**
    * Uploads a file through a POST request
    * @param options TODO
    */
