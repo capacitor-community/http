@@ -184,7 +184,8 @@ class HttpRequestHandler {
                     return
                 }
             } else {
-                throw CapacitorUrlRequest.CapacitorUrlRequestError.serializationError("Invalid [ data ] argument")
+                call.reject("Error", "REQUEST", CapacitorUrlRequest.CapacitorUrlRequestError.serializationError("Invalid [ data ] argument"), [:])
+                return
             }
         }
 
