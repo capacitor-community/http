@@ -27,7 +27,7 @@ import Foundation
         guard var _ = URL(string: u) else { return call.reject("Invalid URL"); }
     
         do {
-            try HttpRequestHandler.request(call)
+            try HttpRequestHandler.request(call, httpMethod)
         } catch let e {
             call.reject(e.localizedDescription)
         }

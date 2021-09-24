@@ -123,6 +123,14 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
     }
 
     /**
+     * Sets whether automatic HTTP redirects should be disabled
+     * @param disableRedirects the flag to determine if redirects should be followed
+     */
+    public void setDisableRedirects(boolean disableRedirects) {
+        connection.setInstanceFollowRedirects(!disableRedirects);
+    }
+
+    /**
      * Sets the request headers given a JSObject of key-value pairs
      * @param headers the JSObject values to map to the HttpUrlConnection request headers
      */
