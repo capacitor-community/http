@@ -63,8 +63,17 @@ import Foundation
         guard let _ = call.getString("filePath") else { return call.reject("Must provide a file path to download the file to") }
         guard let _ = URL(string: u) else { return call.reject("Invalid URL") }
 
+        let progressEmitter: HttpRequestHandler.ProgressEmitter = {bytes, contentLength in
+            self.notifyListeners("progress", data: [
+                "type": "DOWNLOAD",
+                "url": u,
+                "bytes": bytes,
+                "contentLength": contentLength
+            ])
+        }
+
         do {
-            try HttpRequestHandler.download(call)
+            try HttpRequestHandler.download(call, updateProgress: progressEmitter)
         } catch let e {
             call.reject(e.localizedDescription)
         }
