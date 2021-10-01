@@ -1,3 +1,4 @@
+import type { PluginListenerHandle } from '@capacitor/core';
 import { Directory } from '@capacitor/filesystem';
 
 type HttpResponseType = 'arraybuffer' | 'blob' | 'json' | 'text' | 'document';
@@ -21,6 +22,13 @@ export interface HttpPlugin {
   downloadFile(
     options: HttpDownloadFileOptions,
   ): Promise<HttpDownloadFileResult>;
+
+  addListener(
+    eventName: 'progress',
+    listenerFunc: HttpProgressListener,
+  ): Promise<PluginListenerHandle> & PluginListenerHandle;
+
+  removeAllListeners(): Promise<void>;
 }
 
 export interface HttpOptions {
@@ -84,6 +92,12 @@ export interface HttpDownloadFileOptions extends HttpOptions {
    * If this option is used, filePath can be a relative path rather than absolute
    */
   fileDirectory?: Directory;
+  /**
+   * Optionally, the switch that enables notifying listeners about downloaded progress
+   *
+   * If this option is used, progress event should be dispatched on every chunk received
+   */
+  progress?: Boolean;
 }
 
 export interface HttpUploadFileOptions extends HttpOptions {
@@ -158,3 +172,14 @@ export interface HttpDownloadFileResult {
 }
 
 export interface HttpUploadFileResult extends HttpResponse {}
+
+export type ProgressType = 'DOWNLOAD' | 'UPLOAD';
+
+export interface ProgressStatus {
+  type: ProgressType;
+  url: string;
+  bytes: number;
+  contentLength: number;
+}
+
+export type HttpProgressListener = (progress: ProgressStatus) => void;
