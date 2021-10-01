@@ -187,7 +187,7 @@ class HttpRequestHandler {
         }
 
         let urlRequest = request.getUrlRequest()
-        let urlSession = request.getUrlSession(call);
+        let urlSession = request.getUrlSession(call)
         let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
             urlSession.finishTasksAndInvalidate()
 
@@ -250,13 +250,14 @@ class HttpRequestHandler {
         task.resume()
     }
 
-    public static func download(_ call: CAPPluginCall) throws {
+    public static func download(_ call: CAPPluginCall, updateProgress: @escaping ProgressEmitter) throws {
         let method = call.getString("method") ?? "GET"
         let fileDirectory = call.getString("fileDirectory") ?? "DOCUMENTS"
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as [String: Any]
         let connectTimeout = call.getDouble("connectTimeout")
         let readTimeout = call.getDouble("readTimeout")
+        let progress = call.getBool("progress") ?? false
 
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let filePath = call.getString("filePath") else { throw URLError(.badURL) }
@@ -274,8 +275,7 @@ class HttpRequestHandler {
         let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0
         request.setTimeout(timeout)
 
-        let urlRequest = request.getUrlRequest()
-        let task = URLSession.shared.downloadTask(with: urlRequest) { (downloadLocation, response, error) in
+        func handleDownload(downloadLocation: URL?, response: URLResponse?, error: Error?) {
             if error != nil {
                 CAPLog.print("Error on download file", String(describing: downloadLocation), String(describing: response), String(describing: error))
                 call.reject("Error", "DOWNLOAD", error, [:])
@@ -309,6 +309,52 @@ class HttpRequestHandler {
             CAPLog.print("Downloaded file", location)
         }
 
+        var task: URLSessionDownloadTask!
+        let urlRequest = request.getUrlRequest()
+
+        if progress {
+            class ProgressDelegate : NSObject, URLSessionDataDelegate, URLSessionDownloadDelegate {
+                private var handler: (URL?, URLResponse?, Error?) -> Void
+                private var downloadLocation: URL?
+                private var response: URLResponse?
+                private var emitter: (Int64, Int64) -> Void
+
+                init(downloadHandler: @escaping (URL?, URLResponse?, Error?) -> Void, progressEmitter: @escaping (Int64, Int64) -> Void) {
+                    handler = downloadHandler
+                    emitter = progressEmitter
+                }
+
+                func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didWriteData bytesWritten: Int64, totalBytesWritten: Int64, totalBytesExpectedToWrite: Int64) {
+                    if totalBytesExpectedToWrite > 0 {
+                        emitter(totalBytesWritten, totalBytesExpectedToWrite)
+                    }
+                    else {
+                        emitter(totalBytesWritten, 0)
+                    }
+                }
+
+                func urlSession(_ session: URLSession, downloadTask: URLSessionDownloadTask, didFinishDownloadingTo location: URL) {
+                    downloadLocation = location
+                    handler(downloadLocation, downloadTask.response, downloadTask.error)
+                }
+
+                func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+                    if error != nil {
+                        handler(downloadLocation, task.response, error)
+                    }
+                }
+            }
+
+            let progressDelegate = ProgressDelegate(downloadHandler: handleDownload, progressEmitter: updateProgress)
+            let session = URLSession(configuration: .default, delegate: progressDelegate, delegateQueue: nil)
+            task = session.downloadTask(with: urlRequest)
+        }
+        else {
+            task = URLSession.shared.downloadTask(with: urlRequest, completionHandler: handleDownload)
+        }
+
         task.resume()
     }
+
+    public typealias ProgressEmitter = (_ bytes: Int64, _ contentLength: Int64) -> Void
 }

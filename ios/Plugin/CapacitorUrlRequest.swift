@@ -4,7 +4,7 @@ import Capacitor
 public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
     private var request: URLRequest
     private var headers: [String:String]
-    
+
     enum CapacitorUrlRequestError: Error {
         case serializationError(String?)
     }
