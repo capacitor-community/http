@@ -8,6 +8,7 @@ import Foundation
     @objc override public func load() {
         cookieManager = CapacitorCookieManager()
         capConfig = bridge?.config
+        shouldStringifyDatesInCalls = false
     }
     
     @objc private func http(_ call: CAPPluginCall, _ httpMethod: String?) {

@@ -16,8 +16,12 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
     }
     
     private func getRequestDataAsJson(_ data: JSValue) throws -> Data? {
-      let jsonData = try JSONSerialization.data(withJSONObject: data)
-      return jsonData
+        guard let convertedData = JSONDataConverter.convert(data) else {
+            throw CapacitorUrlRequestError.serializationError("[ data ] argument for request with content-type [ application/json ] contains invalid values")
+        }
+        
+        let jsonData = try JSONSerialization.data(withJSONObject: converted)
+        return jsonData
     }
     
     private func getRequestDataAsFormUrlEncoded(_ data: JSValue) throws -> Data? {
@@ -136,3 +140,47 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
         return URLSession(configuration: URLSessionConfiguration.default, delegate: self, delegateQueue: nil)
     }
 }
+
+class JSONDataConverter {
+    private static let dateFormatter: ISO8601DateFormatter = {
+        let formatter = ISO8601DateFormatter()
+        formatter.formatOptions = [.withFullDate, .withDashSeparatorInDate, .withTimeZone, .withFullTime, .withFractionalSeconds]
+        return formatter
+    }()
+
+    static func convert(_ value: Any?) -> JSValue? {
+        guard let value = value else {
+            return nil
+        }
+        switch value {
+        case let stringValue as String:
+            return stringValue
+        case let numberValue as NSNumber:
+            return numberValue
+        case let boolValue as Bool:
+            return boolValue
+        case let intValue as Int:
+            return intValue
+        case let floatValue as Float:
+            return floatValue
+        case let doubleValue as Double:
+            return doubleValue
+        case let dateValue as Date:
+            return Self.dateFormatter.string(from: dateValue)
+        case let nullValue as NSNull:
+            return nullValue
+        case let arrayValue as NSArray:
+            return arrayValue.compactMap { Self.convert($0) }
+        case let dictionaryValue as NSDictionary:
+            let keys = dictionaryValue.allKeys.compactMap { $0 as? String }
+            var result: JSObject = [:]
+            for key in keys {
+                result[key] = Self.convert(dictionaryValue[key])
+            }
+            return result
+        default:
+            return nil
+        }
+    }
+}
+
