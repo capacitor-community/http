@@ -20,7 +20,7 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
             throw CapacitorUrlRequestError.serializationError("[ data ] argument for request with content-type [ application/json ] contains invalid values")
         }
         
-        let jsonData = try JSONSerialization.data(withJSONObject: converted)
+        let jsonData = try JSONSerialization.data(withJSONObject: convertedData)
         return jsonData
     }
     
