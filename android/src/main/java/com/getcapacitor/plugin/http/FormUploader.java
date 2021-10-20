@@ -24,6 +24,7 @@ public class FormUploader {
     /**
      * This constructor initializes a new HTTP POST request with content type
      * is set to multipart/form-data
+     * According to https://www.ietf.org/rfc/rfc2388.txt
      * @param connection The HttpUrlConnection to use to upload a Form
      * @throws IOException Thrown if unable to parse the OutputStream of the connection
      */
@@ -34,7 +35,7 @@ public class FormUploader {
         connection.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + boundary);
 
         outputStream = connection.getOutputStream();
-        prWriter = new PrintWriter(new OutputStreamWriter(outputStream, charset), true);
+        prWriter = new PrintWriter(new OutputStreamWriter(outputStream, charset), false);
     }
 
     /**
@@ -58,10 +59,6 @@ public class FormUploader {
             .append(LINE_FEED)
             .append(LINE_FEED)
             .append(value)
-            .append(LINE_FEED)
-            .append("--")
-            .append(boundary)
-            .append("--")
             .append(LINE_FEED);
         prWriter.flush();
     }
@@ -105,7 +102,8 @@ public class FormUploader {
             .append(LINE_FEED)
             .append("Content-Disposition: form-data; name=\"")
             .append(fieldName)
-            .append("\"; filename=\"")
+            .append("\"; ")
+            .append("filename=\"")
             .append(fileName)
             .append("\"")
             .append(LINE_FEED)
@@ -161,9 +159,8 @@ public class FormUploader {
      * status OK, otherwise an exception is thrown.
      */
     public void finish() {
-        prWriter.append(LINE_FEED);
+        prWriter.append(LINE_FEED).append("--").append(boundary).append("--").append(LINE_FEED);
         prWriter.flush();
-        prWriter.append("--").append(boundary).append("--").append(LINE_FEED);
         prWriter.close();
     }
 }
