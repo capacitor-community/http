@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/http",
-  "version": "1.3.0-ergon-2",
+  "version": "1.3.0-ergon-3",
   "description": "A native HTTP plugin for CORS-free requests and file transfers",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
