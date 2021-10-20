@@ -117,12 +117,11 @@ public class HttpRequestHandler {
             return this;
         }
 
-        public HttpURLConnectionBuilder setUrlParams(JSObject params) throws MalformedURLException, URISyntaxException, JSONException {
-            return this.setUrlParams(params, true);
-        }
+        public HttpURLConnectionBuilder setUrlParams(JSObject params) throws URISyntaxException, MalformedURLException {
+            if (!params.keys().hasNext()) {
+                return this;
+            }
 
-        public HttpURLConnectionBuilder setUrlParams(JSObject params, boolean shouldEncode)
-            throws URISyntaxException, MalformedURLException {
             String initialQuery = url.getQuery();
             String initialQueryBuilderStr = initialQuery == null ? "" : initialQuery;
 
@@ -158,13 +157,8 @@ public class HttpRequestHandler {
             String urlQuery = urlQueryBuilder.toString();
 
             URI uri = url.toURI();
-            if (shouldEncode) {
-                URI encodedUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), urlQuery, uri.getFragment());
-                this.url = encodedUri.toURL();
-            } else {
-                String unEncodedUrlString = uri.getScheme() + uri.getAuthority() + uri.getPath() + urlQuery + uri.getFragment();
-                this.url = new URL(unEncodedUrlString);
-            }
+            URI encodedUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), urlQuery, uri.getFragment());
+            this.url = encodedUri.toURL();
 
             return this;
         }
