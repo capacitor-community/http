@@ -138,30 +138,24 @@ import Foundation
             }
             jar.cookies(for: url)?.forEach { jar.deleteCookie($0) }
         } else {
-            guard let cookies = jar.cookies else {
-                call.resolve()
-                return
-            }
-            for cookie in cookies {
-                jar.deleteCookie(cookie)
-            }
+            self.deleteAllCookies()
         }
         
         call.resolve()
     }
+    
+    private func deleteAllCookies() {
+        guard let cookies = jar.cookies else {
+            call.resolve()
+            return
+        }
+        for cookie in cookies {
+            jar.deleteCookie(cookie)
+        }
+    }
 }
 
 private extension CAPPluginCall {
-    func getServerURL() -> URL? {
-        if let urlString = getString("url") {
-            guard let url = URL(string: urlString) else {
-                reject("Could not parse URL. Check that url has valid format")
-                return nil
-            }
-            return url
-        }
-        return nil
-    }
     func getServerURLOrReject() -> URL? {
         return getURLOrReject("url")
     }
