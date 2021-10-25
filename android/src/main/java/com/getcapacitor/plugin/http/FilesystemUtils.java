@@ -16,7 +16,7 @@ public class FilesystemUtils {
     public static final String DIRECTORY_EXTERNAL_STORAGE = "EXTERNAL_STORAGE";
 
     public static File getFileObject(Context c, String path, String directory) {
-        if (directory == null) {
+        if (directory == null || path.startsWith("file://")) {
             Uri u = Uri.parse(path);
             if (u.getScheme() == null || u.getScheme().equals("file")) {
                 return new File(u.getPath());
