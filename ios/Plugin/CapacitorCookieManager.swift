@@ -40,8 +40,9 @@ public class CapacitorCookieManager {
     public func clearCookies(_ url: URL?) {
         if let url = url {
             jar.cookies(for: url)?.forEach({ (cookie) in jar.deleteCookie(cookie) })
+        } else {
+            let cookies = HTTPCookieStorage.shared.cookies
+            cookies?.forEach { HTTPCookieStorage.shared.deleteCookie($0) }
         }
-        let cookies = HTTPCookieStorage.shared.cookies
-        cookies?.forEach { HTTPCookieStorage.shared.deleteCookie($0) }
     }
 }
