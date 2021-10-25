@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 
 /**
  * Native HTTP Plugin
@@ -259,7 +260,17 @@ public class Http extends Plugin {
 
     @PluginMethod
     public void clearCookies(PluginCall call) {
-        cookieManager.removeAllCookies();
+        String urlString = call.getString("url");
+        if (urlString == null) {
+            cookieManager.removeAllCookies();
+        } else {
+            try {
+                URL url = new URL(urlString);
+                cookieManager.removeAllCookiesFor(urlString);
+            } catch (MalformedURLException e) {
+                call.reject("Could not parse URL. Check that url has valid format");
+            }
+        }
         call.resolve();
     }
 }
