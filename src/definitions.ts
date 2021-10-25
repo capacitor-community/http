@@ -15,7 +15,7 @@ export interface HttpPlugin {
   getCookie(options: HttpSingleCookieOptions): Promise<HttpCookie>;
   getCookies(options: HttpMultiCookiesOptions): Promise<HttpGetCookiesResult>;
   getCookiesMap(): Promise<HttpCookieMap>;
-  clearCookies(options: HttpMultiCookiesOptions): Promise<void>;
+  clearCookies(options?: HttpMultiCookiesOptions): Promise<void>;
   deleteCookie(options: HttpSingleCookieOptions): Promise<void>;
 
   uploadFile(options: HttpUploadFileOptions): Promise<HttpUploadFileResult>;

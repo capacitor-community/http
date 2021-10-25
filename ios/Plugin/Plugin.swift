@@ -130,17 +130,38 @@ import Foundation
     }
 
     @objc func clearCookies(_ call: CAPPluginCall) {
-        guard let url = call.getServerURLOrReject() else { return }
-        
         let jar = HTTPCookieStorage.shared
-        jar.cookies(for: url)?
-            .forEach { jar.deleteCookie($0) }
+        if let urlString = (call.getString("url")) {
+            guard let url = URL(string: urlString) else {
+                call.reject("Could not parse URL. Check that url has valid format")
+                return
+            }
+            jar.cookies(for: url)?.forEach { jar.deleteCookie($0) }
+        } else {
+            guard let cookies = jar.cookies else {
+                call.resolve()
+                return
+            }
+            for cookie in cookies {
+                jar.deleteCookie(cookie)
+            }
+        }
         
         call.resolve()
     }
 }
 
 private extension CAPPluginCall {
+    func getServerURL() -> URL? {
+        if let urlString = getString("url") {
+            guard let url = URL(string: urlString) else {
+                reject("Could not parse URL. Check that url has valid format")
+                return nil
+            }
+            return url
+        }
+        return nil
+    }
     func getServerURLOrReject() -> URL? {
         return getURLOrReject("url")
     }
