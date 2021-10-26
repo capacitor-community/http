@@ -1,5 +1,6 @@
 import Capacitor
 import Foundation
+import os.log
 
 @objc(HttpPlugin) public class HttpPlugin: CAPPlugin {
     var cookieManager: CapacitorCookieManager? = nil
@@ -130,26 +131,20 @@ import Foundation
     }
 
     @objc func clearCookies(_ call: CAPPluginCall) {
-        if let urlString = (call.getString("url")) {
-            guard let url = URL(string: urlString) else {
-                call.reject("Could not parse URL. Check that url has valid format")
-                return
-            }
-            cookieManager!.clearCookies(url)
-        } else {
-            cookieManager!.deleteAllCookies()
-        }
-        
+        guard let url = call.getServerURLOrReject() else { return }
+        cookieManager!.clearCookies(url)
         call.resolve()
+    }
+    
+    @objc func clearAllCookies(_ call: CAPPluginCall) {
+        os_log("%{public}@", log: OSLog(subsystem: Bundle.main.bundleIdentifier!, category: ""), type: OSLogType.info, "Clear all cookies")
+        cookieManager!.deleteAllCookies()
     }
 }
 
 private extension CAPPluginCall {
     func getServerURLOrReject() -> URL? {
-        return getURLOrReject("url")
-    }
-    
-    func getURLOrReject(_ key: String) -> URL? {
+        let key = "url"
         guard let urlString = getString(key) else {
             reject("Invalid URL. Check that \(key) is passed in correctly")
             return nil

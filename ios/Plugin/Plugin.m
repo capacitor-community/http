@@ -13,6 +13,7 @@ CAP_PLUGIN(HttpPlugin, "Http",
   CAP_PLUGIN_METHOD(getCookie, CAPPluginReturnPromise);
   CAP_PLUGIN_METHOD(deleteCookie, CAPPluginReturnPromise);
   CAP_PLUGIN_METHOD(clearCookies, CAPPluginReturnPromise);
+  CAP_PLUGIN_METHOD(clearAllCookies, CAPPluginReturnPromise);
   CAP_PLUGIN_METHOD(downloadFile, CAPPluginReturnPromise);
   CAP_PLUGIN_METHOD(uploadFile, CAPPluginReturnPromise);
 )

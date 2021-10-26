@@ -1,5 +1,6 @@
 import Foundation
 import Capacitor
+import os.log
 
 public class CapacitorCookieManager {
     private let jar = HTTPCookieStorage.shared
@@ -54,5 +55,7 @@ public class CapacitorCookieManager {
         for cookie in cookies {
             jar.deleteCookie(cookie)
         }
+        
+        os_log("%{public}@", log: OSLog(subsystem: Bundle.main.bundleIdentifier!, category: ""), type: OSLogType.info, "All cookies successfully deleted")
     }
 }

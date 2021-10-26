@@ -261,13 +261,19 @@ public class Http extends Plugin {
     @PluginMethod
     public void clearCookies(PluginCall call) {
         String urlString = call.getString("url");
-        if (urlString == null) {
-            cookieManager.removeAllCookies();
-        } else if (isValidURL(urlString)) {
+        Log.i(getLogTag(), "Clear cookies for url '" + urlString + '"');
+        if (isValidURL(urlString)) {
             cookieManager.removeAllCookies(urlString);
         } else {
             call.reject("Could not parse URL. Check that url has valid format");
         }
+        call.resolve();
+    }
+
+    @PluginMethod
+    public void clearAllCookies(PluginCall call) {
+        Log.i(getLogTag(), "Clear all cookies");
+        cookieManager.removeAllCookies();
         call.resolve();
     }
 
