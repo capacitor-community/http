@@ -148,7 +148,7 @@ public class CapacitorCookieManager extends CookieManager {
     public void removeAllCookiesFor(String urlString) {
         String cookieString = webkitCookieManager.getCookie(urlString);
         /**
-         * TODO LLBOK-9732:
+         * TODO:
          * The Webkit CookieManager API has not method to delete a single cookie - looks as if
          * some string splitting has to be done
          * (https://stackoverflow.com/questions/2834180/how-to-remove-cookies-using-cookiemanager-for-a-specific-domain)
