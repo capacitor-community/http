@@ -263,14 +263,20 @@ public class Http extends Plugin {
         String urlString = call.getString("url");
         if (urlString == null) {
             cookieManager.removeAllCookies();
+        } else if (isValidURL(urlString)) {
+            cookieManager.removeAllCookies(urlString);
         } else {
-            try {
-                URL url = new URL(urlString);
-                cookieManager.removeAllCookiesFor(urlString);
-            } catch (MalformedURLException e) {
-                call.reject("Could not parse URL. Check that url has valid format");
-            }
+            call.reject("Could not parse URL. Check that url has valid format");
         }
         call.resolve();
+    }
+
+    private boolean isValidURL(String urlString) {
+        try {
+            new URL(urlString);
+            return true;
+        } catch (MalformedURLException e) {
+            return false;
+        }
     }
 }
