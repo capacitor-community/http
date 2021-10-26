@@ -130,28 +130,17 @@ import Foundation
     }
 
     @objc func clearCookies(_ call: CAPPluginCall) {
-        let jar = HTTPCookieStorage.shared
         if let urlString = (call.getString("url")) {
             guard let url = URL(string: urlString) else {
                 call.reject("Could not parse URL. Check that url has valid format")
                 return
             }
-            jar.cookies(for: url)?.forEach { jar.deleteCookie($0) }
+            cookieManager!.clearCookies(url)
         } else {
-            self.deleteAllCookies()
+            cookieManager!.deleteAllCookies()
         }
         
         call.resolve()
-    }
-    
-    private func deleteAllCookies() {
-        let jar = HTTPCookieStorage.shared
-        guard let cookies = jar.cookies else {
-            return
-        }
-        for cookie in cookies {
-            jar.deleteCookie(cookie)
-        }
     }
 }
 
