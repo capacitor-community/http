@@ -145,8 +145,8 @@ import Foundation
     }
     
     private func deleteAllCookies() {
+        let jar = HTTPCookieStorage.shared
         guard let cookies = jar.cookies else {
-            call.resolve()
             return
         }
         for cookie in cookies {
