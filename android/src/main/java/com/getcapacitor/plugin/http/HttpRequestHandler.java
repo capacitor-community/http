@@ -18,9 +18,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.SocketException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class HttpRequestHandler {
+
+    private static final HashMap<Integer, Runnable> abortMap = new HashMap<>();
 
     /**
      * An enum specifying conventional HTTP Response Types
@@ -356,6 +360,17 @@ public class HttpRequestHandler {
      * @throws JSONException thrown when the incoming JSON is malformed
      */
     public static JSObject request(PluginCall call, String httpMethod) throws IOException, URISyntaxException, JSONException {
+        JSObject signal = call.getObject("signal");
+
+        Integer abortCode = signal.getInteger("abortCode");
+        Boolean aborted = signal.getBoolean("aborted", false);
+
+        // If the passed signal was already aborted, the request shouldn't be made. This ensures
+        // compatibility with the web fetch behaviour
+        if (aborted != null && aborted) {
+            throw new SocketException();
+        }
+
         String urlString = call.getString("url", "");
         JSObject headers = call.getObject("headers");
         JSObject params = call.getObject("params");
@@ -392,7 +407,43 @@ public class HttpRequestHandler {
 
         connection.connect();
 
-        return buildResponse(connection, responseType);
+        if (abortCode != null) {
+            Runnable aborter = new Runnable() {
+                @Override
+                public void run() {
+                    connection.getHttpConnection().disconnect();
+                    // Remove the aborter from memory to avoid leakage
+                    abortMap.remove(abortCode);
+                }
+            };
+
+            abortMap.put(abortCode, aborter);
+        }
+
+        JSObject response = buildResponse(connection, responseType);
+
+        if (abortCode != null) {
+            // Remove the aborter from memory to avoid leakage
+            abortMap.remove(abortCode);
+        }
+
+        return response;
+    }
+
+    /**
+     * Aborts a request based on its abort code, which is generated on client side
+     * @param abortCode Abort code for identifying the proper abort function
+     * @throws IllegalArgumentException thrown when the abort code is invalid, e.g. when the
+     * request has already been aborted
+     */
+    public static void abortRequest(Integer abortCode) throws IllegalArgumentException {
+        Runnable aborter = abortMap.get(abortCode);
+
+        if (aborter == null) {
+            throw new IllegalArgumentException("Invalid abort code provided");
+        }
+
+        aborter.run();
     }
 
     /**
