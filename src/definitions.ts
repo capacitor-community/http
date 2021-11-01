@@ -64,6 +64,13 @@ export interface HttpOptions {
    * (already encoded, azure/firebase testing, etc.). The default is _true_.
    */
   shouldEncodeUrlParams?: boolean;
+  /**
+   * This is used to bind an AbortSignal to the request being made so it can be
+   * aborted by the AbortController
+   *
+   * @see https://developer.mozilla.org/en-US/docs/Web/API/AbortController
+   */
+  signal?: AbortSignal;
 }
 
 export interface HttpParams {

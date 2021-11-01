@@ -68,6 +68,7 @@ export const buildRequestInit = (
   const output: RequestInit = {
     method: options.method || 'GET',
     headers: options.headers,
+    signal: options.signal,
     ...extra,
   };
 
