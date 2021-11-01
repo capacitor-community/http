@@ -11,6 +11,8 @@ export class AppHome {
 
   @State() output: string = '';
 
+  @State() abortController: AbortController = null;
+
   loading: HTMLIonLoadingElement;
 
   async get(path = '/get', method = 'GET') {
@@ -43,7 +45,42 @@ export class AppHome {
     }
   }
 
+  async abortable() {
+    this.output = 'Requesting... This can be aborted';
+
+    this.abortController = new AbortController();
+
+    // This request shouldn't show the loading modal, since it blocks the
+    // user from clicking the "abort" button, which defeats the purpouse of
+    // this demo
+
+    try {
+      const ret = await Http.request({
+        method: 'GET',
+        url: this.apiUrl('/abortable'),
+        headers: {
+          'X-Fake-Header': 'Max was here',
+        },
+        params: {
+          size: ['XL', 'L', 'M', 'S', 'XS'],
+          music: 'cool',
+        },
+        signal: this.abortController.signal,
+      });
+      console.log('Got ret', ret);
+      this.output = JSON.stringify(ret, null, 2);
+    } catch (e) {
+      this.output = `Error: ${e.message}, ${e.platformMessage}`;
+      console.error(e);
+    } finally {
+      this.abortController = null;
+    }
+  }
+
   getDefault = () => this.get();
+
+  getAbortable = () => this.abortable();
+  abort = () => this.abortController.abort();
 
   getGzip = () => this.get('/get-gzip');
   getJson = () => this.get('/get-json');
@@ -233,6 +270,18 @@ export class AppHome {
   };
 
   render() {
+    const getAbortButton = () => {
+      if (this.abortController) {
+        return (
+          <ion-button color="danger" onClick={this.abort}>
+            Abort
+          </ion-button>
+        );
+      }
+
+      return <ion-button onClick={this.getAbortable}>Get Abortable</ion-button>;
+    };
+
     return [
       <ion-header>
         <ion-toolbar color="primary">
@@ -264,6 +313,8 @@ export class AppHome {
 
         <ion-button onClick={this.uploadFile}>Upload File</ion-button>
         <ion-button onClick={this.downloadFile}>Download File</ion-button>
+
+        {getAbortButton()}
 
         <h4>Output</h4>
         <pre id="output">{this.output}</pre>

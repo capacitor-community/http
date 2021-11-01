@@ -1,17 +1,17 @@
-import express from 'express'
-import compression from 'compression'
-import bodyParser from 'body-parser'
-import cors from 'cors'
-import cookieParser from 'cookie-parser'
-import multer from 'multer'
-import path from 'path'
+import express from 'express';
+import compression from 'compression';
+import bodyParser from 'body-parser';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import multer from 'multer';
+import path from 'path';
 
 // __dirname workaround for .mjs file
 import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const app = express();
-const upload = multer({ dest: 'uploads/' })
+const upload = multer({ dest: 'uploads/' });
 
 const staticPath = path.join(__dirname, '/public');
 
@@ -35,7 +35,7 @@ app.get('/get', (req, res) => {
   res.send();
 });
 
-app.get('/get-gzip', compression({ filter: (req, res) => true, threshold: 1,}), (req, res) => {
+app.get('/get-gzip', compression({ filter: (req, res) => true, threshold: 1 }), (req, res) => {
   const headers = req.headers;
   const params = req.query;
   console.log('Got headers', headers);
@@ -67,6 +67,11 @@ app.get('/head', (req, res) => {
   console.log('Got headers', headers);
   res.status(200);
   res.send();
+});
+
+app.get('/abortable', (req, res) => {
+  res.status(200);
+  setTimeout(() => res.send(''), 2000);
 });
 
 app.delete('/delete', (req, res) => {
