@@ -13,6 +13,14 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
         request = URLRequest(url: url)
         request.httpMethod = method
         headers = [:]
+        if let lang = Locale.autoupdatingCurrent.languageCode {
+            if let country = Locale.autoupdatingCurrent.regionCode {
+                headers["Accept-Language"] = "\(lang)-\(country),\(lang);q=0.5"
+            } else {
+                headers["Accept-Language"] = "\(lang);q=0.5"
+            }
+            request.addValue(headers["Accept-Language"]!, forHTTPHeaderField: "Accept-Language")
+        }
     }
     
     private func getRequestDataAsJson(_ data: JSValue) throws -> Data? {
@@ -99,9 +107,8 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
         headers.keys.forEach { (key: String) in
             let value = headers[key]
             request.addValue(value!, forHTTPHeaderField: key)
+            self.headers[key] = value
         }
-
-        self.headers = headers;
     }
     
     public func setRequestBody(_ body: JSValue) throws {
