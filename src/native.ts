@@ -1,9 +1,11 @@
 import { Capacitor } from '@capacitor/core';
-import type { HttpPlugin, HttpOptions } from './definitions';
+import type { HttpPlugin, HttpOptions, HttpResponse } from './definitions';
 
-type HttpNativePlugin = HttpPlugin & {
+interface HttpNativePlugin extends HttpPlugin {
   __abortRequest(options: { abortCode: number }): Promise<void>;
-};
+}
+
+type RequestFn = HttpPlugin['request'];
 
 export function nativeWrap(Http: HttpPlugin) {
   // Original proxy from the registerPlugin function
@@ -12,24 +14,20 @@ export function nativeWrap(Http: HttpPlugin) {
   // Unique id counter for the abortion codes
   let abortCodeCounter = 0;
 
-  const request = async (options: HttpOptions) => {
-    if (options.signal) {
+  const makeSignalProxy =
+    (requestFn: RequestFn) => async (options: HttpOptions) => {
+      if (!options.signal) {
+        // If a signal is not passed, we can just call the default request function
+        return requestFn(options);
+      }
+
       if (Capacitor.getPlatform() === 'ios') {
-        throw new Error('Cancelation is not implemented on iOS');
+        throw new Error('Request cancelation is not implemented on iOS');
       }
 
       const { signal } = options;
 
       const abortCode = ++abortCodeCounter;
-
-      // Action to perform when AbortController.abort is called
-      const onAbort = () => {
-        nativePlugin.__abortRequest({ abortCode });
-
-        signal.removeEventListener('abort', onAbort);
-      };
-
-      signal.addEventListener('abort', onAbort);
 
       options = {
         ...options,
@@ -40,25 +38,24 @@ export function nativeWrap(Http: HttpPlugin) {
           aborted: signal.aborted,
         } as any,
       };
-    }
 
-    return nativePlugin.request(options);
-  };
+      const onAbort = () => nativePlugin.__abortRequest({ abortCode });
 
-  const makeRequestFn = (method: string) => (options: HttpOptions) => {
-    return request({
-      ...options,
-      method,
-    });
-  };
+      signal.addEventListener('abort', onAbort);
 
-  const methods = ['get', 'post', 'put', 'patch', 'del'] as const;
+      let response: HttpResponse;
 
-  const requestFnsByMethod = methods.reduce((mapping, method) => {
-    mapping[method] = makeRequestFn(method);
+      try {
+        response = await requestFn(options);
+      } finally {
+        // The event listener must be removed regardless of the result
+        signal.removeEventListener('abort', onAbort);
+      }
 
-    return mapping;
-  }, {} as Record<typeof methods[number], typeof request>);
+      return response;
+    };
+
+  const requestFnsByMethod: Record<string, RequestFn> = {};
 
   // Proxy wrapper around the original plugin object
   return new Proxy({} as HttpPlugin, {
@@ -69,14 +66,14 @@ export function nativeWrap(Http: HttpPlugin) {
           return undefined;
 
         case 'request':
-          return request;
-
         case 'get':
         case 'post':
         case 'put':
         case 'patch':
         case 'del':
-          return requestFnsByMethod[prop];
+          return (requestFnsByMethod[prop] ||= makeSignalProxy(
+            nativePlugin[prop],
+          ));
 
         default:
           return nativePlugin[prop];
