@@ -75,8 +75,12 @@ export const buildRequestInit = (
   const headers = normalizeHttpHeaders(options.headers);
   const type = headers['content-type'] || '';
 
+  // If body is already a string, then pass it through as-is.
+  if (typeof options.data === 'string') {
+    output.body = options.data;
+  }
   // Build request initializers based off of content-type
-  if (type.includes('application/x-www-form-urlencoded')) {
+  else if (type.includes('application/x-www-form-urlencoded')) {
     const params = new URLSearchParams();
     for (const [key, value] of Object.entries(options.data || {})) {
       params.set(key, value as any);
