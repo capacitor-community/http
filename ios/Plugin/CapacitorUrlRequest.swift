@@ -88,14 +88,17 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
     }
     
     func getRequestData(_ body: JSValue, _ contentType: String) throws -> Data? {
-        if contentType.contains("application/json") {
+        // If data can be parsed directly as a string, return that without processing.
+        if let strVal = try? getRequestDataAsString(body) {
+            return strVal
+        } else if contentType.contains("application/json") {
             return try getRequestDataAsJson(body)
         } else if contentType.contains("application/x-www-form-urlencoded") {
             return try getRequestDataAsFormUrlEncoded(body)
         } else if contentType.contains("multipart/form-data") {
             return try getRequestDataAsMultipartFormData(body)
         } else {
-            return try getRequestDataAsString(body)
+            throw CapacitorUrlRequestError.serializationError("[ data ] argument could not be parsed for content type [ \(contentType) ]")
         }
     }
 

@@ -173,18 +173,13 @@ class HttpRequestHandler {
         let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
         request.setTimeout(timeout)
 
-        if let _ = call.options["data"] {
-            if let data = call.jsObjectRepresentation["data"] {
-                do {
-                    try request.setRequestBody(data)
-                } catch {
-                    // Explicitly reject if the http request body was not set successfully,
-                    // so as to not send a known malformed request, and to provide the developer with additional context.
-                    call.reject("Error", "REQUEST", error, [:])
-                    return
-                }
-            } else {
-                call.reject("Error", "REQUEST", CapacitorUrlRequest.CapacitorUrlRequestError.serializationError("Invalid [ data ] argument"), [:])
+        if let data = call.options["data"] as? JSValue {
+            do {
+                try request.setRequestBody(data)
+            } catch {
+                // Explicitly reject if the http request body was not set successfully,
+                // so as to not send a known malformed request, and to provide the developer with additional context.
+                call.reject("Error", "REQUEST", error, [:])
                 return
             }
         }
