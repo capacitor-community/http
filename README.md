@@ -41,7 +41,8 @@ npm install @capacitor-community/http@0.x
 
 ## Configuration
 
-No configuration required for this plugin
+In most cases no configuration is required for this plugin.
+If the Android application connects with use the self-signed certificates or without encryption, see [Network security configuration](https://developer.android.com/training/articles/security-config) article.
 
 ## Usage
 
