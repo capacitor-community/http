@@ -471,7 +471,7 @@ public class HttpRequestHandler {
      */
     public static JSObject uploadFile(PluginCall call, Context context) throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url");
-        String method = call.getString("method").toUpperCase();
+        String method = call.getString("method", "POST").toUpperCase();
         String filePath = call.getString("filePath");
         String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
         String name = call.getString("name", "file");
