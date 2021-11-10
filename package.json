@@ -26,6 +26,7 @@
   },
   "devDependencies": {
     "@ionic/prettier-config": "^1.0.1",
+    "all-contributors-cli": "^6.20.0",
     "husky": "^6.0.0",
     "prettier": "^2.3.0",
     "prettier-plugin-java": "^1.1.1",
