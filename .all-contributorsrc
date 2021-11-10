@@ -59,6 +59,159 @@
         "code",
         "maintenance"
       ]
+    },
+    {
+      "login": "emily-curry",
+      "name": "Emily Curry",
+      "avatar_url": "https://avatars.githubusercontent.com/u/20479454?v=4",
+      "profile": "https://github.com/emily-curry",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "graefenhain",
+      "name": "graefenhain",
+      "avatar_url": "https://avatars.githubusercontent.com/u/88032701?v=4",
+      "profile": "https://github.com/graefenhain",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "asztal",
+      "name": "Lee Houghton",
+      "avatar_url": "https://avatars.githubusercontent.com/u/68302?v=4",
+      "profile": "https://github.com/asztal",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "FelixSchwarzmeier",
+      "name": "Felix Schwarzmeier",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23665008?v=4",
+      "profile": "https://github.com/FelixSchwarzmeier",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jkbz64",
+      "name": "Kamil Jakubus",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13223538?v=4",
+      "profile": "https://github.com/jkbz64",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "joeflateau",
+      "name": "Joe Flateau",
+      "avatar_url": "https://avatars.githubusercontent.com/u/643331?v=4",
+      "profile": "http://joeflateau.net/",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "Frank608",
+      "name": "Frank608",
+      "avatar_url": "https://avatars.githubusercontent.com/u/56638143?v=4",
+      "profile": "https://github.com/Frank608",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "JoelNietoTec",
+      "name": "Joel Nieto",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6298693?v=4",
+      "profile": "https://github.com/JoelNietoTec",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "ultimate-tester",
+      "name": "ultimate-tester",
+      "avatar_url": "https://avatars.githubusercontent.com/u/580758?v=4",
+      "profile": "https://github.com/ultimate-tester",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "sgzadrian",
+      "name": "Adrian Sanchez",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12704905?v=4",
+      "profile": "https://github.com/sgzadrian",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "milanc",
+      "name": "milanc",
+      "avatar_url": "https://avatars.githubusercontent.com/u/8333458?v=4",
+      "profile": "https://github.com/milanc",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "herecoulbeyourname",
+      "name": "herecoulbeyourname",
+      "avatar_url": "https://avatars.githubusercontent.com/u/57253976?v=4",
+      "profile": "https://github.com/herecoulbeyourname",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "Landschaft",
+      "name": "Landschaft",
+      "avatar_url": "https://avatars.githubusercontent.com/u/10559398?v=4",
+      "profile": "https://github.com/Landschaft",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "stonewoodman",
+      "name": "stonewoodman",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2945329?v=4",
+      "profile": "https://github.com/stonewoodman",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "mghcs87",
+      "name": "Héctor Cruz",
+      "avatar_url": "https://avatars.githubusercontent.com/u/17180632?v=4",
+      "profile": "https://github.com/mghcs87",
+      "contributions": [
+        "bug"
+      ]
+    },
+    {
+      "login": "patrickbussmann",
+      "name": "Patrick Bußmann",
+      "avatar_url": "https://avatars.githubusercontent.com/u/15617021?v=4",
+      "profile": "https://github.com/patrickbussmann",
+      "contributions": [
+        "code"
+      ]
+    },
+    {
+      "login": "jesperbjerke",
+      "name": "Jesper Bjerke",
+      "avatar_url": "https://avatars.githubusercontent.com/u/5323483?v=4",
+      "profile": "https://github.com/jesperbjerke",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "badgeTemplate": "<a href=\"#contributors-\"><img src=\"https://img.shields.io/badge/all%20contributors-<%= contributors.length %>-orange?style=flat-square\" /></a>",

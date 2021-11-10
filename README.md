@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@capacitor-community/http"><img src="https://img.shields.io/npm/dw/@capacitor-community/http?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/http"><img src="https://img.shields.io/npm/v/@capacitor-community/http?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-6-orange?style=flat-square" /></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-23-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
@@ -41,7 +41,8 @@ npm install @capacitor-community/http@0.x
 
 ## Configuration
 
-No configuration required for this plugin
+In most cases no configuration is required for this plugin.
+If the Android application connects with use the self-signed certificates or without encryption, see [Network security configuration](https://developer.android.com/training/articles/security-config) article.
 
 ## Usage
 
@@ -112,7 +113,7 @@ const downloadFile = async () => {
   const options = {
     url: 'https://example.com/path/to/download.pdf',
     filePath: 'document.pdf',
-    fileDirectory: FilesystemDirectory.Downloads,
+    fileDirectory: Directory.Downloads,
     // Optional
     method: 'GET',
   };
@@ -124,7 +125,7 @@ const downloadFile = async () => {
   if (response.path) {
     const read = await Filesystem.readFile({
       path: 'download.pdf',
-      directory: FilesystemDirectory.Downloads,
+      directory: Directory.Downloads,
     });
   }
 };
@@ -173,6 +174,29 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
     <td align="center"><a href="https://github.com/pixelbucket-dev"><img src="https://avatars3.githubusercontent.com/u/12937991?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Falk Schieber</b></sub></a><br /><a href="https://github.com/capacitor-community/http/pulls?q=is%3Apr+reviewed-by%3Apixelbucket-dev" title="Reviewed Pull Requests">👀</a></td>
     <td align="center"><a href="https://github.com/andysousa"><img src="https://avatars0.githubusercontent.com/u/42151009?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Andy Sousa</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=andysousa" title="Code">💻</a></td>
     <td align="center"><a href="https://github.com/thomasvidas"><img src="https://avatars.githubusercontent.com/u/8182078?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Thomas Vidas</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=thomasvidas" title="Code">💻</a> <a href="#maintenance-thomasvidas" title="Maintenance">🚧</a></td>
+    <td align="center"><a href="https://github.com/emily-curry"><img src="https://avatars.githubusercontent.com/u/20479454?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Emily Curry</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=emily-curry" title="Code">💻</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/graefenhain"><img src="https://avatars.githubusercontent.com/u/88032701?v=4?s=100" width="100px;" alt=""/><br /><sub><b>graefenhain</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=graefenhain" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/asztal"><img src="https://avatars.githubusercontent.com/u/68302?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Lee Houghton</b></sub></a><br /><a href="https://github.com/capacitor-community/http/issues?q=author%3Aasztal" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/FelixSchwarzmeier"><img src="https://avatars.githubusercontent.com/u/23665008?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Felix Schwarzmeier</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=FelixSchwarzmeier" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/jkbz64"><img src="https://avatars.githubusercontent.com/u/13223538?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kamil Jakubus</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=jkbz64" title="Code">💻</a></td>
+    <td align="center"><a href="http://joeflateau.net/"><img src="https://avatars.githubusercontent.com/u/643331?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joe Flateau</b></sub></a><br /><a href="https://github.com/capacitor-community/http/issues?q=author%3Ajoeflateau" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/Frank608"><img src="https://avatars.githubusercontent.com/u/56638143?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Frank608</b></sub></a><br /><a href="https://github.com/capacitor-community/http/issues?q=author%3AFrank608" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/JoelNietoTec"><img src="https://avatars.githubusercontent.com/u/6298693?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joel Nieto</b></sub></a><br /><a href="https://github.com/capacitor-community/http/issues?q=author%3AJoelNietoTec" title="Bug reports">🐛</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/ultimate-tester"><img src="https://avatars.githubusercontent.com/u/580758?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ultimate-tester</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=ultimate-tester" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/sgzadrian"><img src="https://avatars.githubusercontent.com/u/12704905?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Adrian Sanchez</b></sub></a><br /><a href="https://github.com/capacitor-community/http/issues?q=author%3Asgzadrian" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/milanc"><img src="https://avatars.githubusercontent.com/u/8333458?v=4?s=100" width="100px;" alt=""/><br /><sub><b>milanc</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=milanc" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/herecoulbeyourname"><img src="https://avatars.githubusercontent.com/u/57253976?v=4?s=100" width="100px;" alt=""/><br /><sub><b>herecoulbeyourname</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=herecoulbeyourname" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/Landschaft"><img src="https://avatars.githubusercontent.com/u/10559398?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Landschaft</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=Landschaft" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/stonewoodman"><img src="https://avatars.githubusercontent.com/u/2945329?v=4?s=100" width="100px;" alt=""/><br /><sub><b>stonewoodman</b></sub></a><br /><a href="https://github.com/capacitor-community/http/issues?q=author%3Astonewoodman" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/mghcs87"><img src="https://avatars.githubusercontent.com/u/17180632?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Héctor Cruz</b></sub></a><br /><a href="https://github.com/capacitor-community/http/issues?q=author%3Amghcs87" title="Bug reports">🐛</a></td>
+  </tr>
+  <tr>
+    <td align="center"><a href="https://github.com/patrickbussmann"><img src="https://avatars.githubusercontent.com/u/15617021?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Patrick Bußmann</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=patrickbussmann" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/jesperbjerke"><img src="https://avatars.githubusercontent.com/u/5323483?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jesper Bjerke</b></sub></a><br /><a href="https://github.com/capacitor-community/http/issues?q=author%3Ajesperbjerke" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 

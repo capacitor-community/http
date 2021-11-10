@@ -47,4 +47,9 @@ public class CapacitorCookieManager {
         let jar = HTTPCookieStorage.shared
         jar.cookies(for: url)?.forEach({ (cookie) in jar.deleteCookie(cookie) })
     }
+    
+    public func clearAllCookies() {
+        let jar = HTTPCookieStorage.shared
+        jar.cookies?.forEach({ (cookie) in jar.deleteCookie(cookie) })
+    }
 }

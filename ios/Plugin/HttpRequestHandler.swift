@@ -160,11 +160,6 @@ class HttpRequestHandler {
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
 
-        let isHttpMutate = method == "DELETE" ||
-            method == "PATCH" ||
-            method == "POST" ||
-            method == "PUT";
-
         let request = try! CapacitorHttpRequestBuilder()
             .setUrl(urlString)
             .setMethod(method)
@@ -178,19 +173,14 @@ class HttpRequestHandler {
         let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
         request.setTimeout(timeout)
 
-        if isHttpMutate {
+        if let data = call.options["data"] as? JSValue {
             do {
-                guard let data = call.jsObjectRepresentation["data"]
-                else {
-                    throw CapacitorUrlRequest.CapacitorUrlRequestError.serializationError("Invalid [ data ] argument")
-                }
-                
                 try request.setRequestBody(data)
             } catch {
                 // Explicitly reject if the http request body was not set successfully,
                 // so as to not send a known malformed request, and to provide the developer with additional context.
                 call.reject("Error", "REQUEST", error, [:])
-                return;
+                return
             }
         }
 
@@ -199,8 +189,7 @@ class HttpRequestHandler {
         let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
             urlSession.invalidateAndCancel();
             if error != nil {
-                call.reject("Error", "REQUEST", error, [:])
-                return;
+                return
             }
 
             let type = ResponseType(rawValue: responseType) ?? .default

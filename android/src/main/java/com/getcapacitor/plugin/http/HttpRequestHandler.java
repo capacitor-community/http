@@ -131,6 +131,11 @@ public class HttpRequestHandler {
             String initialQueryBuilderStr = initialQuery == null ? "" : initialQuery;
 
             Iterator<String> keys = params.keys();
+            
+            if (!keys.hasNext()) {
+                return this;
+            }
+            
             StringBuilder urlQueryBuilder = new StringBuilder(initialQueryBuilderStr);
 
             // Build the new query string
@@ -166,7 +171,7 @@ public class HttpRequestHandler {
                 URI encodedUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), urlQuery, uri.getFragment());
                 this.url = encodedUri.toURL();
             } else {
-                String unEncodedUrlString = uri.getScheme() + uri.getAuthority() + uri.getPath() + urlQuery + uri.getFragment();
+                String unEncodedUrlString = uri.getScheme() + "://" + uri.getAuthority() + uri.getPath() + ((!urlQuery.equals("")) ? "?" + urlQuery : "") + ((uri.getFragment() != null) ? uri.getFragment() : "");
                 this.url = new URL(unEncodedUrlString);
             }
 
@@ -377,6 +382,7 @@ public class HttpRequestHandler {
         Integer connectTimeout = call.getInt("connectTimeout");
         Integer readTimeout = call.getInt("readTimeout");
         Boolean disableRedirects = call.getBoolean("disableRedirects");
+        Boolean shouldEncode = call.getBoolean("shouldEncodeUrlParams", true);
         ResponseType responseType = ResponseType.parse(call.getString("responseType"));
 
         String method = httpMethod != null ? httpMethod.toUpperCase() : call.getString("method", "").toUpperCase();
@@ -388,7 +394,7 @@ public class HttpRequestHandler {
             .setUrl(url)
             .setMethod(method)
             .setHeaders(headers)
-            .setUrlParams(params)
+            .setUrlParams(params, shouldEncode)
             .setConnectTimeout(connectTimeout)
             .setReadTimeout(readTimeout)
             .setDisableRedirects(disableRedirects)
@@ -522,7 +528,7 @@ public class HttpRequestHandler {
      */
     public static JSObject uploadFile(PluginCall call, Context context) throws IOException, URISyntaxException, JSONException {
         String urlString = call.getString("url");
-        String method = call.getString("method").toUpperCase();
+        String method = call.getString("method", "POST").toUpperCase();
         String filePath = call.getString("filePath");
         String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
         String name = call.getString("name", "file");
