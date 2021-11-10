@@ -129,6 +129,7 @@ public class Http extends Plugin {
         this.http(call, "DELETE");
     }
 
+    @PluginMethod
     public void __abortRequest(final PluginCall call) {
         try {
             Integer abortCode = call.getInt("abortCode");
@@ -143,7 +144,7 @@ public class Http extends Plugin {
     }
 
     @PluginMethod
-    public void downloadFile(PluginCall call) {
+    public void downloadFile(final PluginCall call) {
         try {
             bridge.saveCall(call);
             String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
