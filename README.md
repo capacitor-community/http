@@ -13,7 +13,7 @@
   <a href="https://www.npmjs.com/package/@capacitor-community/http"><img src="https://img.shields.io/npm/dw/@capacitor-community/http?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/http"><img src="https://img.shields.io/npm/v/@capacitor-community/http?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-22-orange?style=flat-square" /></a>
+<a href="#contributors-"><img src="https://img.shields.io/badge/all%20contributors-23-orange?style=flat-square" /></a>
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
@@ -196,6 +196,7 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
   </tr>
   <tr>
     <td align="center"><a href="https://github.com/patrickbussmann"><img src="https://avatars.githubusercontent.com/u/15617021?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Patrick Bußmann</b></sub></a><br /><a href="https://github.com/capacitor-community/http/commits?author=patrickbussmann" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/jesperbjerke"><img src="https://avatars.githubusercontent.com/u/5323483?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jesper Bjerke</b></sub></a><br /><a href="https://github.com/capacitor-community/http/issues?q=author%3Ajesperbjerke" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
