@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URI;
-import org.json.JSONException;
 
 /**
  * Native HTTP Plugin
@@ -136,6 +135,8 @@ public class Http extends Plugin {
             Integer abortCode = call.getInt("abortCode");
 
             HttpRequestHandler.abortRequest(abortCode);
+
+            call.resolve();
         } catch (Exception e) {
             System.out.println(e.toString());
             call.reject(e.getClass().getSimpleName(), e);
