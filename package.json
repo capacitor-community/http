@@ -1,6 +1,6 @@
 {
   "name": "@capacitor-community/http",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "description": "A native HTTP plugin for CORS-free requests and file transfers",
   "main": "dist/plugin.cjs.js",
   "module": "dist/esm/index.js",
