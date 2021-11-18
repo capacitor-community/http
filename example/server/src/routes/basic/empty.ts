@@ -8,6 +8,9 @@ const routes: Hapi.ServerRoute[] = httpMethods.map<Hapi.ServerRoute>(method => {
   return {
     method,
     path: '/',
+    options: {
+      cors: true,
+    },
     handler: (request: Hapi.Request, toolkit: Hapi.ResponseToolkit, err: Error) => {
       return output;
     },

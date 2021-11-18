@@ -7,6 +7,12 @@ const init = async () => {
   const server = Hapi.server({
     port: 3000,
     host: 'localhost',
+    routes: {
+      cors: {
+        origin: ['*'], // an array of origins or 'ignore'
+        credentials: true, // boolean - 'Access-Control-Allow-Credentials'
+      },
+    },
   });
   await server.register(Inert);
 
