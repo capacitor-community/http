@@ -6,7 +6,7 @@
     "@capacitor/android": "^3.3.2",
     "@capacitor/core": "^3.3.2",
     "@capacitor/ios": "^3.3.2",
-    "@capacitor/http": "file:..",
+    "@capacitor-community/http": "file:../",
     "@ionic/react": "^6.0.0-rc.3",
     "react": "^17.0.2",
     "react-dom": "^17.0.2"
