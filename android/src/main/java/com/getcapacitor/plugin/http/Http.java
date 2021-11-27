@@ -76,16 +76,13 @@ public class Http extends Plugin {
     }
 
     private void http(final PluginCall call, final String httpMethod) {
-        Runnable asyncHttpCall = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    JSObject response = HttpRequestHandler.request(call, httpMethod);
-                    call.resolve(response);
-                } catch (Exception e) {
-                    System.out.println(e.toString());
-                    call.reject(e.getClass().getSimpleName(), e);
-                }
+        Runnable asyncHttpCall = () -> {
+            try {
+                JSObject response = CapacitorHttpHandler.request(call, httpMethod);
+                call.resolve(response);
+            } catch (Exception e) {
+                System.out.println(e.toString());
+                call.reject(e.getClass().getSimpleName(), e);
             }
         };
         Thread httpThread = new Thread(asyncHttpCall);
