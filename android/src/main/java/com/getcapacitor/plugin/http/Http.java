@@ -138,36 +138,25 @@ public class Http extends Plugin {
             ) {
                 call.release(bridge);
 
-                HttpRequestHandler.ProgressEmitter emitter = new HttpRequestHandler.ProgressEmitter() {
-                    @Override
-                    public void emit(Integer bytes, Integer contentLength) {
-                        // no-op
-                    }
+                IProgressCallback callback = p -> {
+                    /* no-op */
                 };
-                Boolean progress = call.getBoolean("progress", false);
-                if (progress) {
-                    emitter =
-                        new HttpRequestHandler.ProgressEmitter() {
-                            @Override
-                            public void emit(final Integer bytes, final Integer contentLength) {
-                                JSObject ret = new JSObject();
-                                ret.put("type", "DOWNLOAD");
-                                ret.put("url", call.getString("url"));
-                                ret.put("bytes", bytes);
-                                ret.put("contentLength", contentLength);
+                Boolean isProgressTracked = call.getBoolean("progress", false);
+                if (isProgressTracked) {
+                    callback =
+                        progress -> {
+                            JSObject ret = new JSObject();
+                            ret.put("type", "DOWNLOAD");
+                            ret.put("url", call.getString("url"));
+                            ret.put("bytes", progress);
 
-                                notifyListeners("progress", ret);
-                            }
+                            notifyListeners("progress", ret);
                         };
                 }
 
-                JSObject response = HttpRequestHandler.downloadFile(call, getContext(), emitter);
+                JSObject response = CapacitorHttpHandler.download(call, getContext(), callback);
                 call.resolve(response);
             }
-        } catch (MalformedURLException ex) {
-            call.reject("Invalid URL", ex);
-        } catch (IOException ex) {
-            call.reject("IO Error", ex);
         } catch (Exception ex) {
             call.reject("Error", ex);
         }

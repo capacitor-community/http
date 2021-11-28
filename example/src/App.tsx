@@ -166,7 +166,11 @@ const App = () => {
                 expand="full"
                 color="light"
                 onClick={() => {
-                  console.log('does nothing for now...');
+                  Http.downloadFile({
+                    url,
+                    method: 'GET',
+                    filePath: 'testfile',
+                  });
                 }}
               >
                 Download File

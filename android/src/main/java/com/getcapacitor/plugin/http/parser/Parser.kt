@@ -37,32 +37,32 @@ object Parser {
     }
 
     /**
-     * Parses a ByteArray stream into a String
+     * Parses a ByteArray stream into a ByteArray
      */
-    fun parseByteStream(stream: InputStream): String {
+    fun parseByteStreamAsByteArray(stream: InputStream): ByteArray {
         ByteArrayOutputStream().use { out ->
             val buffer = ByteArray(1024)
             var readBytes: Int
             while (stream.read(buffer).also { readBytes = it } != -1) {
                 out.write(buffer, 0, readBytes)
             }
-            val bytes = out.toByteArray()
-            return String(bytes, Charsets.UTF_8)
+            return out.toByteArray()
         }
+    }
+
+    /**
+     * Parses a ByteArray stream into a String
+     */
+    fun parseByteStream(stream: InputStream): String {
+        val bytes = parseByteStreamAsByteArray(stream)
+        return String(bytes, Charsets.UTF_8)
     }
 
     /**
      * Parses a ByteArray stream into a ByteArray
      */
     fun parseByteStreamBase64(stream: InputStream): String {
-        ByteArrayOutputStream().use { out ->
-            val buffer = ByteArray(1024)
-            var readBytes: Int
-            while (stream.read(buffer).also { readBytes = it } != -1) {
-                out.write(buffer, 0, readBytes)
-            }
-            val bytes = out.toByteArray()
-            return Base64.encodeToString(bytes, Base64.DEFAULT)
-        }
+        val bytes = parseByteStreamAsByteArray(stream)
+        return Base64.encodeToString(bytes, Base64.DEFAULT)
     }
 }
