@@ -155,7 +155,12 @@ const App = () => {
                 expand="full"
                 color="warning"
                 onClick={() => {
-                  console.log('does nothing for now...');
+                  Http.uploadFile({
+                    url,
+                    method: 'POST',
+                    name: 'filename',
+                    filePath: 'testfile',
+                  });
                 }}
               >
                 Upload File
