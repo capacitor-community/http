@@ -5,6 +5,8 @@ import com.getcapacitor.JSObject
 import com.getcapacitor.PluginCall
 import com.getcapacitor.plugin.http.parser.Parser
 import okhttp3.*
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.BufferedInputStream
 import java.io.FileOutputStream
@@ -57,8 +59,8 @@ object CapacitorHttpHandler {
         // Parse variables
         val url = call.getString("url", "")!!
         val data = call.getObject("data")
-        val filePath = call.getString("filePath")
-        val fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS)
+        val filePath = call.getString("filePath", "")!!
+        val fileDirectory = call.getString("fileDirectory", FileExtensions.DIRECTORY_DOCUMENTS)
         val method = call.getString("method", "GET")!!.uppercase(Locale.getDefault())
 
         // Create Body
@@ -68,6 +70,7 @@ object CapacitorHttpHandler {
         // Create Headers
         val headers = createRequestHeaders(call)
 
+        // Create Request
         val request = Request.Builder()
                 .url(url)
                 .headers(headers)
@@ -76,11 +79,11 @@ object CapacitorHttpHandler {
 
         // Execute request and return value
         client.newCall(request).execute().use { response ->
-            val file = FilesystemUtils.getFileObject(context, filePath, fileDirectory)
+            val file = FileExtensions.getFile(context, filePath, fileDirectory)
             val fileOutputStream = FileOutputStream(file, false)
-            val body = response.body
-            val length = body?.contentLength()
-            val stream = body?.byteStream()
+            val responseBody = response.body
+            val length = responseBody?.contentLength()
+            val stream = responseBody?.byteStream()
 
             if (stream != null && length != null) {
                 BufferedInputStream(stream).use { input ->
@@ -89,7 +92,7 @@ object CapacitorHttpHandler {
                     var totalBytes: Long = 0
                     while (input.read(dataBuffer).also { readBytes = it } != -1) {
                         totalBytes += readBytes.toLong()
-                        progress.onProgress(totalBytes / length * 100.0);
+                        progress.onProgress(totalBytes / length * 100.0)
                         fileOutputStream.write(dataBuffer, 0, readBytes)
                     }
                 }
@@ -101,7 +104,67 @@ object CapacitorHttpHandler {
             output.put("url", response.request.url.toString())
             output.put("error", !response.isSuccessful)
             output.put("headers", parseResponseHeaders(response))
-            output.put("file", file.absolutePath)
+            output.put("file", file?.absolutePath)
+            return output
+        }
+    }
+
+    @JvmStatic
+    fun upload(call: PluginCall, context: Context): JSObject {
+        // Create OkHttpClient
+        val client = createOkHttpClient(call)
+
+        // Parse variables
+        val url = call.getString("url", "")!!
+        val name = call.getString("name", "file")!!
+        val data = call.getObject("data")
+        val filePath = call.getString("filePath", "")!!
+        val fileDirectory = call.getString("fileDirectory", FileExtensions.DIRECTORY_DOCUMENTS)!!
+        val method = call.getString("method", "POST")!!.uppercase(Locale.getDefault())
+
+        // Create Headers
+        val headers = createRequestHeaders(call)
+
+        // Get File Object
+        val file = FileExtensions.getFile(context, filePath, fileDirectory)
+
+        // Create Body with file and additional data params
+        if (method == "GET" || method == "HEAD") {
+            throw RuntimeException("Cannot upload a File when using a \"GET\" or \"HEAD\" request.")
+        }
+
+        val mediaType = getMediaTypeFromHeaders(call)
+        val multipartBuilder = MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart(name, file.name, file.asRequestBody(mediaType))
+
+        val keys: Iterator<String> = data.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            val value = data.getString(key)
+            if (value != null) {
+                multipartBuilder.addFormDataPart(key, value)
+            }
+        }
+        val body = multipartBuilder.build()
+
+
+        // Create Request
+        val request = Request.Builder()
+                .url(url)
+                .headers(headers)
+                .method(method, body)
+                .build()
+
+        // Execute request and return value
+        client.newCall(request).execute().use { response ->
+            val output = JSObject()
+            output.put("statusCode", response.code)
+            output.put("statusMessage", response.message)
+            output.put("url", response.request.url.toString())
+            output.put("error", !response.isSuccessful)
+            output.put("headers", parseResponseHeaders(response))
+            output.put("data", parseResponseBody(response))
             return output
         }
     }
@@ -123,13 +186,13 @@ object CapacitorHttpHandler {
     }
 
     private fun createRequestHeaders(call: PluginCall): Headers {
-        val headersJSObject = call.getObject("headers")
+        val headers = call.getObject("headers")
 
         val headersBuilder = Headers.Builder()
-        val keys: Iterator<String> = headersJSObject.keys()
+        val keys: Iterator<String> = headers.keys()
         while (keys.hasNext()) {
             val key = keys.next()
-            val value = headersJSObject.getString(key)
+            val value = headers.getString(key)
             if (value != null) {
                 headersBuilder.add(key, value)
             }
@@ -190,5 +253,19 @@ object CapacitorHttpHandler {
             ContentType.VIDEO_WEBM -> TODO()
             ContentType.UNKNOWN -> return Parser.parseByteStream(bytes)
         }
+    }
+
+    private fun getMediaTypeFromHeaders(call: PluginCall): MediaType? {
+        val headers = call.getObject("headers")
+
+        val keys: Iterator<String> = headers.keys()
+        while (keys.hasNext()) {
+            val key = keys.next()
+            val value = headers.getString(key)
+            if (key.uppercase(Locale.getDefault()) == "CONTENT-TYPE" && value != null) {
+                return value.toMediaType()
+            }
+        }
+        return null
     }
 }

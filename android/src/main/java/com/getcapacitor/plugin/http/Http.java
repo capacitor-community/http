@@ -130,10 +130,10 @@ public class Http extends Plugin {
     public void downloadFile(final PluginCall call) {
         try {
             bridge.saveCall(call);
-            String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
+            String fileDirectory = call.getString("fileDirectory", FileExtensions.INSTANCE.DIRECTORY_DOCUMENTS);
 
             if (
-                !FilesystemUtils.isPublicDirectory(fileDirectory) ||
+                !FileExtensions.INSTANCE.isPublicDirectory(fileDirectory) ||
                 isStoragePermissionGranted(call, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             ) {
                 call.release(bridge);
@@ -165,15 +165,15 @@ public class Http extends Plugin {
     @PluginMethod
     public void uploadFile(PluginCall call) {
         try {
-            String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
+            String fileDirectory = call.getString("fileDirectory", FileExtensions.INSTANCE.DIRECTORY_DOCUMENTS);
             bridge.saveCall(call);
 
             if (
-                !FilesystemUtils.isPublicDirectory(fileDirectory) ||
+                !FileExtensions.INSTANCE.isPublicDirectory(fileDirectory) ||
                 isStoragePermissionGranted(call, Manifest.permission.WRITE_EXTERNAL_STORAGE)
             ) {
                 call.release(bridge);
-                JSObject response = HttpRequestHandler.uploadFile(call, getContext());
+                JSObject response = CapacitorHttpHandler.upload(call, getContext());
                 call.resolve(response);
             }
         } catch (Exception ex) {
