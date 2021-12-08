@@ -40,8 +40,9 @@ repositories {
 
 
 dependencies {
-    implementation 'androidx.core:core-ktx:1.7.0'
-    implementation "com.squareup.okhttp3:okhttp:4.9.3"
+    implementation "androidx.core:core-ktx:1.7.0"
+    implementation "net.gotev:cookie-store:1.4.0"
+    implementation "net.gotev:cookie-store-okhttp:1.4.0"
     implementation project(':capacitor-android')
     testImplementation "junit:junit:4.13.2"
     androidTestImplementation "androidx.test.ext:junit:1.1.3"

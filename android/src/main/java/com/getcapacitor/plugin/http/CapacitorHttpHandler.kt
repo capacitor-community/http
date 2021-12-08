@@ -3,6 +3,7 @@ package com.getcapacitor.plugin.http
 import android.content.Context
 import com.getcapacitor.JSObject
 import com.getcapacitor.PluginCall
+import com.getcapacitor.plugin.http.cookie.CapacitorCookieManager
 import com.getcapacitor.plugin.http.parser.Parser
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -15,9 +16,9 @@ import java.util.concurrent.TimeUnit
 
 object CapacitorHttpHandler {
     @JvmStatic
-    fun request(call: PluginCall, httpMethod: String): JSObject {
+    fun request(call: PluginCall, httpMethod: String, cookieManager: CapacitorCookieManager): JSObject {
         // Create OkHttpClient
-        val client = createOkHttpClient(call)
+        val client = createOkHttpClient(call, cookieManager)
 
         // Parse variables
         val url = call.getString("url", "")!!
@@ -52,9 +53,9 @@ object CapacitorHttpHandler {
     }
 
     @JvmStatic
-    fun download(call: PluginCall, context: Context, progress: IProgressCallback): JSObject {
+    fun download(call: PluginCall, context: Context, cookieManager: CapacitorCookieManager, progress: IProgressCallback): JSObject {
         // Create OkHttpClient
-        val client = createOkHttpClient(call)
+        val client = createOkHttpClient(call, cookieManager)
 
         // Parse variables
         val url = call.getString("url", "")!!
@@ -104,15 +105,15 @@ object CapacitorHttpHandler {
             output.put("url", response.request.url.toString())
             output.put("error", !response.isSuccessful)
             output.put("headers", parseResponseHeaders(response))
-            output.put("file", file?.absolutePath)
+            output.put("file", file.absolutePath)
             return output
         }
     }
 
     @JvmStatic
-    fun upload(call: PluginCall, context: Context): JSObject {
+    fun upload(call: PluginCall, context: Context, cookieManager: CapacitorCookieManager): JSObject {
         // Create OkHttpClient
-        val client = createOkHttpClient(call)
+        val client = createOkHttpClient(call, cookieManager)
 
         // Parse variables
         val url = call.getString("url", "")!!
@@ -169,7 +170,7 @@ object CapacitorHttpHandler {
         }
     }
 
-    private fun createOkHttpClient(call: PluginCall): OkHttpClient {
+    private fun createOkHttpClient(call: PluginCall, cookieManager: CapacitorCookieManager): OkHttpClient {
         val connectTimeout = call.getInt("connectTimeout", 10000)!!.toLong()
         val readTimeout = call.getInt("readTimeout", 10000)!!.toLong()
         val writeTimeout = call.getInt("writeTimeout", 10000)!!.toLong()
@@ -177,6 +178,7 @@ object CapacitorHttpHandler {
 
         return OkHttpClient()
                 .newBuilder()
+                .cookieJar(cookieManager.getCookieJar())
                 .connectTimeout(connectTimeout, TimeUnit.MILLISECONDS)
                 .readTimeout(readTimeout, TimeUnit.MILLISECONDS)
                 .writeTimeout(writeTimeout, TimeUnit.MILLISECONDS)
