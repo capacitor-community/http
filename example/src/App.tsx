@@ -155,7 +155,12 @@ const App = () => {
                 expand="full"
                 color="warning"
                 onClick={() => {
-                  console.log('does nothing for now...');
+                  Http.uploadFile({
+                    url,
+                    method: 'POST',
+                    name: 'filename',
+                    filePath: 'testfile',
+                  });
                 }}
               >
                 Upload File
@@ -166,7 +171,11 @@ const App = () => {
                 expand="full"
                 color="light"
                 onClick={() => {
-                  console.log('does nothing for now...');
+                  Http.downloadFile({
+                    url,
+                    method: 'GET',
+                    filePath: 'testfile',
+                  });
                 }}
               >
                 Download File

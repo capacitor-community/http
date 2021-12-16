@@ -1,4 +1,4 @@
-package com.example.app;
+package io.ionic.httpapp;
 
 import android.os.Bundle;
 import com.getcapacitor.BridgeActivity;
