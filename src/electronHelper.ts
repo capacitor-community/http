@@ -6,7 +6,7 @@ import {
 
 declare global {
   interface Window {
-    CapacitorCustomPlatform: {
+    CapacitorCustomPlatform?: {
       plugins?: {
         Fetch: {
           fetch(
@@ -40,7 +40,7 @@ const electronFetch = (
   url: RequestInfo,
   init?: RequestInit,
 ): Promise<Response> => {
-  if (!window.CapacitorCustomPlatform.plugins?.Fetch) {
+  if (!window.CapacitorCustomPlatform?.plugins?.Fetch) {
     throw new Error('CapacitorCustomPlatform.plugins.Fetch is not defined???');
   }
 
@@ -55,11 +55,11 @@ const electronFetch = (
     return {
       ...responseData,
       headers: new Headers(headers),
-      json: () => window.CapacitorCustomPlatform.plugins?.Fetch?.getJson(id),
-      text: () => window.CapacitorCustomPlatform.plugins?.Fetch?.getText(id),
+      json: () => window.CapacitorCustomPlatform?.plugins?.Fetch?.getJson(id),
+      text: () => window.CapacitorCustomPlatform?.plugins?.Fetch?.getText(id),
       blob: async (): Promise<Blob> => {
         const blobObj =
-          await window.CapacitorCustomPlatform.plugins?.Fetch.getBlob(id);
+          await window.CapacitorCustomPlatform?.plugins?.Fetch.getBlob(id);
 
         if (!blobObj) {
           throw new Error(
@@ -76,6 +76,6 @@ const electronFetch = (
 };
 
 // @ts-ignore
-export default window.CapacitorCustomPlatform.plugins?.Fetch
+export default window.CapacitorCustomPlatform?.plugins?.Fetch
   ? electronFetch
   : undefined;
