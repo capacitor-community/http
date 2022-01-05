@@ -76,5 +76,6 @@ const electronFetch = (
 };
 
 // @ts-ignore
-export default (() =>
-  window.CapacitorCustomPlatform.plugins?.Fetch ? electronFetch : undefined)();
+export default window.CapacitorCustomPlatform.plugins?.Fetch
+  ? electronFetch
+  : undefined;
