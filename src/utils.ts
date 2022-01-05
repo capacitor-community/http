@@ -7,7 +7,7 @@ export const readBlobAsBase64 = async (blob: Blob): Promise<string> =>
     const reader = new FileReader();
     reader.onload = () => {
       const base64String = reader.result as string;
-      const base64StringWithoutTags = base64String.substr(
+      const base64StringWithoutTags = base64String.substring(
         base64String.indexOf(',') + 1,
       ); // remove prefix "data:application/pdf;base64,"
       resolve(base64StringWithoutTags);
