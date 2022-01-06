@@ -1,7 +1,7 @@
-import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonRow, IonTextarea, IonTitle, IonToolbar } from '@ionic/react';
-import React, { useState } from 'react';
+import { IonButton, IonCol, IonContent, IonGrid, IonHeader, IonInput, IonItem, IonLabel, IonRow, IonTextarea, IonTitle, IonToolbar, IonSpinner, IonText } from '@ionic/react';
+import React, { useCallback, useState } from 'react';
 
-import { Http } from '@capacitor-community/http';
+import { Http, HttpResponse } from '@capacitor-community/http';
 
 const defaultJsonBody = {
   foo: 'bar',
@@ -13,12 +13,25 @@ const defaultJsonBody = {
 const App = () => {
   const [url, setUrl] = useState<string>('http://localhost:3000/');
   const [body, setBody] = useState<string | null>(null);
+  const [response, setResponse] = useState<HttpResponse>();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<Error>();
 
   // Do this better...I'm sorry coding gods :'(
   const [key1, setKey1] = useState<string>('');
   const [key2, setKey2] = useState<string>('');
   const [value1, setValue1] = useState<string>('');
   const [value2, setValue2] = useState<string>('');
+
+  const handleRequest = useCallback((url: string, method: string, headers: Map<string, string>, body?: any) => {
+    setError(undefined);
+    setLoading(true);
+
+    doRequest(url, method, headers, body)
+      .then(value => setResponse(value))
+      .catch(err => setError(err))
+      .finally(() => setLoading(false));
+  }, []);
 
   return (
     <React.Fragment>
@@ -33,6 +46,13 @@ const App = () => {
         <IonItem lines="none">
           <h4>API Url</h4>
         </IonItem>
+        {loading && (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <IonSpinner />
+            <IonText>Loading...</IonText>
+          </div>
+        )}
+        {error && <IonText style={{ color: 'red' }}>Error: {error.message ?? error.toString()}</IonText>}
         <IonItem>
           <IonInput value={url} onIonChange={e => setUrl(e.detail.value!)} />
         </IonItem>
@@ -78,9 +98,10 @@ const App = () => {
               <IonButton
                 expand="full"
                 color="primary"
+                disabled={loading}
                 onClick={() => {
                   const map = makeHeaderMap(key1, key2, value1, value2);
-                  doRequest(url, 'GET', map, body);
+                  handleRequest(url, 'GET', map, body);
                 }}
               >
                 GET
@@ -90,9 +111,10 @@ const App = () => {
               <IonButton
                 expand="full"
                 color="success"
+                disabled={loading}
                 onClick={() => {
                   const map = makeHeaderMap(key1, key2, value1, value2);
-                  doRequest(url, 'POST', map, body);
+                  handleRequest(url, 'POST', map, body);
                 }}
               >
                 POST
@@ -102,9 +124,10 @@ const App = () => {
               <IonButton
                 expand="full"
                 color="tertiary"
+                disabled={loading}
                 onClick={() => {
                   const map = makeHeaderMap(key1, key2, value1, value2);
-                  doRequest(url, 'PUT', map, body);
+                  handleRequest(url, 'PUT', map, body);
                 }}
               >
                 PUT
@@ -116,9 +139,10 @@ const App = () => {
               <IonButton
                 expand="full"
                 color="dark"
+                disabled={loading}
                 onClick={() => {
                   const map = makeHeaderMap(key1, key2, value1, value2);
-                  doRequest(url, 'PATCH', map, body);
+                  handleRequest(url, 'PATCH', map, body);
                 }}
               >
                 PATCH
@@ -128,9 +152,10 @@ const App = () => {
               <IonButton
                 expand="full"
                 color="danger"
+                disabled={loading}
                 onClick={() => {
                   const map = makeHeaderMap(key1, key2, value1, value2);
-                  doRequest(url, 'DELETE', map, body);
+                  handleRequest(url, 'DELETE', map, body);
                 }}
               >
                 DELETE
@@ -140,9 +165,10 @@ const App = () => {
               <IonButton
                 expand="full"
                 color="secondary"
+                disabled={loading}
                 onClick={() => {
                   const map = makeHeaderMap(key1, key2, value1, value2);
-                  doRequest(url, 'LINK', map, body);
+                  handleRequest(url, 'LINK', map, body);
                 }}
               >
                 LINK
@@ -154,6 +180,7 @@ const App = () => {
               <IonButton
                 expand="full"
                 color="warning"
+                disabled={loading}
                 onClick={() => {
                   console.log('does nothing for now...');
                 }}
@@ -165,6 +192,7 @@ const App = () => {
               <IonButton
                 expand="full"
                 color="light"
+                disabled={loading}
                 onClick={() => {
                   console.log('does nothing for now...');
                 }}
@@ -198,6 +226,21 @@ const App = () => {
           </IonCol>
         </IonRow>
         <br />
+        {response && (
+          <div>
+            <p>Status: {response.status}</p>
+            <p>Headers:</p>
+            <ul>
+              {Object.entries(response.headers).map(([key, value], i) => (
+                <li key={i}>
+                  {key}: {value}
+                </li>
+              ))}
+            </ul>
+            <p>Data:</p>
+            <code style={{ whiteSpace: 'break-spaces' }}>{typeof response.data === typeof {} ? JSON.stringify(response.data, undefined, '\t') : response.data}</code>
+          </div>
+        )}
       </IonContent>
     </React.Fragment>
   );
@@ -212,16 +255,16 @@ const makeHeaderMap = (key1: string, key2: string, value1: string, value2: strin
   return output;
 };
 
-const doRequest = (url: string, method: string, headers: Map<string, string>, body?: any) => {
+const doRequest = (url: string, method: string, headers: Map<string, string>, body?: any): Promise<HttpResponse> => {
   if (body) {
-    Http.request({
+    return Http.request({
       url,
       method,
       headers: Object.fromEntries(headers),
       data: body,
     });
   } else {
-    Http.request({
+    return Http.request({
       url,
       method,
       headers: Object.fromEntries(headers),
