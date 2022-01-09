@@ -4,11 +4,13 @@ import {
   Response as NodeFetchResponse,
 } from 'node-fetch';
 
+import FinalizationRegistry from './finalizationregistry';
+
 declare global {
   interface Window {
     CapacitorCustomPlatform?: {
-      plugins?: {
-        Fetch: {
+      plugins: {
+        Fetch?: {
           fetch(
             url: RequestInfo,
             init?: NodeFetchRequestInit,
@@ -17,6 +19,7 @@ declare global {
           getJson(id: string): Promise<Record<string, any>>;
           getBuffer(id: string): Promise<Buffer>;
           getText(id: string): Promise<string>;
+          dispose(id: string): void;
         };
       };
     };
@@ -33,8 +36,16 @@ export type Response = ReturnType & {
   json: () => Promise<Record<string, any>>;
   text: () => Promise<string>;
   blob: () => Promise<Blob>;
+  dispose: () => void;
   headers: Headers;
 };
+
+const finalizationRegistry =
+  'FinalizationRegistry' in window
+    ? new FinalizationRegistry(id =>
+        window.CapacitorCustomPlatform?.plugins.Fetch?.dispose(id),
+      )
+    : undefined;
 
 const electronFetch = (
   url: RequestInfo,
@@ -52,14 +63,15 @@ const electronFetch = (
   ).then((response: ReturnType): Response => {
     const { id, headers, ...responseData } = response;
 
-    return {
+    const webResponse = {
       ...responseData,
       headers: new Headers(headers),
-      json: () => window.CapacitorCustomPlatform?.plugins?.Fetch?.getJson(id),
-      text: () => window.CapacitorCustomPlatform?.plugins?.Fetch?.getText(id),
+      dispose: () => window.CapacitorCustomPlatform?.plugins.Fetch?.dispose(id),
+      json: () => window.CapacitorCustomPlatform?.plugins.Fetch?.getJson(id),
+      text: () => window.CapacitorCustomPlatform?.plugins.Fetch?.getText(id),
       blob: async (): Promise<Blob> => {
         const blobObj =
-          await window.CapacitorCustomPlatform?.plugins?.Fetch.getBlob(id);
+          await window.CapacitorCustomPlatform?.plugins.Fetch?.getBlob(id);
 
         if (!blobObj) {
           throw new Error(
@@ -72,10 +84,15 @@ const electronFetch = (
         return new Blob([buffer], { type });
       },
     } as Response;
+
+    // Dispose of the response on the Electron side when this object gets garbage collected
+    finalizationRegistry?.register(webResponse, id);
+
+    return webResponse;
   });
 };
 
 // @ts-ignore
-export default window.CapacitorCustomPlatform?.plugins?.Fetch
+export default window.CapacitorCustomPlatform?.plugins.Fetch
   ? electronFetch
   : undefined;

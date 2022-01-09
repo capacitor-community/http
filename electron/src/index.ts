@@ -43,6 +43,10 @@ class FetchHelper {
     };
   }
 
+  dispose(id: string): void {
+    FetchHelper._responses.delete(id);
+  }
+
   private static _cloneResponse(response: Response): ReturnType {
     const headers = Object.fromEntries([...response.headers.entries()]);
     const id = FetchHelper._id();
