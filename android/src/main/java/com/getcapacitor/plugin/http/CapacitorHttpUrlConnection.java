@@ -3,7 +3,6 @@ package com.getcapacitor.plugin.http;
 import android.os.Build;
 import android.os.LocaleList;
 import android.text.TextUtils;
-import android.util.Log;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
@@ -290,7 +289,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
      *
      * @return  the value of this {@code URLConnection}'s {@code URL}
      *          field.
-     * @see     java.net.URLConnection
+     * @see     java.net.URLConnection#url
      */
     public URL getURL() {
         return connection.getURL();
