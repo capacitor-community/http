@@ -127,11 +127,11 @@ public class HttpRequestHandler {
             String initialQueryBuilderStr = initialQuery == null ? "" : initialQuery;
 
             Iterator<String> keys = params.keys();
-            
+
             if (!keys.hasNext()) {
                 return this;
             }
-            
+
             StringBuilder urlQueryBuilder = new StringBuilder(initialQueryBuilderStr);
 
             // Build the new query string
@@ -167,7 +167,13 @@ public class HttpRequestHandler {
                 URI encodedUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), urlQuery, uri.getFragment());
                 this.url = encodedUri.toURL();
             } else {
-                String unEncodedUrlString = uri.getScheme() + "://" + uri.getAuthority() + uri.getPath() + ((!urlQuery.equals("")) ? "?" + urlQuery : "") + ((uri.getFragment() != null) ? uri.getFragment() : "");
+                String unEncodedUrlString =
+                    uri.getScheme() +
+                    "://" +
+                    uri.getAuthority() +
+                    uri.getPath() +
+                    ((!urlQuery.equals("")) ? "?" + urlQuery : "") +
+                    ((uri.getFragment() != null) ? uri.getFragment() : "");
                 this.url = new URL(unEncodedUrlString);
             }
 
@@ -368,11 +374,17 @@ public class HttpRequestHandler {
         Integer readTimeout = call.getInt("readTimeout");
         Boolean disableRedirects = call.getBoolean("disableRedirects");
         Boolean shouldEncode = call.getBoolean("shouldEncodeUrlParams", true);
+        Boolean gzipCompression = call.getBoolean("gzipCompression", false);
         ResponseType responseType = ResponseType.parse(call.getString("responseType"));
 
         String method = httpMethod != null ? httpMethod.toUpperCase() : call.getString("method", "").toUpperCase();
 
         boolean isHttpMutate = method.equals("DELETE") || method.equals("PATCH") || method.equals("POST") || method.equals("PUT");
+
+        // Set gzip header if compression is enabled
+        if (gzipCompression) {
+            headers.put("Content-Encoding", "gzip");
+        }
 
         URL url = new URL(urlString);
         HttpURLConnectionBuilder connectionBuilder = new HttpURLConnectionBuilder()

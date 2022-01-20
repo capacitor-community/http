@@ -154,11 +154,12 @@ class HttpRequestHandler {
         guard let urlString = call.getString("url") else { throw URLError(.badURL) }
         guard let method = httpMethod ?? call.getString("method") else { throw URLError(.dataNotAllowed) }
 
-        let headers = (call.getObject("headers") ?? [:]) as! [String: String]
+        var headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as! [String: Any]
         let responseType = call.getString("responseType") ?? "text";
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
+        let gzipCompression = call.getBool("gzipCompression") ?? false
 
         let request = try! CapacitorHttpRequestBuilder()
             .setUrl(urlString)
@@ -166,6 +167,10 @@ class HttpRequestHandler {
             .setUrlParams(params)
             .openConnection()
             .build();
+
+        if (gzipCompression) {
+            headers["Content-Encoding"] = "gzip"
+        }
 
         request.setRequestHeaders(headers)
 
@@ -175,7 +180,7 @@ class HttpRequestHandler {
 
         if let data = call.options["data"] as? JSValue {
             do {
-                try request.setRequestBody(data)
+                try request.setRequestBody(data, gzipCompression)
             } catch {
                 // Explicitly reject if the http request body was not set successfully,
                 // so as to not send a known malformed request, and to provide the developer with additional context.

@@ -3,9 +3,11 @@ package com.getcapacitor.plugin.http;
 import android.os.Build;
 import android.os.LocaleList;
 import android.text.TextUtils;
+import android.util.Log;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,6 +22,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.zip.GZIPOutputStream;
 import org.json.JSONException;
 
 public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
@@ -170,6 +173,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
      */
     public void setRequestBody(PluginCall call, JSValue body) throws JSONException, IOException {
         String contentType = connection.getRequestProperty("Content-Type");
+        Boolean gzipCompression = call.getBoolean("gzipCompression", false);
         String dataString = "";
 
         if (contentType == null || contentType.isEmpty()) return;
@@ -186,7 +190,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
             } else if (body == null) {
                 dataString = call.getString("data");
             }
-            this.writeRequestBody(dataString.toString());
+            this.writeRequestBody(dataString.toString(), gzipCompression);
         } else if (contentType.contains("application/x-www-form-urlencoded")) {
             StringBuilder builder = new StringBuilder();
 
@@ -201,7 +205,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
                     builder.append("&");
                 }
             }
-            this.writeRequestBody(builder.toString());
+            this.writeRequestBody(builder.toString(), gzipCompression);
         } else if (contentType.contains("multipart/form-data")) {
             FormUploader uploader = new FormUploader(connection);
 
@@ -215,7 +219,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
             }
             uploader.finish();
         } else {
-            this.writeRequestBody(body.toString());
+            this.writeRequestBody(body.toString(), gzipCompression);
         }
     }
 
@@ -224,10 +228,17 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
      *
      * @param body The string value to write to the connection stream.
      */
-    private void writeRequestBody(String body) throws IOException {
-        try (DataOutputStream os = new DataOutputStream(connection.getOutputStream())) {
-            os.write(body.getBytes(StandardCharsets.UTF_8));
-            os.flush();
+    private void writeRequestBody(String body, boolean gzipCompression) throws IOException {
+        if (gzipCompression) {
+            try (GZIPOutputStream gos = new GZIPOutputStream(connection.getOutputStream())) {
+                gos.write(body.getBytes(StandardCharsets.UTF_8));
+                gos.flush();
+            }
+        } else {
+            try (DataOutputStream dos = new DataOutputStream(connection.getOutputStream())) {
+                dos.write(body.getBytes(StandardCharsets.UTF_8));
+                dos.flush();
+            }
         }
     }
 
@@ -279,7 +290,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
      *
      * @return  the value of this {@code URLConnection}'s {@code URL}
      *          field.
-     * @see     java.net.URLConnection#url
+     * @see     java.net.URLConnection
      */
     public URL getURL() {
         return connection.getURL();

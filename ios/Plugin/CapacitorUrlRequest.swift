@@ -118,11 +118,24 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
         }
     }
     
-    public func setRequestBody(_ body: JSValue) throws {
-        let contentType = self.getRequestHeader("Content-Type") as? String
+    public func getRequestDataAsGzip(_ body: JSValue) throws -> Data? {
+        // string to Data
+        let dataBody = try getRequestDataAsString(body)
 
+        // gzip compression
+        let compressedData: Data = try dataBody.gzipped()
+        return compressedData
+    }
+    
+    public func setRequestBody(_ body: JSValue, _ gzipCompression: Bool) throws {
+        let contentType = self.getRequestHeader("Content-Type") as? String
+        
         if contentType != nil {
-            request.httpBody = try getRequestData(body, contentType!)
+            if(gzipCompression) {
+                request.httpBody = try getRequestDataAsGzip(body)
+            } else {
+                request.httpBody = try getRequestData(body, contentType!)
+            }
         }
     }
 
