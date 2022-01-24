@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@capacitor-community/electron": "^4.0.3",
+    "@capacitor-community/electron": "^4.1.0",
     "@capacitor-community/http": "file:../",
     "@capacitor/android": "^3.3.2",
     "@capacitor/core": "^3.3.2",
