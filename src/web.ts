@@ -17,6 +17,9 @@ import type {
 import { WebPlugin } from '@capacitor/core';
 import * as Cookie from './cookie';
 import * as Request from './request';
+import electronFetch from './electronHelper';
+
+const fetch = electronFetch ?? window.fetch;
 
 export class HttpWeb extends WebPlugin implements HttpPlugin {
   constructor() {
@@ -167,7 +170,7 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
     const response = await fetch(options.url, requestInit);
     let blob: Blob;
 
-    if (!options?.progress) blob = await response.blob();
+    if (!options?.progress) blob = (await response.blob()) as Blob;
     else if (!response?.body) blob = new Blob();
     else {
       const reader = response.body.getReader();
