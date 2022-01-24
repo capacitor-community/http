@@ -65,6 +65,7 @@ class FetchHelper extends EventEmitter {
       },
       close: () => {
         this.emit(`body-${id}`, 'close');
+        this.stopBodyStream(id);
       },
     };
 
