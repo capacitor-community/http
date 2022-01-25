@@ -131,9 +131,13 @@ public class FormUploader {
                 try {
                     Object value = data.get(key);
 
-                    if (!(value instanceof String)) continue;
-
-                    appendFieldToWriter(key, value.toString());
+                    if (value instanceof String) {
+                        appendFieldToWriter(key, value.toString());
+                    } else if (value instanceof String[]) {
+                        for (childValue : value) {
+                            appendFieldToWriter(key, childValue.toString());
+                        }
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }

@@ -123,9 +123,6 @@ class HttpRequestHandler {
     }
 
     private static func generateMultipartForm(_ url: URL, _ name: String, _ boundary: String, _ body: [String:Any]) throws -> Data {
-        let strings: [String: String] = body.compactMapValues { any in
-            any as? String
-        }
 
         var data = Data()
 
@@ -139,10 +136,18 @@ class HttpRequestHandler {
             using: .utf8)!)
         data.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
         data.append(fileData)
-        strings.forEach { key, value in
-            data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
-            data.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
-            data.append(value.data(using: .utf8)!)
+        body.forEach { key, value in
+            if let stringArray = value as? [String] {
+                for item in stringArray {
+                    data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
+                    data.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+                    data.append(item.data(using: .utf8)!)
+                }
+            } else {
+                data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
+                data.append("Content-Disposition: form-data; name=\"\(key)\"\r\n\r\n".data(using: .utf8)!)
+                data.append((value as! String).data(using: .utf8)!)
+            }
         }
         data.append("\r\n--\(boundary)--\r\n".data(using: .utf8)!)
 
