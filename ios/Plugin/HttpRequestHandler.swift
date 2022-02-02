@@ -31,11 +31,15 @@ fileprivate enum ResponseType: String {
 ///     - data: The JSON Data to parse
 /// - Returns: The parsed value or an error
 func tryParseJson(_ data: Data) -> Any {
-  do {
-    return try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
-  } catch {
-    return error.localizedDescription
-  }
+    if data.elementsEqual("null".data(using: .utf8)!) {
+        return NSNull()
+    }
+    
+    do {
+        return try JSONSerialization.jsonObject(with: data, options: .mutableContainers)
+    } catch {
+        return error.localizedDescription
+    }
 }
 
 class HttpRequestHandler {

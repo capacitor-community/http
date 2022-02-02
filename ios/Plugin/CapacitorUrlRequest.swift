@@ -25,7 +25,9 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
     
     private func getRequestDataAsJson(_ data: JSValue) throws -> Data? {
         // We need to check if the JSON is valid before attempting to serialize, as JSONSerialization.data will not throw an exception that can be caught, and will cause the application to crash if it fails.
-        if JSONSerialization.isValidJSONObject(data) {
+        if (data is NSNull) {
+            return "null".data(using: .utf8)
+        } else if JSONSerialization.isValidJSONObject(data) {
             return try JSONSerialization.data(withJSONObject: data)
         } else {
             throw CapacitorUrlRequest.CapacitorUrlRequestError.serializationError("[ data ] argument for request of content-type [ application/json ] must be serializable to JSON")
