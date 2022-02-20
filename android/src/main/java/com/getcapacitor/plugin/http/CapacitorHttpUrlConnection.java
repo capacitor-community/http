@@ -16,6 +16,7 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.net.UnknownServiceException;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -215,7 +216,20 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
             }
             uploader.finish();
         } else {
-            this.writeRequestBody(body.toString());
+            JSObject obj = new JSObject(body.toString());
+            Iterator<String> keys = obj.keys();
+
+            List<Byte> data = new ArrayList<>();
+            while (keys.hasNext()) {
+                data.add((byte)obj.getInt(keys.next()));
+            }
+
+            byte[] bytes = new byte[data.size()];
+            for (int i = 0; i < bytes.length; i++) {
+                bytes[i] = data.get(i);
+            }
+
+            this.writeRequestBody(bytes);
         }
     }
 
@@ -227,6 +241,18 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
     private void writeRequestBody(String body) throws IOException {
         try (DataOutputStream os = new DataOutputStream(connection.getOutputStream())) {
             os.write(body.getBytes(StandardCharsets.UTF_8));
+            os.flush();
+        }
+    }
+
+    /**
+     * Writes the provided bytes to the HTTP connection managed by this instance.
+     *
+     * @param body The bytes to write to the connection stream.
+     */
+    private void writeRequestBody(byte[] body) throws IOException {
+        try (DataOutputStream os = new DataOutputStream(connection.getOutputStream())) {
+            os.write(body);
             os.flush();
         }
     }

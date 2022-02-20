@@ -14,10 +14,10 @@ public class JSValue {
 
     /**
      * @param call The capacitor plugin call, used for accessing the value safely.
-     * @param name The name of the property to access.
+     * @param names The names of the property to access.
      */
-    public JSValue(PluginCall call, String name) {
-        this.value = this.toValue(call, name);
+    public JSValue(PluginCall call, String... names) {
+        this.value = this.toValue(call, names);
     }
 
     /**
@@ -55,14 +55,19 @@ public class JSValue {
     /**
      * Returns the underlying value this object represents, coercing it into a capacitor-friendly object if supported.
      */
-    private Object toValue(PluginCall call, String name) {
-        Object value = null;
-        value = call.getArray(name, null);
-        if (value != null) return value;
-        value = call.getObject(name, null);
-        if (value != null) return value;
-        value = call.getString(name, null);
-        if (value != null) return value;
-        return call.getData().opt(name);
+    private Object toValue(PluginCall call, String... names) {
+        Object retValue = null;
+        for (String name : names) {
+            Object value;
+            value = call.getArray(name, null);
+            if (value != null) return value;
+            retValue = retValue == null ? call.getObject(name, null) : ((JSObject)retValue).opt(name);
+            if (retValue != null) continue;
+            value = call.getString(name, null);
+            if (value != null) return value;
+            value = call.getData().opt(name);
+            if (value != null) return value;
+        }
+        return retValue;
     }
 }
