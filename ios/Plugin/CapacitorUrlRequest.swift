@@ -85,6 +85,22 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
         }
         return Data(stringData.utf8)
     }
+    
+    private func getRequestDataAsRaw(_ data: JSValue) throws -> Data? {
+        guard let obj = data as? JSObject else {
+            throw CapacitorUrlRequestError.serializationError("[ data ] argument could not be parsed as raw data")
+        }
+        let strings: [String: Int] = obj.compactMapValues { any in
+            any as? Int
+        }
+        
+        var raw = [UInt8](repeating: 0, count: strings.keys.count)
+        strings.forEach { key, value in
+            raw[Int(key) ?? 0] = UInt8(value)
+        }
+        
+        return Data(raw)
+    }
 
     func getRequestHeader(_ index: String) -> Any? {
         var normalized = [:] as [String:Any]
@@ -105,9 +121,8 @@ public class CapacitorUrlRequest: NSObject, URLSessionTaskDelegate {
             return try getRequestDataAsFormUrlEncoded(body)
         } else if contentType.contains("multipart/form-data") {
             return try getRequestDataAsMultipartFormData(body)
-        } else {
-            throw CapacitorUrlRequestError.serializationError("[ data ] argument could not be parsed for content type [ \(contentType) ]")
         }
+        return try getRequestDataAsRaw(body);
     }
 
     public func setRequestHeaders(_ headers: [String: String]) {
