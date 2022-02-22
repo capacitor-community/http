@@ -127,11 +127,11 @@ public class HttpRequestHandler {
             String initialQueryBuilderStr = initialQuery == null ? "" : initialQuery;
 
             Iterator<String> keys = params.keys();
-            
+
             if (!keys.hasNext()) {
                 return this;
             }
-            
+
             StringBuilder urlQueryBuilder = new StringBuilder(initialQueryBuilderStr);
 
             // Build the new query string
@@ -167,7 +167,13 @@ public class HttpRequestHandler {
                 URI encodedUri = new URI(uri.getScheme(), uri.getAuthority(), uri.getPath(), urlQuery, uri.getFragment());
                 this.url = encodedUri.toURL();
             } else {
-                String unEncodedUrlString = uri.getScheme() + "://" + uri.getAuthority() + uri.getPath() + ((!urlQuery.equals("")) ? "?" + urlQuery : "") + ((uri.getFragment() != null) ? uri.getFragment() : "");
+                String unEncodedUrlString =
+                    uri.getScheme() +
+                    "://" +
+                    uri.getAuthority() +
+                    uri.getPath() +
+                    ((!urlQuery.equals("")) ? "?" + urlQuery : "") +
+                    ((uri.getFragment() != null) ? uri.getFragment() : "");
                 this.url = new URL(unEncodedUrlString);
             }
 
@@ -234,7 +240,7 @@ public class HttpRequestHandler {
             } else {
                 return readStreamAsString(errorStream);
             }
-        } else if (contentType != null && contentType.contains(APPLICATION_JSON.getValue())) {
+        } else if (responseType != ResponseType.TEXT && contentType != null && contentType.contains(APPLICATION_JSON.getValue())) {
             // backward compatibility
             return parseJSON(readStreamAsString(connection.getInputStream()));
         } else {

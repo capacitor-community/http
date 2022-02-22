@@ -17,6 +17,18 @@
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 </p>
 
+## Youreka Forked Changes
+
+### Response Type
+
+#### Change
+
+We follow the response type over the content type header that is returned from the http response if the content type is a JSON.
+
+#### Reason
+
+Some of Youreka's Apex endpoints return the content type header as JSON when the actual data returned is of type string.
+
 ## Maintainers
 
 | Maintainer   | GitHub                                        | Social                                          |
