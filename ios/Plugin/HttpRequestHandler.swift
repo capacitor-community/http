@@ -189,6 +189,7 @@ class HttpRequestHandler {
         let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
             urlSession.invalidateAndCancel();
             if error != nil {
+                call.reject("Error", "REQUEST", error, [:])
                 return
             }
 
