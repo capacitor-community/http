@@ -179,7 +179,7 @@ class HttpRequestHandler {
             } catch {
                 // Explicitly reject if the http request body was not set successfully,
                 // so as to not send a known malformed request, and to provide the developer with additional context.
-                call.reject("Error", "REQUEST", error, [:])
+                call.reject(error.localizedDescription, "http request", error, [:])
                 return
             }
         }
@@ -189,6 +189,8 @@ class HttpRequestHandler {
         let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
             urlSession.invalidateAndCancel();
             if error != nil {
+                CAPLog.print("Error on request", String(describing: data), String(describing: response), String(describing: error))
+                call.reject(error!.localizedDescription, "http request", error, [:])
                 return
             }
 
@@ -236,7 +238,7 @@ class HttpRequestHandler {
         let task = URLSession.shared.uploadTask(with: urlRequest, from: form) { (data, response, error) in
             if error != nil {
                 CAPLog.print("Error on upload file", String(describing: data), String(describing: response), String(describing: error))
-                call.reject("Error", "UPLOAD", error, [:])
+                call.reject(error!.localizedDescription, "http upload", error, [:])
                 return
             }
             let type = ResponseType(rawValue: responseType) ?? .default
@@ -274,12 +276,12 @@ class HttpRequestHandler {
         func handleDownload(downloadLocation: URL?, response: URLResponse?, error: Error?) {
             if error != nil {
                 CAPLog.print("Error on download file", String(describing: downloadLocation), String(describing: response), String(describing: error))
-                call.reject("Error", "DOWNLOAD", error, [:])
+                call.reject(error!.localizedDescription, "http download", error, [:])
                 return
             }
 
             guard let location = downloadLocation else {
-                call.reject("Unable to get file after downloading")
+                call.reject("Unable to get file after downloading", "http download")
                 return
             }
 
@@ -298,7 +300,7 @@ class HttpRequestHandler {
                 try fileManager.moveItem(at: location, to: dest)
                 call.resolve(["path": dest.absoluteString])
             } catch let e {
-                call.reject("Unable to download file", "DOWNLOAD", e)
+                call.reject("Unable to download file: \(e.localizedDescription)", "http download", e)
                 return
             }
 
