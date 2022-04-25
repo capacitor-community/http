@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/maintenance/yes/2021?style=flat-square" />
+  <img src="https://img.shields.io/maintenance/yes/2022?style=flat-square" />
   <a href="https://github.com/capacitor-community/http/actions?query=workflow%3A%22Test+and+Build+Plugin%22"><img src="https://img.shields.io/github/workflow/status/capacitor-community/http/Test%20and%20Build%20Plugin?style=flat-square" /></a>
   <a href="https://www.npmjs.com/package/@capacitor-community/http"><img src="https://img.shields.io/npm/l/@capacitor-community/http?style=flat-square" /></a>
 <br>
@@ -30,6 +30,9 @@
 npm install @capacitor-community/http
 npx cap sync
 ```
+
+## Maintence Mode
+The next iteration of this plugin will be an [official plugin bundled with Capacitor 4.x](https://github.com/ionic-team/capacitor/issues/5145). In order for a smooth transition, this repo will be in maintence mode with no new features added until the plugin moves to the main [Capacitor Plugins repo](https://github.com/ionic-team/capacitor-plugins). In the meantime, if there *are* critical security bug fixes required, they will still be made to this plugin as a patch release.
 
 ### Capacitor 2.x
 
