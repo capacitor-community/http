@@ -327,7 +327,7 @@ public class HttpRequestHandler {
                 out.write(buffer, 0, readBytes);
             }
             byte[] result = out.toByteArray();
-            return Base64.encodeToString(result, 0, result.length, Base64.DEFAULT);
+            return Base64.encodeToString(result, 0, result.length, Base64.NO_WRAP);
         }
     }
 
