@@ -5,6 +5,9 @@ import type {
   HttpHeaders,
 } from './definitions';
 import { readBlobAsBase64 } from './utils';
+import electronFetch from './electronHelper';
+
+const fetch = electronFetch ?? window.fetch;
 
 /**
  * Normalize an HttpHeaders map by lowercasing all of the values
@@ -99,7 +102,7 @@ export const buildRequestInit = (
     }
     output.body = form;
     const headers = new Headers(output.headers);
-    headers.delete('content-type'); // content-type will be set by `window.fetch` to includy boundary
+    headers.delete('content-type'); // content-type will be set by `window.fetch` to include boundary
     output.headers = headers;
   } else if (
     type.includes('application/json') ||
@@ -139,7 +142,7 @@ export const request = async (options: HttpOptions): Promise<HttpResponse> => {
     case 'arraybuffer':
     case 'blob':
       const blob = await response.blob();
-      data = await readBlobAsBase64(blob);
+      data = await readBlobAsBase64(blob as Blob);
       break;
     case 'json':
       data = await response.json();

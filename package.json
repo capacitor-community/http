@@ -6,8 +6,9 @@
   "module": "dist/esm/index.js",
   "types": "dist/esm/index.d.ts",
   "scripts": {
-    "build": "npm run clean && tsc && rollup -c rollup.config.js",
+    "build": "npm run clean && tsc && rollup -c rollup.config.js && npm run electron:build",
     "ios:build": "cd ios && pod install && cd ..",
+    "electron:build": "tsc --project electron/tsconfig.json && rollup -c electron/rollup.config.js && rimraf ./electron/build",
     "docs": "typedoc src/web.ts src/definitions.ts",
     "clean": "rimraf ./dist",
     "watch": "tsc --watch",
@@ -22,10 +23,13 @@
     "@capacitor/android": "^3.0.0",
     "@capacitor/core": "^3.0.0",
     "@capacitor/filesystem": "^1.0.0",
-    "@capacitor/ios": "^3.0.0"
+    "@capacitor/ios": "^3.0.0",
+    "node-fetch": "^2.6.6"
   },
   "devDependencies": {
     "@ionic/prettier-config": "^1.0.1",
+    "@types/node": "^17.0.8",
+    "@types/node-fetch": "^2.5.12",
     "all-contributors-cli": "^6.20.0",
     "husky": "^6.0.0",
     "prettier": "^2.3.0",
@@ -45,6 +49,7 @@
     "dist/",
     "ios/",
     "android/",
+    "electron/",
     "CapacitorCommunityHttp.podspec"
   ],
   "keywords": [
@@ -59,6 +64,9 @@
     },
     "android": {
       "src": "android"
+    },
+    "electron": {
+      "src": "electron"
     }
   },
   "repository": {

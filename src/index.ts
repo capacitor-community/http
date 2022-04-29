@@ -1,5 +1,7 @@
 import { registerPlugin } from '@capacitor/core';
+
 import type { HttpPlugin } from './definitions';
+import electronFetch from './electronHelper';
 
 const Http = registerPlugin<HttpPlugin>('Http', {
   web: () => import('./web').then(m => new m.HttpWeb()),
@@ -7,4 +9,4 @@ const Http = registerPlugin<HttpPlugin>('Http', {
 });
 
 export * from './definitions';
-export { Http };
+export { Http, electronFetch };
