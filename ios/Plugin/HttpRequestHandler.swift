@@ -159,6 +159,7 @@ class HttpRequestHandler {
         let responseType = call.getString("responseType") ?? "text";
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
+        let extra = (call.getObject("webFetchExtra") ?? [:]) as! [String: Any]
 
         let request = try! CapacitorHttpRequestBuilder()
             .setUrl(urlString)
@@ -173,7 +174,7 @@ class HttpRequestHandler {
         let timeout = (connectTimeout ?? readTimeout ?? 600000.0) / 1000.0;
         request.setTimeout(timeout)
 
-        if let data = call.options["data"] as? JSValue {
+        if let data = (call.options["data"] ?? extra["body"]) as? JSValue {
             do {
                 try request.setRequestBody(data)
             } catch {

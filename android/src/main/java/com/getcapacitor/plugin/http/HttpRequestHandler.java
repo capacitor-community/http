@@ -393,6 +393,12 @@ public class HttpRequestHandler {
             if (data.getValue() != null) {
                 connection.setDoOutput(true);
                 connection.setRequestBody(call, data);
+            } else {
+                JSValue webFetchExtraData = new JSValue(call, "webFetchExtra", "body");
+                if (webFetchExtraData.getValue() != null) {
+                    connection.setDoOutput(true);
+                    connection.setRequestBody(call, webFetchExtraData);
+                }
             }
         }
 
