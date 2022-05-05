@@ -141,7 +141,7 @@ const uploadFile = async () => {
     fileDirectory: FilesystemDirectory.Downloads,
   };
 
-  const response: HttpUploadFileResult = await Http.uploadFile();
+  const response: HttpUploadFileResult = await Http.uploadFile(options);
 };
 ```
 
