@@ -7,6 +7,7 @@ export default {
       name: 'capacitorCommunityHttp',
       globals: {
         '@capacitor/core': 'capacitorExports',
+        'pako': 'Pako',
       },
       sourcemap: true,
       inlineDynamicImports: true,
@@ -18,5 +19,5 @@ export default {
       inlineDynamicImports: true,
     },
   ],
-  external: ['@capacitor/core'],
+  external: ['@capacitor/core', 'pako'],
 };

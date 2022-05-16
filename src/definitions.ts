@@ -65,6 +65,11 @@ export interface HttpOptions {
    * (already encoded, azure/firebase testing, etc.). The default is _true_.
    */
   shouldEncodeUrlParams?: boolean;
+  /**
+   * Use this option if you need a gzip compression of the data payload
+   * A compatible consumer interface must be ensured. The default is _false_.
+   */
+  gzipCompression?: boolean;
 }
 
 export interface HttpParams {

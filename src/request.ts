@@ -1,3 +1,4 @@
+import * as Pako from 'pako';
 import type {
   HttpOptions,
   HttpResponse,
@@ -77,7 +78,15 @@ export const buildRequestInit = (
 
   // If body is already a string, then pass it through as-is.
   if (typeof options.data === 'string') {
-    output.body = options.data;
+    if (options && options.gzipCompression && options.headers) {
+      options.headers['Content-Encoding'] = 'gzip';
+      output.headers = options.headers;
+
+      const gzippedData: Uint8Array = Pako.gzip(options.data);
+      output.body = gzippedData.buffer;
+    } else {
+      output.body = options.data;
+    }
   }
   // Build request initializers based off of content-type
   else if (type.includes('application/x-www-form-urlencoded')) {
