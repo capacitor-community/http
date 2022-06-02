@@ -20,22 +20,6 @@ public class CapacitorCookieManager extends CookieManager {
 
     private final android.webkit.CookieManager webkitCookieManager;
 
-    private String encode(String value) {
-        try {
-            return URLEncoder.encode(value, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException ex) {
-            return "";
-        }
-    }
-
-    private String decode(String value) {
-        try {
-            return URLDecoder.decode(value, StandardCharsets.UTF_8.toString());
-        } catch (UnsupportedEncodingException ex) {
-            return "";
-        }
-    }
-
     /**
      * Create a new cookie manager for use with @capacitor-community/http with the default cookie
      * store and policy
@@ -97,7 +81,7 @@ public class CapacitorCookieManager extends CookieManager {
                 String[] singleCookie = cookieString.split(";");
                 for (String c : singleCookie) {
                     HttpCookie parsed = HttpCookie.parse(c).get(0);
-                    parsed.setValue(decode(parsed.getValue()));
+                    parsed.setValue(parsed.getValue());
                     cookieList.add(parsed);
                 }
             }
@@ -127,7 +111,7 @@ public class CapacitorCookieManager extends CookieManager {
      * @param value the value of the {@code HttpCookie} given a key
      */
     public void setCookie(String url, String key, String value) {
-        String cookieValue = key + "=" + encode(value);
+        String cookieValue = key + "=" + value;
         setCookie(url, cookieValue);
     }
 

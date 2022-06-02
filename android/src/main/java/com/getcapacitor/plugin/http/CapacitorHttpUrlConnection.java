@@ -1,5 +1,8 @@
 package com.getcapacitor.plugin.http;
 
+import android.os.Build;
+import android.os.LocaleList;
+import android.text.TextUtils;
 import com.getcapacitor.JSArray;
 import com.getcapacitor.JSObject;
 import com.getcapacitor.PluginCall;
@@ -15,6 +18,7 @@ import java.net.UnknownServiceException;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.json.JSONException;
 
@@ -30,7 +34,7 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
      */
     public CapacitorHttpUrlConnection(HttpURLConnection conn) {
         connection = conn;
-        connection.setRequestProperty("Accept-Charset", java.nio.charset.StandardCharsets.UTF_8.name());
+        this.setDefaultRequestProperties();
     }
 
     /**
@@ -350,5 +354,40 @@ public class CapacitorHttpUrlConnection implements ICapacitorHttpUrlConnection {
      */
     public Map<String, List<String>> getHeaderFields() {
         return connection.getHeaderFields();
+    }
+
+    /**
+     * Sets the default request properties on the newly created connection.
+     * This is called as early as possible to allow overrides by user-provided values.
+     */
+    private void setDefaultRequestProperties() {
+        connection.setRequestProperty("Accept-Charset", StandardCharsets.UTF_8.name());
+        String acceptLanguage = buildDefaultAcceptLanguageProperty();
+        if (!TextUtils.isEmpty(acceptLanguage)) {
+            connection.setRequestProperty("Accept-Language", acceptLanguage);
+        }
+    }
+
+    /**
+     * Builds and returns a locale string describing the device's current locale preferences.
+     */
+    private String buildDefaultAcceptLanguageProperty() {
+        Locale locale;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            locale = LocaleList.getDefault().get(0);
+        } else {
+            locale = Locale.getDefault();
+        }
+        String result = "";
+        String lang = locale.getLanguage();
+        String country = locale.getCountry();
+        if (!TextUtils.isEmpty(lang)) {
+            if (!TextUtils.isEmpty(country)) {
+                result = String.format("%s-%s,%s;q=0.5", lang, country, lang);
+            } else {
+                result = String.format("%s;q=0.5", lang);
+            }
+        }
+        return result;
     }
 }

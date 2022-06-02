@@ -1,27 +1,46 @@
 {
-  "name": "example",
+  "name": "http-example",
+  "version": "0.1.0",
   "private": true,
-  "version": "0.0.1",
-  "description": "Example frontend for @capacitor-community/http with Stencil",
-  "license": "MIT",
-  "files": [
-    "dist/"
-  ],
-  "scripts": {
-    "build": "rm -rf www && stencil build",
-    "start": "stencil build --dev --watch --serve",
-    "sync": "cap sync",
-    "test": "stencil test --spec --e2e",
-    "test.watch": "stencil test --spec --e2e --watch",
-    "generate": "stencil generate"
+  "dependencies": {
+    "@capacitor/android": "^3.3.2",
+    "@capacitor/core": "^3.3.2",
+    "@capacitor/ios": "^3.3.2",
+    "@capacitor-community/http": "file:../",
+    "@ionic/react": "^6.0.0-rc.3",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
   },
   "devDependencies": {
-    "@capacitor/cli": "^3.0.0",
-    "@ionic/core": "^5.6.7",
-    "@stencil/core": "^2.5.2"
+    "@capacitor/cli": "^3.3.2",
+    "@types/node": "^12.0.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "react-scripts": "4.0.3",
+    "typescript": "^4.1.2"
   },
-  "dependencies": {
-    "@capacitor-community/http": "file:..",
-    "@capacitor/core": "^3.0.0"
+  "scripts": {
+    "start": "export PORT=8000 && react-scripts start",
+    "build": "export BUILD_PATH='./www' && react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }

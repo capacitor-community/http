@@ -130,7 +130,7 @@ public class Http extends Plugin {
     }
 
     @PluginMethod
-    public void downloadFile(PluginCall call) {
+    public void downloadFile(final PluginCall call) {
         try {
             bridge.saveCall(call);
             String fileDirectory = call.getString("fileDirectory", FilesystemUtils.DIRECTORY_DOCUMENTS);
@@ -141,18 +141,26 @@ public class Http extends Plugin {
             ) {
                 call.release(bridge);
 
-                HttpRequestHandler.ProgressEmitter emitter = (bytes, contentLength) -> {};
+                HttpRequestHandler.ProgressEmitter emitter = new HttpRequestHandler.ProgressEmitter() {
+                    @Override
+                    public void emit(Integer bytes, Integer contentLength) {
+                        // no-op
+                    }
+                };
                 Boolean progress = call.getBoolean("progress", false);
                 if (progress) {
                     emitter =
-                        (bytes, contentLength) -> {
-                            JSObject ret = new JSObject();
-                            ret.put("type", "DOWNLOAD");
-                            ret.put("url", call.getString("url"));
-                            ret.put("bytes", bytes);
-                            ret.put("contentLength", contentLength);
+                        new HttpRequestHandler.ProgressEmitter() {
+                            @Override
+                            public void emit(final Integer bytes, final Integer contentLength) {
+                                JSObject ret = new JSObject();
+                                ret.put("type", "DOWNLOAD");
+                                ret.put("url", call.getString("url"));
+                                ret.put("bytes", bytes);
+                                ret.put("contentLength", contentLength);
 
-                            notifyListeners("progress", ret);
+                                notifyListeners("progress", ret);
+                            }
                         };
                 }
 
@@ -259,6 +267,18 @@ public class Http extends Plugin {
 
     @PluginMethod
     public void clearCookies(PluginCall call) {
+        String url = getServerUrl(call);
+        if (!url.isEmpty()) {
+            HttpCookie[] cookies = cookieManager.getCookies(url);
+            for (HttpCookie cookie : cookies) {
+                cookieManager.setCookie(url, cookie.getName() + "=; Expires=Wed, 31 Dec 2000 23:59:59 GMT");
+            }
+            call.resolve();
+        }
+    }
+
+    @PluginMethod
+    public void clearAllCookies(PluginCall call) {
         cookieManager.removeAllCookies();
         call.resolve();
     }

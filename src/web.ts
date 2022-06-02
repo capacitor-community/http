@@ -68,7 +68,10 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
   /**
    * Gets all HttpCookies as a Map
    */
-  public getCookiesMap = async (): Promise<HttpCookieMap> => {
+  public getCookiesMap = async (
+    // @ts-ignore
+    options: HttpMultiCookiesOptions,
+  ): Promise<HttpCookieMap> => {
     const cookies = Cookie.getCookies();
     const output: HttpCookieMap = {};
 
@@ -126,6 +129,11 @@ export class HttpWeb extends WebPlugin implements HttpPlugin {
     // @ts-ignore
     options: HttpMultiCookiesOptions,
   ): Promise<void> => Cookie.clearCookies();
+
+  /**
+   * Clears out cookies by setting them to expire immediately
+   */
+  public clearAllCookies = async (): Promise<void> => Cookie.clearCookies();
 
   /**
    * Uploads a file through a POST request

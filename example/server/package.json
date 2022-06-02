@@ -1,20 +1,28 @@
 {
   "name": "example",
+  "type": "module",
   "private": true,
-  "version": "0.0.1",
-  "description": "Example server for @capacitor-community/http with express",
+  "version": "0.1.0",
+  "description": "Example server for @capacitor-community/http with Hapi.js",
   "main": "server.mjs",
   "scripts": {
-    "start": "node server.mjs"
+    "start": "node --experimental-specifier-resolution=node dist/server.js",
+    "build": "tsc",
+    "test": "uvu tests"
   },
-  "author": "Thomas Vidas <hello@thomasvidas.com>",
+  "author": "Thomas Vidas <thomas@ionic.io>",
   "license": "MIT",
   "dependencies": {
-    "body-parser": "^1.19.0",
-    "compression": "^1.7.4",
-    "cookie-parser": "^1.4.5",
-    "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "multer": "^1.4.2"
+    "@hapi/hapi": "^20.2.1",
+    "@hapi/inert": "^6.0.4",
+    "form-data": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/hapi__hapi": "^20.0.9",
+    "@types/hapi__inert": "^5.2.3",
+    "@types/node": "^16.11.7",
+    "axios": "^0.24.0",
+    "typescript": "^4.4.4",
+    "uvu": "^0.5.2"
   }
 }

@@ -104,6 +104,18 @@ import Foundation
             call.resolve()
         }
     }
+    
+    @objc func getCookiesMap(_ call: CAPPluginCall) {
+        let url = getServerUrl(call)
+        if url != nil {
+            let cookies = cookieManager!.getCookies(url!)
+            var cookiesMap: [String: String] = [:]
+            for cookie in cookies {
+                cookiesMap[cookie.name] = cookie.value
+            }
+            call.resolve(cookiesMap)
+        }
+    }
 
     @objc func getCookies(_ call: CAPPluginCall) {
         let url = getServerUrl(call)
@@ -154,9 +166,13 @@ import Foundation
     @objc func clearCookies(_ call: CAPPluginCall) {
         let url = getServerUrl(call)
         if url != nil {
-            let jar = HTTPCookieStorage.shared
-            jar.cookies(for: url!)?.forEach({ (cookie) in jar.deleteCookie(cookie) })
+            cookieManager!.clearCookies(url!)
             call.resolve()
         }
+    }
+    
+    @objc func clearAllCookies(_ call: CAPPluginCall) {
+        cookieManager!.clearAllCookies()
+        call.resolve()
     }
 }
