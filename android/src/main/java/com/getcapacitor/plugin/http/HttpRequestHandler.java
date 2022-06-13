@@ -486,6 +486,7 @@ public class HttpRequestHandler {
         JSObject headers = call.getObject("headers");
         JSObject params = call.getObject("params");
         JSObject data = call.getObject("data");
+        JSObject metadata = call.getObject("metadata");
         ResponseType responseType = ResponseType.parse(call.getString("responseType"));
 
         URL url = new URL(urlString);
@@ -505,7 +506,7 @@ public class HttpRequestHandler {
         connection.setDoOutput(true);
 
         FormUploader builder = new FormUploader(connection.getHttpConnection());
-        builder.addFilePart(name, file, data);
+        builder.addFilePart(name, file, data, metadata);
         builder.finish();
 
         return buildResponse(connection, responseType);

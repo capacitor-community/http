@@ -122,7 +122,7 @@ class HttpRequestHandler {
         return output
     }
 
-    private static func generateMultipartForm(_ url: URL, _ name: String, _ boundary: String, _ body: [String:Any]) throws -> Data {
+    private static func generateMultipartForm(_ url: URL, _ name: String, _ boundary: String, _ body: [String: Any], _ metadata: [String: Any]) throws -> Data {
         let strings: [String: String] = body.compactMapValues { any in
             any as? String
         }
@@ -137,6 +137,15 @@ class HttpRequestHandler {
         data.append(
           "Content-Disposition: form-data; name=\"\(name)\"; filename=\"\(fname)\"\r\n".data(
             using: .utf8)!)
+
+        if (metadata.count != 0) {
+            let jsonData = try JSONSerialization.data(withJSONObject: metadata, options: .prettyPrinted)
+            let jsonString = String(data: jsonData, encoding: String.Encoding.utf8) ?? ""
+            data.append("Content-Type: application/json; charset=UTF-8\r\n\r\n".data(using: .utf8)!)
+            data.append(jsonString.data(using: .utf8)!)
+            data.append("\r\n--\(boundary)\r\n".data(using: .utf8)!)
+        }
+
         data.append("Content-Type: \(mimeType)\r\n\r\n".data(using: .utf8)!)
         data.append(fileData)
         strings.forEach { key, value in
@@ -206,6 +215,7 @@ class HttpRequestHandler {
         let headers = (call.getObject("headers") ?? [:]) as! [String: String]
         let params = (call.getObject("params") ?? [:]) as! [String: Any]
         let body = (call.getObject("data") ?? [:]) as [String: Any]
+        let metadata = (call.getObject("metadata") ?? [:]) as [String: Any]
         let responseType = call.getString("responseType") ?? "text";
         let connectTimeout = call.getDouble("connectTimeout");
         let readTimeout = call.getDouble("readTimeout");
@@ -230,7 +240,7 @@ class HttpRequestHandler {
         let boundary = UUID().uuidString
         request.setContentType("multipart/form-data; boundary=\(boundary)");
 
-        guard let form = try? generateMultipartForm(fileUrl, name, boundary, body) else { throw URLError(.cannotCreateFile) }
+        guard let form = try? generateMultipartForm(fileUrl, name, boundary, body, metadata) else { throw URLError(.cannotCreateFile) }
 
         let urlRequest = request.getUrlRequest();
         let task = URLSession.shared.uploadTask(with: urlRequest, from: form) { (data, response, error) in
