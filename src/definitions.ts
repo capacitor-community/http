@@ -124,6 +124,10 @@ export interface HttpUploadFileOptions extends HttpOptions {
    * If this option is used, filePath can be a relative path rather than absolute
    */
   fileDirectory?: Directory;
+  /**
+   * Optionally, the metadata that come along with the file
+   */
+  metadata?: any;
 }
 
 export interface HttpCookie {

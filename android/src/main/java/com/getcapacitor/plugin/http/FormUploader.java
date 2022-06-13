@@ -96,7 +96,7 @@ public class FormUploader {
      * @param uploadFile a File to be uploaded
      * @throws IOException Thrown if unable to parse the OutputStream of the connection
      */
-    public void addFilePart(String fieldName, File uploadFile, JSObject data) throws IOException {
+    public void addFilePart(String fieldName, File uploadFile, JSObject data, JSObject metadata) throws IOException {
         String fileName = uploadFile.getName();
         prWriter
             .append(LINE_FEED)
@@ -108,9 +108,25 @@ public class FormUploader {
             .append("\"; filename=\"")
             .append(fileName)
             .append("\"")
-            .append(LINE_FEED)
+            .append(LINE_FEED);
+
+        if (metadata != null) {
+            prWriter
+                .append("Content-Type: application/json; charset=UTF-8")
+                .append(LINE_FEED)
+                .append(LINE_FEED)
+                .append(metadata.toString())
+                .append(LINE_FEED)
+                .append("--")
+                .append(boundary)
+                .append(LINE_FEED);
+        }
+
+        String contentType = URLConnection.guessContentTypeFromName(fileName);
+
+        prWriter
             .append("Content-Type: ")
-            .append(URLConnection.guessContentTypeFromName(fileName))
+            .append(contentType != null ? contentType : "application/octet-stream")
             .append(LINE_FEED)
             .append(LINE_FEED);
         prWriter.flush();
