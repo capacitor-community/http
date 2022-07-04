@@ -292,6 +292,7 @@ class HttpRequestHandler {
             do {
                 let dest = dir!.appendingPathComponent(filePath)
                 print("File Dest", dest.absoluteString)
+                try? fileManager.removeItem(at: dest)
 
                 try FilesystemUtils.createDirectoryForFile(dest, true)
 
