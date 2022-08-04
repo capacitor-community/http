@@ -463,6 +463,7 @@ public class HttpRequestHandler {
         return new JSObject() {
             {
                 put("path", file.getAbsolutePath());
+                put("headers", buildResponseHeaders((CapacitorHttpUrlConnection) connection));
             }
         };
     }
