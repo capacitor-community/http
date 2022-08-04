@@ -296,7 +296,10 @@ class HttpRequestHandler {
                 try FilesystemUtils.createDirectoryForFile(dest, true)
 
                 try fileManager.moveItem(at: location, to: dest)
-                call.resolve(["path": dest.absoluteString])
+                call.resolve(
+                    ["path": dest.absoluteString],
+                    ["headers": response.allHeaderFields]
+                )
             } catch let e {
                 call.reject("Unable to download file", "DOWNLOAD", e)
                 return
