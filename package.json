@@ -19,10 +19,10 @@
   "author": "Max Lynch <max@ionic.io>, Thomas Vidas <thomas@ionic.io>",
   "license": "MIT",
   "dependencies": {
-    "@capacitor/android": "^3.0.0",
-    "@capacitor/core": "^3.0.0",
-    "@capacitor/filesystem": "^1.0.0",
-    "@capacitor/ios": "^3.0.0"
+    "@capacitor/android": "^4.0.0",
+    "@capacitor/core": "^4.0.0",
+    "@capacitor/filesystem": "^4.0.0",
+    "@capacitor/ios": "^4.0.0"
   },
   "devDependencies": {
     "@ionic/prettier-config": "^1.0.1",
