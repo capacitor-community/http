@@ -189,6 +189,9 @@ class HttpRequestHandler {
         let task = urlSession.dataTask(with: urlRequest) { (data, response, error) in
             urlSession.invalidateAndCancel();
             if error != nil {
+                // Send plugin error to catch them
+                CAPLog.print("Error on request", String(describing: data), String(describing: response), String(describing: error))
+                call.reject("Error", "REQUEST", error, [:])
                 return
             }
 
